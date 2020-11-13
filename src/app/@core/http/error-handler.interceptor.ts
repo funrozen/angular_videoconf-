@@ -4,9 +4,9 @@ import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 import { environment } from '@env/environment';
-import { Logger } from '../logger.service';
+import { createLogger } from '@app/@core';
 
-const log = new Logger('ErrorHandlerInterceptor');
+const log = createLogger('ErrorHandlerInterceptor');
 
 /**
  * Adds a default error handler to all requests.

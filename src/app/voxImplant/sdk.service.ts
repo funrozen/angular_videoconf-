@@ -2,21 +2,31 @@ import { Injectable } from '@angular/core';
 import * as VoxImplant from 'voximplant-websdk';
 import { environment } from '@env/environment.prod';
 import { IAppCredentials } from '@app/interfaces/IAppCredentials';
-import { ClientState } from 'voximplant-websdk/Logger';
+import { DataBusMessageType, DataBusService, ErrorId, Route } from '@core/data-bus.service';
+import { IIDClass } from '@app/interfaces/IIDClass';
+import { createLogger } from '@core/logger.service';
+import { CallManager } from 'voximplant-websdk/Call/CallManager';
+import { CallManagerService } from '@app/voxImplant/call-manager.service';
+import { CurrentUserService } from '@core/current-user.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class SDKService {
+export class SDKService implements IIDClass {
+  readonly ID = 'SDKService';
   private isReconnecting: boolean;
   private reconnectedTimes: number = 0;
   private sdk: any;
-  constructor() {
+  private logger = createLogger(this.ID);
+  constructor(
+    private dataBusService: DataBusService,
+    private callManagerService: CallManagerService,
+    private currentUserService: CurrentUserService
+  ) {
     this.isReconnecting = false;
-
     this.sdk = VoxImplant.getInstance();
     this.sdk.on(VoxImplant.Events.ConnectionClosed, () => {
-      console.error('[WebSDk] Connection was closed');
+      this.logger.error('[WebSDk] Connection was closed');
       this.reconnect();
     });
   }
@@ -40,7 +50,7 @@ export class SDKService {
             queueType: VoxImplant.QueueTypes.SmartQueue,
           })
           .then((_: any) => {
-            console.warn('[WebSDk] Init completed');
+            this.logger.warn('[WebSDk] Init completed');
             resolve(_);
           })
           .catch(reject);
@@ -54,13 +64,13 @@ export class SDKService {
     this.sdk
       .connect(false)
       .then(() => {
-        console.warn('[WebSDk] Connection was established successfully');
+        this.logger.warn('[WebSDk] Connection was established successfully');
         this.signIn(isReconnect).then(() => {
           if (isReconnect) this.rejoinConf();
         });
       })
       .catch(() => {
-        console.error('[WebSDk] Connection failed');
+        this.logger.error('[WebSDk] Connection failed');
         this.reconnect();
       });
   }
@@ -71,14 +81,25 @@ export class SDKService {
       this.sdk
         .login(login, this.credentials.password)
         .then(() => {
-          console.warn('[WebSDk] Auth completed');
-          if (!isReconnect) LayerManager.show('conf__form');
+          this.logger.warn('[WebSDk] Auth completed');
+          if (!isReconnect) {
+            this.dataBusService.send({
+              type: DataBusMessageType.SignIn,
+              route: [Route.Inner],
+              sign: this.ID,
+              data: {},
+            });
+          }
           resolve();
         })
-        .catch((e) => {
-          LayerManager.show('conf__error');
-          errorMessage.appendChild(document.createTextNode('SDK Error'));
-          console.warn('[WebSDk] Wrong login or password');
+        .catch((e: any) => {
+          const errorDescription = '[WebSDk] Wrong login or password';
+          this.dataBusService.sendError({
+            id: ErrorId.SDKError,
+            description: errorDescription,
+            data: e,
+          });
+          this.logger.warn(errorDescription);
           reject(e);
         });
     });
@@ -86,7 +107,7 @@ export class SDKService {
 
   rejoinConf() {
     this.isReconnecting = false;
-    new CallManager(currentUser.getCallSettings());
+    this.callManagerService.init(this.currentUserService.getCallSettings(), this.sdk);
   }
 
   reconnect() {

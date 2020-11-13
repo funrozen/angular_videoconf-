@@ -25,6 +25,7 @@ export const environment: IEnvironment = {
   version: env.npm_package_version + '-dev',
   serverUrl: '/api',
   reconnectTimes: 5,
+  logLevel: 'verbose',
 };
 
 /*

@@ -1,30 +1,39 @@
-import { Component, OnInit } from '@angular/core';
-import { finalize } from 'rxjs/operators';
-
-import { QuoteService } from './quote.service';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { DataBusMessageType, DataBusService } from '@core/data-bus.service';
+import { filter } from 'rxjs/operators';
+import { untilDestroyed } from '@core';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
-export class HomeComponent implements OnInit {
-  quote: string | undefined;
+export class HomeComponent implements OnInit, OnDestroy {
+  private supportMessageTypes: DataBusMessageType[] = [
+    DataBusMessageType.HideInviteForm,
+    DataBusMessageType.ShowInviteForm,
+  ];
   isLoading = false;
-
-  constructor(private quoteService: QuoteService) {}
+  constructor(private dataBusService: DataBusService) {
+    this.dataBusService.inner$
+      .pipe(
+        filter((message) => this.supportMessageTypes.includes(message.type)),
+        untilDestroyed(this)
+      )
+      .subscribe((message) => {
+        switch (message.type) {
+          case DataBusMessageType.ShowInviteForm:
+            //inviteForm.classList.remove("hidden", "popup-view");
+            break;
+          case DataBusMessageType.HideInviteForm:
+            //inviteForm.classList.add("hidden", "popup-view");
+            break;
+        }
+      });
+  }
 
   ngOnInit() {
     this.isLoading = true;
-    this.quoteService
-      .getRandomQuote({ category: 'dev' })
-      .pipe(
-        finalize(() => {
-          this.isLoading = false;
-        })
-      )
-      .subscribe((quote: string) => {
-        this.quote = quote;
-      });
   }
+  ngOnDestroy() {}
 }

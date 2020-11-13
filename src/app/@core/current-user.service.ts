@@ -6,35 +6,89 @@ import { environment } from '@env/environment.prod';
   providedIn: 'root',
 })
 export class CurrentUserService {
-  private isConfOwner: boolean;
-  private serviceId: string;
-  private name: string;
-  private email: string;
-  private cameraStatus: number;
-  private microphoneEnabled: boolean;
-  private uuid: string;
+  get isConfOwner(): boolean {
+    return this._isConfOwner;
+  }
+
+  set isConfOwner(value: boolean) {
+    this._isConfOwner = value;
+  }
+
+  get email(): string {
+    return this._email;
+  }
+
+  set email(value: string) {
+    this._email = value;
+  }
+
+  get cameraStatus(): number {
+    return this._cameraStatus;
+  }
+
+  set cameraStatus(value: number) {
+    this._cameraStatus = value;
+  }
+
+  get microphoneEnabled(): boolean {
+    return this._microphoneEnabled;
+  }
+
+  set microphoneEnabled(value: boolean) {
+    this._microphoneEnabled = value;
+  }
+  get serviceId(): string {
+    return this._serviceId;
+  }
+
+  set serviceId(value: string) {
+    this._serviceId = value;
+  }
+  get uuid(): string {
+    return this._uuid;
+  }
+
+  set uuid(value: string) {
+    this._uuid = value;
+  }
+  private _isConfOwner: boolean;
+  private _serviceId: string;
+  private _name: string;
+  private _email: string;
+
+  get name(): string {
+    return this._name;
+  }
+
+  set name(value: string) {
+    this._name = value;
+  }
+
+  private _cameraStatus: number;
+  private _microphoneEnabled: boolean;
+  private _uuid: string;
 
   constructor() {
-    this.isConfOwner = this.isConferenceOwner();
-    this.serviceId = this.getServiceIdFromUrl(window.location);
+    this._isConfOwner = this.isConferenceOwner();
+    this._serviceId = this.getServiceIdFromUrl(window.location);
 
-    this.name = 'John Doe';
-    this.email = 'Email';
-    this.cameraStatus = 1;
-    this.microphoneEnabled = true;
-    this.uuid = HelperService.uuid();
+    this._name = 'John Doe';
+    this._email = 'Email';
+    this._cameraStatus = 1;
+    this._microphoneEnabled = true;
+    this._uuid = HelperService.uuid();
   }
 
   getCallSettings() {
     const config = {
-      number: `conf_${this.serviceId}`,
-      video: { sendVideo: this.cameraStatus === 1, receiveVideo: true },
+      number: `conf_${this._serviceId}`,
+      video: { sendVideo: this._cameraStatus === 1, receiveVideo: true },
       extraHeaders: {
-        'X-Display-Name': this.name,
-        'X-Email': this.email,
+        'X-Display-Name': this._name,
+        'X-Email': this._email,
       },
     };
-    if (environment.appConfig.sendUID) config.extraHeaders['X-UUID'] = this.uuid;
+    if (environment.appConfig.sendUID) config.extraHeaders['X-UUID'] = this._uuid;
     return config;
   }
 
@@ -48,12 +102,12 @@ export class CurrentUserService {
 
   setLocalStorage() {
     const userData = {
-      isConfOwner: this.isConfOwner,
-      name: this.name,
-      email: this.email,
-      cameraStatus: this.cameraStatus,
-      microphoneEnabled: this.microphoneEnabled,
-      uuid: this.uuid,
+      isConfOwner: this._isConfOwner,
+      name: this._name,
+      email: this._email,
+      cameraStatus: this._cameraStatus,
+      microphoneEnabled: this._microphoneEnabled,
+      uuid: this._uuid,
     };
 
     localStorage.user_data = JSON.stringify(userData);

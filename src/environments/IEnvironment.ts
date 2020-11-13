@@ -1,4 +1,5 @@
 import { IAppCredentials } from '@app/interfaces/IAppCredentials';
+import { IDebugLevels } from '@app/IDebugLevels';
 
 export interface IAppConfig {
   baseUrl: string;
@@ -20,4 +21,5 @@ export interface IEnvironment {
   serverUrl: string;
   // negative means infinity
   reconnectTimes: number;
+  logLevel: keyof IDebugLevels;
 }

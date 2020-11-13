@@ -1,111 +1,120 @@
-/**
- * Simple logger system with the possibility of registering custom outputs.
- *
- * 4 different log levels are provided, with corresponding methods:
- * - debug   : for debug information
- * - info    : for informative status of the application (success, ...)
- * - warning : for non-critical errors that do not prevent normal application behavior
- * - error   : for critical errors that prevent normal application behavior
- *
- * Example usage:
- * ```
- * import { Logger } from 'app/core/logger.service';
- *
- * const log = new Logger('myFile');
- * ...
- * log.debug('something happened');
- * ```
- *
- * To disable debug and info logs in production, add this snippet to your root component:
- * ```
- * export class AppComponent implements OnInit {
- *   ngOnInit() {
- *     if (environment.production) {
- *       Logger.enableProductionMode();
- *     }
- *     ...
- *   }
- * }
- *
- * If you want to process logs through other outputs than console, you can add LogOutput functions to Logger.outputs.
- */
+import { Subject } from 'rxjs';
+import { shortStringify } from '@core/jsonutils';
+import { environment } from '@env/environment';
+import { IDebugLevels } from '@app/IDebugLevels';
 
-/**
- * The possible log levels.
- * LogLevel.Off is never emitted and only used with Logger.level property to disable logs.
- */
-export enum LogLevel {
-  Off = 0,
-  Error,
-  Warning,
-  Info,
-  Debug,
+//TODO move to lib
+export type ILogCall = (...args: any[]) => void;
+
+const debugLevels: IDebugLevels = {
+  verbose: 5,
+  log: 4,
+  info: 3,
+  debug: 2,
+  warn: 1,
+  error: 0,
+};
+
+const debugLevelsStyle = {
+  verbose: 'color: #999',
+  log: 'color: #333',
+  info: 'color: #666',
+  debug: 'color: teal; font-weight: 700',
+  warn: 'color: orange',
+  error: 'color: #FF33300, ',
+};
+
+export interface ILogger {
+  // Identical to angular's definition
+  debug: ILogCall;
+  error: ILogCall;
+  info: ILogCall;
+  log: ILogCall;
+  warn: ILogCall;
+  // Our extensions
+  verbose: ILogCall;
 }
 
-/**
- * Log output handler function.
- */
-export type LogOutput = (source: string | undefined, level: LogLevel, ...objects: any[]) => void;
+const levelToConsoleMethod = {
+  verbose: 'info',
+  log: 'log',
+  info: 'info',
+  debug: 'log',
+  warn: 'warn',
+  error: 'error',
+};
 
-export class Logger {
-  /**
-   * Current logging level.
-   * Set it to LogLevel.Off to disable logs completely.
-   */
-  static level = LogLevel.Debug;
-
-  /**
-   * Additional log outputs.
-   */
-  static outputs: LogOutput[] = [];
-
-  /**
-   * Enables production mode.
-   * Sets logging level to LogLevel.Warning.
-   */
-  static enableProductionMode() {
-    Logger.level = LogLevel.Warning;
-  }
-
-  constructor(private source?: string) {}
-
-  /**
-   * Logs messages or objects  with the debug level.
-   * Works the same as console.log().
-   */
-  debug(...objects: any[]) {
-    this.log(console.log, LogLevel.Debug, objects);
-  }
-
-  /**
-   * Logs messages or objects  with the info level.
-   * Works the same as console.log().
-   */
-  info(...objects: any[]) {
-    this.log(console.info, LogLevel.Info, objects);
-  }
-
-  /**
-   * Logs messages or objects  with the warning level.
-   * Works the same as console.log().
-   */
-  warn(...objects: any[]) {
-    this.log(console.warn, LogLevel.Warning, objects);
-  }
-
-  /**
-   * Logs messages or objects  with the error level.
-   * Works the same as console.log().
-   */
-  error(...objects: any[]) {
-    this.log(console.error, LogLevel.Error, objects);
-  }
-
-  private log(func: (...args: any[]) => void, level: LogLevel, objects: any[]) {
-    if (level <= Logger.level) {
-      const log = this.source ? ['[' + this.source + ']'].concat(objects) : objects;
-      func.apply(console, log);
-      Logger.outputs.forEach((output) => output.apply(output, [this.source, level, ...objects]));
+const getColorByWordPRand = (word: string) => {
+  let color = '#';
+  let max = 6;
+  let getXX = function (index: number) {
+    let p = [];
+    let count = 0;
+    while (count < max) {
+      if (index >= word.length) {
+        index = 0;
+      }
+      p.push(word.charCodeAt(index));
+      count++;
+      index++;
     }
-  }
-}
+
+    let a = (p[2] * p[1] + p[1]) % 16;
+    if (a < 8) {
+      a += 8;
+    }
+    const b = (p[3] * p[4] + p[5]) % 16;
+    return a.toString(16) + b.toString(16);
+  };
+
+  color += getXX(0) + getXX(max) + getXX(max * 2);
+  return color;
+};
+
+const logging: Subject<string> = new Subject();
+
+export const logging$ = logging.asObservable();
+
+export const createLogger = (context: string): ILogger => {
+  const op = (level: string) => (...args: any[]) => {
+    let [originalMessage, ...tail] = args;
+    const timestamp = new Date().toISOString().replace('T', ' ').replace('Z', '');
+    const formattedMessage = `${timestamp} %c[${context}]%c ${originalMessage}`;
+    const method = levelToConsoleMethod[level];
+    if (method) {
+      console[method](
+        ...[formattedMessage, `background: ${getColorByWordPRand(context)}`, debugLevelsStyle[level], ...tail]
+      );
+    } else {
+      console.log('method ', method, ' not exits');
+    }
+
+    if (tail.length) {
+      tail = tail.reduce((item, currentValue) => {
+        if (typeof currentValue === 'object') {
+          return item + (item ? ' | ' : ' ') + shortStringify(currentValue);
+        } else if (currentValue !== undefined && currentValue !== null) {
+          return item + (item ? ' | ' : ' ') + (currentValue as any).toString();
+        } else {
+          return item;
+        }
+      }, '') as any;
+    }
+    logging.next(timestamp.concat(...[' ', `${method} [${context}] ${originalMessage}`, ...tail]));
+    args = null;
+  };
+
+  const getOpOrNoop = (level: string) =>
+    debugLevels[environment.logLevel] >= debugLevels[level] ? op(level) : () => {};
+
+  const loggerInstance = {
+    debug: getOpOrNoop('debug'),
+    error: getOpOrNoop('error'),
+    info: getOpOrNoop('info'),
+    log: getOpOrNoop('log'),
+    warn: getOpOrNoop('warn'),
+    verbose: getOpOrNoop('verbose'),
+  };
+
+  return loggerInstance;
+};

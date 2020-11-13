@@ -6,10 +6,10 @@ import { merge } from 'rxjs';
 import { filter, map, switchMap } from 'rxjs/operators';
 
 import { environment } from '@env/environment';
-import { Logger, untilDestroyed } from '@core';
+import { createLogger, untilDestroyed } from '@core';
 import { I18nService } from '@app/i18n';
 
-const log = new Logger('App');
+const log = createLogger('App');
 
 @Component({
   selector: 'app-root',
@@ -27,9 +27,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // Setup logger
-    if (environment.production) {
-      Logger.enableProductionMode();
-    }
 
     log.debug('init');
 

@@ -38,6 +38,7 @@ export const getEnvironmentBase = (appConfig: IAppConfig): IEnvironment => {
     serverUrl: '/',
     defaultLanguage: 'en-US',
     supportedLanguages: ['en-US'],
-    reconnectTimes: -1, // negative means infinity
+    reconnectTimes: -1, // negative means infinity,
+    logLevel: 'error',
   };
 };
