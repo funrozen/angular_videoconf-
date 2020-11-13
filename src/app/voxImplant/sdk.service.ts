@@ -113,16 +113,19 @@ export class SDKService implements IIDClass {
   reconnect() {
     if (!this.isReconnecting && this.isReconnectedAllowed()) {
       this.reconnectedTimes++;
-      while (errorMessage.firstChild) {
-        errorMessage.removeChild(errorMessage.lastChild);
-      }
-      errorMessage.appendChild(
-        document.createTextNode('Connection problem, reconnecting you to the conference, please wait…')
-      );
-      console.warn('[WebSDk] Start to reconnect');
-      this.isReconnecting = true;
-      LayerManager.show('conf__error');
-      CallManager.currentConf = null;
+
+      const errorDescription = '[WebSDk] Start to reconnect';
+
+      this.dataBusService.sendError({
+        id: ErrorId.ConnectionProblem,
+        description: errorDescription,
+        data: {
+          reconnection: true,
+        },
+      });
+      this.logger.warn(errorDescription);
+
+      this.callManagerService.destroyCurrentConf();
       this.sdk.showLocalVideo(false);
       if (VoxImplant.getInstance().getClientState() === VoxImplant.ClientState.LOGGING_IN) {
         this.rejoinConf();

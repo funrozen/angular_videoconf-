@@ -73,8 +73,16 @@ export class CallManagerService implements IIDClass {
     this.currentConf.off(VoxImplant.CallEvents.Connected);
     this.currentConf.off(VoxImplant.CallEvents.Disconnected);
     this.currentConf.off(VoxImplant.CallEvents.Failed);
+    this.currentConf.off(VoxImplant.CallEvents.MessageReceived);
     this.currentConf.off(VoxImplant.CallEvents.EndpointAdded);
     this.currentConf.hangup();
+  }
+
+  destroyCurrentConf() {
+    if (this.currentConf) {
+      this.disconnect();
+    }
+    this.currentConf = null;
   }
 
   bindCallCallbacks() {

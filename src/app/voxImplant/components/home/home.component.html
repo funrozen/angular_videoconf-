@@ -1,0 +1,4 @@
+<div class="conf__container">
+  <app-welcome *ngIf="!uiService.roomId">></app-welcome>
+  <app-info-form *ngIf="uiService.roomId"></app-info-form>
+</div>

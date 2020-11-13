@@ -13,6 +13,17 @@ export enum ErrorId {
   //           'You have connected to the conference in another browser tab or window.'
   //         )
   //       );
+  ConnectionProblem = 'Connection problem',
+  //
+  //   while (errorMessage.firstChild) {
+  //   errorMessage.removeChild(errorMessage.lastChild);
+  // }
+  // errorMessage.appendChild(
+  //   document.createTextNode('Connection problem, reconnecting you to the conference, please wait…')
+  // );
+  //
+  // this.isReconnecting = true;
+  // LayerManager.show('conf__error');
 }
 
 export interface IErrorMessage {

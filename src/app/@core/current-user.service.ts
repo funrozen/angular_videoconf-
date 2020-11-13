@@ -1,94 +1,122 @@
 import { Injectable } from '@angular/core';
 import { HelperService } from '@core/helper.service';
 import { environment } from '@env/environment.prod';
+import { hasOwnProperty } from 'tslint/lib/utils';
+
+interface IStorageUserData {
+  isConfOwner: boolean;
+  name: string;
+  email: string;
+  cameraStatus: number;
+  microphoneEnabled: boolean;
+  uuid: string;
+  serviceId: string;
+}
+
+type KeysEnum<T> = { [P in keyof Required<T>]: true };
+const StorageUserDataKeys: KeysEnum<IStorageUserData> = {
+  isConfOwner: true,
+  name: true,
+  email: true,
+  cameraStatus: true,
+  microphoneEnabled: true,
+  uuid: true,
+  serviceId: true,
+};
 
 @Injectable({
   providedIn: 'root',
 })
 export class CurrentUserService {
   get isConfOwner(): boolean {
-    return this._isConfOwner;
+    return this.getLocalStorageValue('isConfOwner');
   }
 
   set isConfOwner(value: boolean) {
-    this._isConfOwner = value;
+    this.setLocalStorageValue('isConfOwner', value);
   }
 
   get email(): string {
-    return this._email;
+    return this.getLocalStorageValue('email');
   }
 
   set email(value: string) {
-    this._email = value;
+    this.setLocalStorageValue('email', value);
   }
 
   get cameraStatus(): number {
-    return this._cameraStatus;
+    return this.getLocalStorageValue('cameraStatus');
   }
 
   set cameraStatus(value: number) {
-    this._cameraStatus = value;
+    this.setLocalStorageValue('cameraStatus', value);
   }
 
   get microphoneEnabled(): boolean {
-    return this._microphoneEnabled;
+    return this.getLocalStorageValue('microphoneEnabled');
   }
 
   set microphoneEnabled(value: boolean) {
-    this._microphoneEnabled = value;
+    this.setLocalStorageValue('microphoneEnabled', value);
   }
   get serviceId(): string {
-    return this._serviceId;
+    return this.getLocalStorageValue('serviceId');
   }
 
   set serviceId(value: string) {
-    this._serviceId = value;
+    this.setLocalStorageValue('serviceId', value);
   }
   get uuid(): string {
-    return this._uuid;
+    return this.getLocalStorageValue('uuid');
   }
 
   set uuid(value: string) {
-    this._uuid = value;
+    this.setLocalStorageValue('uuid', value);
   }
-  private _isConfOwner: boolean;
-  private _serviceId: string;
-  private _name: string;
-  private _email: string;
 
   get name(): string {
-    return this._name;
+    return this.getLocalStorageValue('name');
   }
 
   set name(value: string) {
-    this._name = value;
+    this.setLocalStorageValue('name', value);
   }
 
-  private _cameraStatus: number;
-  private _microphoneEnabled: boolean;
-  private _uuid: string;
+  private setLocalStorageValue(key: keyof IStorageUserData, value: any) {
+    let data: any = this.getLocalStorage();
+    if (data === null) {
+      data = {};
+    }
+    data[key] = value;
+    localStorage.setItem('user_data', JSON.stringify(data));
+  }
+
+  private getLocalStorageValue(key: keyof IStorageUserData): any {
+    let data: any = this.getLocalStorage();
+    if (data === null) {
+      return undefined;
+    }
+    return data[key];
+  }
 
   constructor() {
-    this._isConfOwner = this.isConferenceOwner();
-    this._serviceId = this.getServiceIdFromUrl(window.location);
-
-    this._name = 'John Doe';
-    this._email = 'Email';
-    this._cameraStatus = 1;
-    this._microphoneEnabled = true;
-    this._uuid = HelperService.uuid();
+    this.isConfOwner = this.isConferenceOwner();
+    this.serviceId = this.getServiceIdFromUrl(window.location);
+    this.cameraStatus = 1;
+    this.microphoneEnabled = true;
+    this.uuid = HelperService.uuid();
   }
 
   getCallSettings() {
     const config = {
-      number: `conf_${this._serviceId}`,
-      video: { sendVideo: this._cameraStatus === 1, receiveVideo: true },
+      number: `conf_${this.serviceId}`,
+      video: { sendVideo: this.cameraStatus === 1, receiveVideo: true },
       extraHeaders: {
-        'X-Display-Name': this._name,
-        'X-Email': this._email,
+        'X-Display-Name': this.name,
+        'X-Email': this.email,
       },
     };
-    if (environment.appConfig.sendUID) config.extraHeaders['X-UUID'] = this._uuid;
+    if (environment.appConfig.sendUID) config.extraHeaders['X-UUID'] = this.uuid;
     return config;
   }
 
@@ -100,20 +128,7 @@ export class CurrentUserService {
     return environment.appConfig.getServiceIdFromUrl(url);
   }
 
-  setLocalStorage() {
-    const userData = {
-      isConfOwner: this._isConfOwner,
-      name: this._name,
-      email: this._email,
-      cameraStatus: this._cameraStatus,
-      microphoneEnabled: this._microphoneEnabled,
-      uuid: this._uuid,
-    };
-
-    localStorage.user_data = JSON.stringify(userData);
-  }
-
-  getLocalStorage() {
+  getLocalStorage(): IStorageUserData {
     return localStorage.getItem('user_data') ? JSON.parse(localStorage.user_data) : null;
   }
 }

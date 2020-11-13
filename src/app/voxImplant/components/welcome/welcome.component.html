@@ -51,7 +51,7 @@
   </div>
 
   <div class="conf__welcome-btn">
-    <button class="button js__start-btn" type="submit">
+    <button class="button js__start-btn" (click)="uiService.onWelcome($event)">
       <span>try the demo</span>
       <div class="spinner"></div>
     </button>
