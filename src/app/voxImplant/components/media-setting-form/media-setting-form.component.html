@@ -48,7 +48,6 @@
           class="conf__form-settings-icon conf__form-settings-icon--camera js__settings-camera-flag"
         ></button>
         <button
-          #settingsMicrophoneFlag
           (click)="toggleMicrophone()"
           [ngClass]="{ 'option--off': !isMicEnabled }"
           class="conf__form-settings-icon conf__form-settings-icon--micro js__settings-microphone-flag"
@@ -56,20 +55,14 @@
       </div>
     </div>
     <form class="js__settings-form" [formGroup]="settingForm">
-      <div class="conf__form-row conf__form-row_camera" #formRowCamera>
+      <div class="conf__form-row conf__form-row_camera">
         <label for="cameraSettings">Camera</label>
 
-        <div id="selectCamera" class="conf__form-select customselect" #selectCamera [class.open]="isCameraOpen">
-          <button
-            id="cameraSettingsButton"
-            type="button"
-            class="select"
-            #cameraSettingsButton
-            (click)="onCameraSettingButton($event)"
-          >
+        <div id="selectCamera" class="conf__form-select customselect" [class.open]="isCameraOpen">
+          <button id="cameraSettingsButton" type="button" class="select" (click)="onCameraSettingButton($event)">
             {{ currentCamera }}
           </button>
-          <ul id="cameraSettings" #cameraSetting>
+          <ul id="cameraSettings">
             <li
               *ngFor="let item of cameraItems"
               (click)="changeCamera(item.id)"
@@ -88,14 +81,13 @@
             (click)="onMicrophoneSettingButton($event)"
             type="button"
             class="select"
-            #microphoneSettingsButton
           >
             {{ currentMicrophone }}
           </button>
           <div class="mic__level">
-            <div class="mic__level-value"></div>
+            <div class="mic__level-value" #micLevelValue></div>
           </div>
-          <ul id="microphoneSettings" #microphoneSettings>
+          <ul id="microphoneSettings">
             <li
               *ngFor="let item of microphoneItems"
               (click)="changeMicrophone(item.id)"
@@ -110,16 +102,10 @@
       <div class="conf__form-row">
         <label for="speakersSettings">Speakers</label>
         <div id="selectSpeakers" class="conf__form-select customselect" [class.open]="isSpeakerOpen">
-          <button
-            id="speakersSettingsButton"
-            type="button"
-            (click)="onSpeakerSettingButton($event)"
-            class="select"
-            #speakersSettingsButton
-          >
+          <button id="speakersSettingsButton" type="button" (click)="onSpeakerSettingButton($event)" class="select">
             {{ currentSpeaker }}
           </button>
-          <ul id="speakersSettings" #speakersSettings>
+          <ul id="speakersSettings">
             <li
               *ngFor="let item of speakerItems"
               (click)="changeSpeakers(item.id)"

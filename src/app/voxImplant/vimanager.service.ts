@@ -33,12 +33,13 @@ export class VIManagerService implements IIDClass {
   };
 
   //this.audioMeterHtmlElement = document.querySelector('.mic__level-value');
-  setAudioMeterHTMLElement(el: HTMLElement) {
+  initAudioMeter(el: HTMLElement) {
     this.audioMeterHtmlElement = el;
+    this.prepareAudioNodes(this.localStream);
   }
 
   getLocalMedia() {
-    //this.getStoredCameraAndMic();
+    this.getStoredCameraAndMic();
     return new Promise<IMediaPermission>((resolve, reject) => {
       const constraints: any = {
         audio: true,
@@ -56,13 +57,9 @@ export class VIManagerService implements IIDClass {
         .getUserMedia(constraints)
         .then((stream) => {
           this.localStream = stream;
-          //TODO fix selector
-          // this.prepareAudioNodes(stream).then(
-          //   () => {
+
           this.permissions = <IMediaPermission>{ video: true, audio: true };
           resolve(this.permissions);
-          //   }
-          // );
         })
         .catch(() => {
           constraints.video = false;
@@ -70,11 +67,8 @@ export class VIManagerService implements IIDClass {
             .getUserMedia(constraints)
             .then((stream) => {
               this.localStream = stream;
-
-              this.prepareAudioNodes(stream).then(() => {
-                this.permissions = <IMediaPermission>{ video: false, audio: true };
-                resolve(this.permissions);
-              });
+              this.permissions = <IMediaPermission>{ video: false, audio: true };
+              resolve(this.permissions);
             })
             .catch(reject);
         });
@@ -123,9 +117,7 @@ export class VIManagerService implements IIDClass {
             this.micNode.disconnect(this.audioLevelNode);
             this.micNode = this.audioContext.createMediaStreamSource(new MediaStream(stream.getAudioTracks()));
             this.micNode.connect(this.audioLevelNode);
-          } catch (e) {
-            //TODO init micNode !!!
-          }
+          } catch (e) {}
           resolve(stream);
         })
         .catch(reject);
@@ -181,9 +173,12 @@ export class VIManagerService implements IIDClass {
   prepareAudioNodes = async (stream: MediaStream) => {
     if (this.detectAudioWorklet()) {
       this.audioContext = new AudioContext();
+
       await this.audioContext.audioWorklet.addModule(
-        environment.appConfig.baseUrl + 'js/audio_worklets/audio-level-processor.js'
+        '/assets/audio-level-processor.js'
+        //environment.appConfig.baseUrl + 'js/audio_worklets/audio-level-processor.js'
       );
+
       this.audioLevelNode = new AudioWorkletNode(this.audioContext, 'audio-level-processor');
       this.audioLevelNode.port.onmessage = (event: any) => {
         if (this.audioMeterHtmlElement) {
@@ -195,6 +190,19 @@ export class VIManagerService implements IIDClass {
       this.audioLevelNode.connect(this.audioContext.destination);
     }
   };
+
+  private audioSource: MediaStreamAudioSourceNode;
+  private audioAnalyser?: AnalyserNode;
+  private audioworkletNode: AudioWorkletNode;
+
+  private createAudioContext(stream: MediaStream): AudioContext | undefined {
+    const audioContext = new ((<any>window).AudioContext || (<any>window).webkitAudioContext)() as AudioContext;
+    this.audioSource = audioContext.createMediaStreamSource(stream);
+    this.audioAnalyser = audioContext.createAnalyser();
+    this.audioSource.connect(this.audioAnalyser);
+    this.audioSource.connect(audioContext.destination);
+    return audioContext;
+  }
 
   private refreshCamera(): Promise<MediaStream> {
     return new Promise<MediaStream>((resolve, reject) => {

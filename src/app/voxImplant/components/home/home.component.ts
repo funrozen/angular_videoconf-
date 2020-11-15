@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { DataBusMessageType, DataBusService } from '@core/data-bus.service';
 import { filter } from 'rxjs/operators';
 import { untilDestroyed } from '@core';

@@ -32,7 +32,21 @@ import {
 })
 export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClass {
   readonly ID = 'MediaSettingFormComponent';
+  settingForm: FormGroup;
+  @ViewChild('videoContainer') videoContainer: ElementRef;
+  @ViewChild('micLevelValue') micLevelValue: ElementRef;
+  public cameraItems: { id: number | string; name: string }[] = [];
+  public currentCamera = 'Choose';
+  public isCameraOpen = false;
+  public microphoneItems: { id: number | string; name: string }[] = [];
+  public currentMicrophone = 'Choose';
+  public isMicrophoneOpen = false;
+  public speakerItems: { id: number | string; name: string }[] = [];
+  public currentSpeaker = 'Choose';
+  public isSpeakerOpen = false;
   private logger = createLogger(this.ID);
+  private localVideoElement: HTMLVideoElement;
+
   constructor(
     private viManagerService: VIManagerService,
     private renderer: Renderer2,
@@ -40,26 +54,21 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
     private dataBusService: DataBusService,
     private changeDetector: ChangeDetectorRef
   ) {}
-  settingForm: FormGroup;
 
-  @ViewChild('videoContainer') videoContainer: ElementRef;
-  @ViewChild('settingsMicrophoneFlag') settingsMicrophoneFlag: ElementRef;
-  @ViewChild('cameraSetting') cameraSetting: ElementRef;
-  @ViewChild('selectCamera') selectCamera: ElementRef;
-  @ViewChild('cameraSettingsButton') cameraSettingsButton: ElementRef;
-  @ViewChild('microphoneSettings') microphoneSettings: ElementRef;
-  @ViewChild('formRowCamera') formRowCamera: ElementRef;
-  @ViewChild('microphoneSettingsButton') microphoneSettingsButton: ElementRef;
-  @ViewChild('speakersSettings') speakersSettings: ElementRef;
-  @ViewChild('speakersSettingsButton') speakersSettingsButton: ElementRef;
+  get isMicEnabled() {
+    return this.currentUserService.microphoneEnabled;
+  }
 
-  private localVideoElement: HTMLVideoElement;
+  get isCameraEnabled(): boolean {
+    return this.currentUserService.cameraStatus;
+  }
 
   ngOnInit() {
     this.settingForm = new FormGroup({});
   }
 
   ngAfterViewInit(): void {
+    this.viManagerService.initAudioMeter(this.micLevelValue.nativeElement);
     if (this.viManagerService.permissions.video) {
       this.localVideoElement = document.createElement('video');
       this.localVideoElement.setAttribute('muted', 'muted');
@@ -69,47 +78,11 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
 
       this.updateLocalVideoSrc();
     } else {
-      this.renderer.addClass(this.settingsMicrophoneFlag.nativeElement, 'option--off');
-
       this.currentUserService.cameraStatus = false;
     }
     this.getSettings();
   }
 
-  private updateLocalVideoSrc() {
-    this.localVideoElement.srcObject = new MediaStream(this.viManagerService.localStream.getVideoTracks());
-    if (this.viManagerService.permissions.video !== false && this.currentUserService.cameraStatus) {
-      this.localVideoElement.play().catch(this.logger.error);
-    }
-  }
-
-  private getSettings() {
-    this.getCameraSettings();
-    this.getMicrophoneSettings();
-    this.getSpeakersSettings();
-    this.updateUserStatus();
-  }
-
-  private getCameraSettings() {
-    VoxImplant.Hardware.CameraManager.get()
-      .getInputDevices()
-      .then((devices: VideoSourceInfo[]) => {
-        this.cameraItems = [];
-        if (devices.length === 0) {
-          this.currentCamera = 'No available microphone';
-        } else if (devices.length === 1) {
-          this.currentCamera = devices[0].name;
-        } else {
-          this.currentCamera = this.viManagerService.getMicName().toString();
-          devices.forEach((device: VideoSourceInfo) => {
-            this.cameraItems.push({ id: device.id, name: device.name });
-          });
-        }
-      });
-  }
-  public cameraItems: { id: number | string; name: string }[] = [];
-  public currentCamera = 'Choose';
-  public isCameraOpen = false;
   onCameraSettingButton($event: MouseEvent) {
     if (this.cameraItems.length > 0) {
       this.isCameraOpen = !this.isCameraOpen;
@@ -124,33 +97,14 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
         this.localVideoElement.play();
       })
       .catch((e) => {
-        setTimeout(() => this.changeCamera(), 0);
+        //setTimeout(() => this.changeCamera(), 0);
       });
   }
 
-  private getMicrophoneSettings() {
-    VoxImplant.Hardware.AudioDeviceManager.get()
-      .getInputDevices()
-      .then((devices: AudioSourceInfo[]) => {
-        this.microphoneItems = [];
-        if (devices.length === 0) {
-          this.currentMicrophone = 'No available microphone';
-        } else if (devices.length === 1) {
-          this.currentMicrophone = devices[0].name;
-        } else {
-          this.currentMicrophone = this.viManagerService.getMicName().toString();
-          devices.forEach((device: AudioSourceInfo) => {
-            this.microphoneItems.push({ id: device.id, name: device.name });
-          });
-        }
-      });
-  }
-  public microphoneItems: { id: number | string; name: string }[] = [];
-  public currentMicrophone = 'Choose';
-  public isMicrophoneOpen = false;
   onMicrophoneSettingButton($event: MouseEvent) {
     this.isMicrophoneOpen = !this.isMicrophoneOpen;
   }
+
   public changeMicrophone(newMic?: number | string) {
     this.viManagerService
       .changeLocalMic(newMic)
@@ -169,27 +123,6 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
       });
   }
 
-  private getSpeakersSettings() {
-    VoxImplant.Hardware.AudioDeviceManager.get()
-      .getOutputDevices()
-      .then((devices: AudioOutputInfo[]) => {
-        this.speakerItems = [];
-        if (devices.length === 0) {
-          this.currentSpeaker = 'No available microphone';
-        } else if (devices.length === 1) {
-          this.currentSpeaker = devices[0].name;
-        } else {
-          this.currentSpeaker = this.viManagerService.getMicName().toString();
-          devices.forEach((device: AudioOutputInfo) => {
-            this.speakerItems.push({ id: device.id, name: device.name });
-          });
-        }
-      });
-  }
-
-  public speakerItems: { id: number | string; name: string }[] = [];
-  public currentSpeaker = 'Choose';
-  public isSpeakerOpen = false;
   onSpeakerSettingButton($event: MouseEvent) {
     if (this.speakerItems.length > 0) {
       this.isSpeakerOpen = !this.isSpeakerOpen;
@@ -227,10 +160,6 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
     });
   }
 
-  get isMicEnabled() {
-    return this.currentUserService.microphoneEnabled;
-  }
-
   toggleLocalVideo() {
     this.dataBusService.send(<IToggleLocalCameraMessage>{
       type: DataBusMessageType.CameraToggle,
@@ -245,7 +174,72 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
       this.updateLocalVideoSrc();
     }, 100);
   }
-  get isCameraEnabled(): boolean {
-    return this.currentUserService.cameraStatus;
+
+  private updateLocalVideoSrc() {
+    this.localVideoElement.srcObject = new MediaStream(this.viManagerService.localStream.getVideoTracks());
+    if (this.viManagerService.permissions.video !== false && this.currentUserService.cameraStatus) {
+      this.localVideoElement.play().catch(this.logger.error);
+    }
+  }
+
+  private getSettings() {
+    this.getCameraSettings();
+    this.getMicrophoneSettings();
+    this.getSpeakersSettings();
+    this.updateUserStatus();
+  }
+
+  private getCameraSettings() {
+    VoxImplant.Hardware.CameraManager.get()
+      .getInputDevices()
+      .then((devices: VideoSourceInfo[]) => {
+        this.cameraItems = [];
+        if (devices.length === 0) {
+          this.currentCamera = 'No available microphone';
+        } else if (devices.length === 1) {
+          this.currentCamera = devices[0].name;
+        } else {
+          this.currentCamera = this.viManagerService.getMicName().toString();
+          devices.forEach((device: VideoSourceInfo) => {
+            this.cameraItems.push({ id: device.id, name: device.name });
+          });
+        }
+      });
+  }
+
+  private getMicrophoneSettings() {
+    VoxImplant.Hardware.AudioDeviceManager.get()
+      .getInputDevices()
+      .then((devices: AudioSourceInfo[]) => {
+        this.microphoneItems = [];
+        if (devices.length === 0) {
+          this.currentMicrophone = 'No available microphone';
+        } else if (devices.length === 1) {
+          this.currentMicrophone = devices[0].name;
+        } else {
+          this.currentMicrophone = this.viManagerService.getMicName().toString();
+          devices.forEach((device: AudioSourceInfo) => {
+            this.microphoneItems.push({ id: device.id, name: device.name });
+          });
+        }
+      });
+  }
+
+  private getSpeakersSettings() {
+    VoxImplant.Hardware.AudioDeviceManager.get()
+      .getOutputDevices()
+      .then((devices: AudioOutputInfo[]) => {
+        this.speakerItems = [];
+        if (devices.length === 0) {
+          this.currentSpeaker = 'No available microphone';
+        } else if (devices.length === 1) {
+          this.currentSpeaker = devices[0].name;
+        } else {
+          this.currentSpeaker = this.viManagerService.getMicName().toString();
+          devices.forEach((device: AudioOutputInfo) => {
+            this.speakerItems.push({ id: device.id, name: device.name });
+          });
+        }
+      });
   }
 }

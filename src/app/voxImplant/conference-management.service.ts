@@ -58,7 +58,7 @@ export class ConferenceManagementService implements IIDClass {
               (this.vimanagerService.enableLocalCam(this.currentUserService.cameraStatus) as Promise<any>)
                 .then((e: any) => {
                   //this.currentUserService.cameraStatus = !this.currentUserService.cameraStatus;
-                  //TODO switch camera off in a service
+                  //TODO switch camera status here instead few rows above
                 })
                 .catch(() => {
                   this.logger.warn("Can't change the camera state");

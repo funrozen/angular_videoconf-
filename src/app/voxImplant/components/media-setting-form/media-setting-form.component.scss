@@ -143,6 +143,22 @@
   margin-top: 0;
 }
 
+.mic__level {
+  position: absolute;
+  width: 100%;
+  height: 31px;
+  border-radius: 4px;
+  top: 0;
+  overflow: hidden;
+}
+.mic__level-value {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 32px;
+  background: #00dc7d;
+}
+
 @media (max-width: 375px) {
   .conf__form-wrap {
     width: 100%;
