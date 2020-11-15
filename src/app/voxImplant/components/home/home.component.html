@@ -1,4 +1,8 @@
 <div class="conf__container">
-  <app-welcome *ngIf="!uiService.roomId">></app-welcome>
-  <app-info-form *ngIf="uiService.roomId"></app-info-form>
+  <app-welcome *ngIf="uiService.state === states.needRoomId"></app-welcome>
+  <app-info-form *ngIf="uiService.state === states.needInfo"></app-info-form>
+  <app-camera-allow-access *ngIf="uiService.state === states.needAccessAllow"></app-camera-allow-access>
+  <app-browser-is-not-supported *ngIf="uiService.state === states.browserIsSupported"></app-browser-is-not-supported>
+  <app-media-setting-form *ngIf="uiService.state === states.needMediaSetting"></app-media-setting-form>
+  <app-media-allow-notify *ngIf="uiService.state === states.mediaAccessError"></app-media-allow-notify>
 </div>

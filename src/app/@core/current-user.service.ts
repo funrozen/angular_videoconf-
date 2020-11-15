@@ -7,7 +7,7 @@ interface IStorageUserData {
   isConfOwner: boolean;
   name: string;
   email: string;
-  cameraStatus: number;
+  cameraStatus: boolean;
   microphoneEnabled: boolean;
   uuid: string;
   serviceId: string;
@@ -44,11 +44,11 @@ export class CurrentUserService {
     this.setLocalStorageValue('email', value);
   }
 
-  get cameraStatus(): number {
+  get cameraStatus(): boolean {
     return this.getLocalStorageValue('cameraStatus');
   }
 
-  set cameraStatus(value: number) {
+  set cameraStatus(value: boolean) {
     this.setLocalStorageValue('cameraStatus', value);
   }
 
@@ -102,7 +102,7 @@ export class CurrentUserService {
   constructor() {
     this.isConfOwner = this.isConferenceOwner();
     this.serviceId = this.getServiceIdFromUrl(window.location);
-    this.cameraStatus = 1;
+    this.cameraStatus = true;
     this.microphoneEnabled = true;
     this.uuid = HelperService.uuid();
   }
@@ -110,7 +110,7 @@ export class CurrentUserService {
   getCallSettings() {
     const config = {
       number: `conf_${this.serviceId}`,
-      video: { sendVideo: this.cameraStatus === 1, receiveVideo: true },
+      video: { sendVideo: this.cameraStatus, receiveVideo: true },
       extraHeaders: {
         'X-Display-Name': this.name,
         'X-Email': this.email,

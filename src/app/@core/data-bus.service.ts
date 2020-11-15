@@ -24,6 +24,7 @@ export enum ErrorId {
   //
   // this.isReconnecting = true;
   // LayerManager.show('conf__error');
+  BrowserIsNotSupported = 'BrowserIsNotSupported',
 }
 
 export interface IErrorMessage {
@@ -67,11 +68,11 @@ export enum DataBusMessageType {
   //     LayerManager.show('conf__video-section-wrapper');
 
   CameraToggle = 'CameraToggle', // toggle camera -  this.callInterface.cameraToggle('', 'hide');
-  MuteToggle = 'MuteToggle', // toggle microphone  - this.callInterface.muteToggle('', 'mute');
+  MicToggle = 'MicToggle', // toggle microphone  - this.callInterface.muteToggle('', 'mute');
   ReConnect = 'ReConnect', // invoke reconnect sdk
   JoinToChat = 'JoinToChat', //
   ChatMessage = 'ChatMessage', //send message to render
-  Participants = 'Participants', //send participants to render data:IEndpointParticipantData
+  Participants = 'Participants', //send participants to render data:IEndpointParticipantMessage
   EndpointAdded = 'EndpointAdded', // on Endpoint added
   EndpointRemoved = 'EndpointRemoved', // on Endpoint removed
   RemoteMediaAdded = 'RemoteMediaAdded', // on RemoteMedia added
@@ -89,13 +90,28 @@ export interface IDataBusMessage {
   data: any;
 }
 
-export interface IEndpointParticipantData extends IDataBusMessage {
+export interface IEndpointParticipantMessage extends IDataBusMessage {
   type: DataBusMessageType.Participants;
   route: [Route.Inner];
   data: {
     id: string;
     displayName: string;
   }[];
+}
+
+export interface IToggleLocalMicMessage extends IDataBusMessage {
+  type: DataBusMessageType.MicToggle;
+  route: [Route.Inner];
+  data: {
+    status: 'mute' | 'unmute';
+  };
+}
+export interface IToggleLocalCameraMessage extends IDataBusMessage {
+  type: DataBusMessageType.CameraToggle;
+  route: [Route.Inner];
+  data: {
+    status: 'hide' | 'show';
+  };
 }
 
 export interface IEndpointMessage extends IDataBusMessage {

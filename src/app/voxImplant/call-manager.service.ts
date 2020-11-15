@@ -4,7 +4,7 @@ import {
   DataBusService,
   ErrorId,
   IEndpointMessage,
-  IEndpointParticipantData,
+  IEndpointParticipantMessage,
   Route,
 } from '@core/data-bus.service';
 import * as VoxImplant from 'voximplant-websdk';
@@ -117,7 +117,7 @@ export class CallManagerService implements IIDClass {
   }
 
   private checkAndSwitchCameraOff() {
-    if (this.currentUserService.cameraStatus !== 1) {
+    if (this.currentUserService.cameraStatus !== true) {
       //TODO make interface for the message
       this.dataBusService.send({
         type: DataBusMessageType.CameraToggle,
@@ -134,7 +134,7 @@ export class CallManagerService implements IIDClass {
     if (!this.currentUserService.microphoneEnabled) {
       //TODO make interface for the message
       this.dataBusService.send({
-        type: DataBusMessageType.MuteToggle,
+        type: DataBusMessageType.MicToggle,
         data: {
           status: 'mute',
         },
@@ -197,7 +197,7 @@ export class CallManagerService implements IIDClass {
       data: data,
       route: [Route.Inner],
       type: DataBusMessageType.Participants,
-    } as IEndpointParticipantData);
+    } as IEndpointParticipantMessage);
   }
 
   onEndpointAdded(e: any) {

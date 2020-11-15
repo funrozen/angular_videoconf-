@@ -3,6 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { IIDClass } from '@app/interfaces/IIDClass';
 import { createLogger } from '@core';
 import { CurrentUserService } from '@core/current-user.service';
+import { UIService } from '@app/voxImplant/ui.service';
 
 @Component({
   selector: 'app-info-form',
@@ -11,22 +12,21 @@ import { CurrentUserService } from '@core/current-user.service';
 })
 export class InfoFormComponent implements OnInit, IIDClass {
   readonly ID = 'InfoFormComponent';
-  logger = createLogger(this.ID);
-  myForm: FormGroup;
-  constructor(private userService: CurrentUserService) {}
+  private logger = createLogger(this.ID);
+  infoForm: FormGroup;
+  constructor(private userService: CurrentUserService, private uiService: UIService) {}
 
   ngOnInit(): void {
-    this.myForm = new FormGroup({
+    this.infoForm = new FormGroup({
       userName: new FormControl(this.userService.name, Validators.required),
       userEmail: new FormControl(this.userService.email, [Validators.required, Validators.email]),
       serviceId: new FormControl(this.userService.serviceId, [Validators.required, Validators.pattern('[0-9]{5,10}')]),
     });
   }
 
-  submit() {
-    this.logger.info('form', { myForm: this.myForm });
-    this.userService.serviceId = this.myForm.value.serviceId;
-    this.userService.email = this.myForm.value.userEmail;
-    this.userService.name = this.myForm.value.userName;
+  submit(event: Event) {
+    event.preventDefault();
+    this.logger.info('form', { myForm: this.infoForm });
+    this.uiService.onJoin(this.infoForm.value.serviceId, this.infoForm.value.userEmail, this.infoForm.value.userName);
   }
 }

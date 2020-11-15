@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { DataBusMessageType, DataBusService, IEndpointParticipantData } from '@core/data-bus.service';
+import { DataBusMessageType, DataBusService, IEndpointParticipantMessage } from '@core/data-bus.service';
 import { filter } from 'rxjs/operators';
 import { untilDestroyed } from '@core';
 
@@ -17,7 +17,7 @@ export class ParticipantsListComponent implements OnInit, OnDestroy {
         untilDestroyed(this)
       )
       .subscribe((message) => {
-        let endpoint = (message as IEndpointParticipantData).data;
+        let endpoint = (message as IEndpointParticipantMessage).data;
         // const sidebar = document.querySelector(".conf__sidebar-participants-list");
         //       while (sidebar.firstChild) {
         //         sidebar.removeChild(sidebar.firstChild);

@@ -11,8 +11,24 @@ import { ParticipantsListComponent } from '@app/voxImplant/components/participan
 import { VideoWallComponent } from '@app/voxImplant/components/video-wall/video-wall.component';
 import { InfoFormComponent } from '@app/voxImplant/components/info-form/info-form.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { CameraAllowAccessComponent } from './components/camera-allow-access/camera-allow-access.component';
+import { BrowserIsNotSupportedComponent } from './components/browser-is-not-supported/browser-is-not-supported.component';
+import { ErrorNotifyComponent } from './components/error-notify/error-notify.component';
+import { MediaSettingFormComponent } from './components/media-setting-form/media-setting-form.component';
+import { MediaAllowNotifyComponent } from './components/media-allow-notify/media-allow-notify.component';
 @NgModule({
   imports: [CommonModule, TranslateModule, SharedModule, ReactiveFormsModule, VoxImplantConferenceRoutingModule],
-  declarations: [HomeComponent, WelcomeComponent, ParticipantsListComponent, VideoWallComponent, InfoFormComponent],
+  declarations: [
+    HomeComponent,
+    WelcomeComponent,
+    ParticipantsListComponent,
+    VideoWallComponent,
+    InfoFormComponent,
+    CameraAllowAccessComponent,
+    BrowserIsNotSupportedComponent,
+    ErrorNotifyComponent,
+    MediaSettingFormComponent,
+    MediaAllowNotifyComponent,
+  ],
 })
 export class VoxImplantConferenceModule {}

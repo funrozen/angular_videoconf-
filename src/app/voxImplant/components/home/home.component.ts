@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DataBusMessageType, DataBusService } from '@core/data-bus.service';
 import { filter } from 'rxjs/operators';
 import { untilDestroyed } from '@core';
-import { UIService } from '@app/voxImplant/ui.service';
+import { UIService, UIState } from '@app/voxImplant/ui.service';
 
 @Component({
   selector: 'app-home',
@@ -15,6 +15,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     DataBusMessageType.ShowInviteForm,
   ];
   isLoading = false;
+  states = UIState;
   constructor(private dataBusService: DataBusService, public uiService: UIService) {
     this.dataBusService.inner$
       .pipe(
