@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import {
   DataBusMessageType,
   DataBusService,
@@ -10,21 +10,23 @@ import { SDKService } from '@app/voxImplant/sdk.service';
 import { CurrentUserService } from '../@core/current-user.service';
 import { VIManagerService } from './vimanager.service';
 import { IIDClass } from '@app/interfaces/IIDClass';
-import { createLogger } from '@core';
+import { createLogger, untilDestroyed } from '@core';
+import { CallManagerService } from '@app/voxImplant/call-manager.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ConferenceManagementService implements IIDClass {
+export class ConferenceManagementService implements IIDClass, OnDestroy {
   readonly ID = 'ConferenceManagementService';
   private logger = createLogger(this.ID);
   constructor(
     private dataBusService: DataBusService,
     private sdkService: SDKService,
     private currentUserService: CurrentUserService,
-    private vimanagerService: VIManagerService
+    private vimanagerService: VIManagerService,
+    private callManagerService: CallManagerService
   ) {
-    this.dataBusService.inner$.subscribe((message: IDataBusMessage) => {
+    this.dataBusService.inner$.pipe(untilDestroyed(this)).subscribe((message: IDataBusMessage) => {
       switch (message.type) {
         case DataBusMessageType.ReConnect:
           this.sdkService.reconnect();
@@ -66,9 +68,34 @@ export class ConferenceManagementService implements IIDClass {
             }
           }
           break;
+
+        case DataBusMessageType.InitCall: {
+          this.sdkService.joinConf();
+          break;
+        }
+
+        case DataBusMessageType.CallConnected:
+          {
+            // WSService.login(
+            //   e.headers['X-Conf-Sess'],
+            //   e.headers['X-Conf-Call'],
+            //   !currentUser.microphoneEnabled,
+            //   false,
+            //   currentUser.cameraStatus === 1 ? true : false
+            // );
+            // if (CallManager.currentConf.settings.video.sendVideo) {
+            //   window.VoxImplant.getInstance().showLocalVideo(true);
+            // }
+            //settingsApplyButton.disabled = false;
+            //settingsApplyButton.classList.remove('loading');
+          }
+          break;
+
         default:
           break;
       }
     });
   }
+
+  ngOnDestroy(): void {}
 }

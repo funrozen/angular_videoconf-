@@ -4,9 +4,11 @@ import { filter } from 'rxjs/operators';
 
 export enum ErrorId {
   SDKError = 'SDK Error', // LayerManager.show('conf__error');
+  // TODO for 'SDK Error'
   // errorMessage.appendChild(document.createTextNode('SDK Error'));
 
   XMultipleLogin = 'X-Multiple-Login',
+  // TODO for XMultipleLogin
   // LayerManager.show('conf__error');
   //       errorMessage.appendChild(
   //         document.createTextNode(
@@ -14,7 +16,7 @@ export enum ErrorId {
   //         )
   //       );
   ConnectionProblem = 'Connection problem',
-  //
+  // TODO for ConnectionProblem
   //   while (errorMessage.firstChild) {
   //   errorMessage.removeChild(errorMessage.lastChild);
   // }
@@ -25,6 +27,9 @@ export enum ErrorId {
   // this.isReconnecting = true;
   // LayerManager.show('conf__error');
   BrowserIsNotSupported = 'BrowserIsNotSupported',
+
+  // Happens when there are no funds on account
+  OutOfMoney = 'OutOfMoney',
 }
 
 export interface IErrorMessage {
@@ -42,30 +47,13 @@ export enum Route {
 export enum DataBusMessageType {
   SignIn = 'SignIn', // happens on success sdk.login
   // [ LayerManager.show('conf__form');]
-  CallInit = 'CallInit', // happens on call init
+  InitCall = 'InitCall', // provoke init a call
+  CallInit = 'CallInit', // happens on call start init
+  CallInited = 'CallInited', // happens on call inited
   // settingsApplyButton.disabled = true;
   // settingsApplyButton.classList.add("loading");
   CallConnected = 'CallConnected', // happens on call init
-  //     inviteForm.classList.remove('hidden', 'popup-view');
-  //
-  //     let localVideo = document.getElementById('localVideoNode');
-  //     let nameLocalLabel = localVideo.querySelector('.conf__video-wrap .conf__video-name');
-  //     nameLocalLabel.innerHTML = `${this.currentUserService.name} (you)`;
-  // WSService.login(
-  //       e.headers['X-Conf-Sess'],
-  //       e.headers['X-Conf-Call'],
-  //       !this.currentUserService.microphoneEnabled,
-  //       false,
-  //       this.currentUserService.cameraStatus === 1 ? true : false
-  //     );
-  //     if (this.currentConf.settings.video.sendVideo) {
-  //       VoxImplant.getInstance().showLocalVideo(true);
-  //     }
-  //
-  //     settingsApplyButton.disabled = false;
-  //     settingsApplyButton.classList.remove('loading');
-  //     calculateVideoGrid();
-  //     LayerManager.show('conf__video-section-wrapper');
+  // CallConnected - logic on conference-management
 
   CameraToggle = 'CameraToggle', // toggle camera -  this.callInterface.cameraToggle('', 'hide');
   MicToggle = 'MicToggle', // toggle microphone  - this.callInterface.muteToggle('', 'mute');

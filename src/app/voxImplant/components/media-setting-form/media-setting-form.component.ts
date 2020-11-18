@@ -15,7 +15,7 @@ import { createLogger } from '@core';
 import { VIManagerService } from '@app/voxImplant/vimanager.service';
 import * as VoxImplant from 'voximplant-websdk';
 import { AudioOutputInfo, AudioSourceInfo, VideoSourceInfo } from 'voximplant-websdk/Structures';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
 import {
   DataBusMessageType,
   DataBusService,
@@ -143,10 +143,16 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
 
     this.viManagerService.stopLocalMedia();
     this.viManagerService.setSettings();
-    // TODO start call!!!
-    //new CallManager(currentUser.getCallSettings());
+    // TODO inviteInput!!!
     //inviteInput.value = `${Env.url}${Env.replaceHistoryPrefix}${user.serviceId}`;
-    this.logger.info(`[WebSDk] Call crete from serviceID: conf_${this.currentUserService.serviceId}`);
+    this.dataBusService.send({
+      data: {},
+      route: [Route.Inner],
+      sign: this.ID,
+      type: DataBusMessageType.InitCall,
+    });
+
+    this.logger.info(`[WebSDk] About create call from serviceID: conf_${this.currentUserService.serviceId}`);
   }
 
   toggleMicrophone() {

@@ -51,17 +51,13 @@ export class CallManagerService implements IIDClass {
     this.bindCallCallbacks();
 
     this.dataBusService.send({
-      type: DataBusMessageType.CallInit,
+      type: DataBusMessageType.CallInited,
       route: [Route.Inner],
       sign: this.ID,
       data: {},
     });
-    // on CallInit
-    // this.callInterface = new CallInterface();
-    // this.soundAdded = document.getElementById("js__ep_added_sound");
-    // this.soundAdded.volume = 0.5;
-    // this.soundRemoved = document.getElementById("js__ep_removed_sound");
-    // this.soundRemoved.volume = 0.5;
+    // TODO
+
     // registerCallbacks(this.callInterface);
     // this.updateChatManager(currentUser);
   }
@@ -145,6 +141,7 @@ export class CallManagerService implements IIDClass {
   }
 
   onCallDisconnected(e: any) {
+    this.logger.warn(`[WebSDk] Call disconnected ID: ${e.call.id()}`, e);
     if (e.headers['X-Multiple-Login']) {
       this.dataBusService.sendError({
         id: ErrorId.XMultipleLogin,
@@ -152,13 +149,19 @@ export class CallManagerService implements IIDClass {
         data: e,
       });
       VoxImplant.getInstance().showLocalVideo(false);
+    } else if (e?.reason === 'Payment Required') {
+      this.dataBusService.sendError({
+        data: e.reason,
+        description: e.toString(),
+        id: ErrorId.OutOfMoney,
+      });
     } else {
       this.askForReconnect(e);
     }
   }
 
   private askForReconnect(e: any) {
-    this.logger.warn(`[WebSDk] Call ended ID: ${e.call.id()}`);
+    this.logger.warn(`[WebSDk] ask to reconnect: ${e.call.id()}`);
 
     this.dataBusService.send({
       data: {},
@@ -180,6 +183,7 @@ export class CallManagerService implements IIDClass {
   }
 
   onCallFailed(e: any) {
+    this.logger.warn(`[WebSDk] Call failed ID: ${e.call.id()}`, e);
     this.askForReconnect(e);
   }
 

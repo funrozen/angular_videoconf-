@@ -1,15 +1,15 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import * as VoxImplant from 'voximplant-websdk';
 import { DataBusMessageType, DataBusService, IDataBusMessage, Route } from '@core/data-bus.service';
 import { IIDClass } from '@app/interfaces/IIDClass';
-import { createLogger } from '@core';
+import { createLogger, untilDestroyed } from '@core';
 import { Messaging } from 'voximplant-websdk/Messaging';
 import { Conversation } from 'voximplant-websdk/Messaging/src/Conversation';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ChatManagerService implements IIDClass {
+export class ChatManagerService implements IIDClass, OnDestroy {
   readonly ID = 'ChatManagerService';
   private logger = createLogger(this.ID);
   messages: any[] = [];
@@ -20,7 +20,7 @@ export class ChatManagerService implements IIDClass {
   private displayName: string;
 
   constructor(private dataBusService: DataBusService) {
-    this.dataBusService.inner$.subscribe((message: IDataBusMessage) => {
+    this.dataBusService.inner$.pipe(untilDestroyed(this)).subscribe((message: IDataBusMessage) => {
       switch (message.type) {
         case DataBusMessageType.JoinToChat:
           let payload = JSON.parse(message.data.payload);
@@ -157,6 +157,7 @@ export class ChatManagerService implements IIDClass {
       type: DataBusMessageType.ChatMessage,
       data: { payload },
       route: [Route.Inner],
+      sign: this.ID,
     });
   };
 
@@ -171,4 +172,6 @@ export class ChatManagerService implements IIDClass {
       { displayName: this.displayName, connectionId: this.connectionId, time: Date.now() },
     ]);
   };
+
+  ngOnDestroy(): void {}
 }

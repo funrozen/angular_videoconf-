@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as VoxImplant from 'voximplant-websdk';
-import { environment } from '@env/environment.prod';
+import { environment } from '@env/environment';
 import { IAppCredentials } from '@app/interfaces/IAppCredentials';
 import { DataBusMessageType, DataBusService, ErrorId, Route } from '@core/data-bus.service';
 import { IIDClass } from '@app/interfaces/IIDClass';
@@ -32,6 +32,7 @@ export class SDKService implements IIDClass {
   }
 
   isReconnectedAllowed(): boolean {
+    debugger;
     return environment.reconnectTimes < 0 || environment.reconnectTimes < this.reconnectedTimes;
   }
 
@@ -108,6 +109,11 @@ export class SDKService implements IIDClass {
   rejoinConf() {
     this.isReconnecting = false;
     this.callManagerService.init(this.currentUserService.getCallSettings(), this.sdk);
+  }
+
+  joinConf() {
+    this.callManagerService.init(this.currentUserService.getCallSettings(), this.sdk);
+    this.logger.info(` Call create from serviceID: conf_${this.currentUserService.serviceId}`);
   }
 
   reconnect() {

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HelperService } from '@core/helper.service';
-import { environment } from '@env/environment.prod';
+import { environment } from '@env/environment';
 import { hasOwnProperty } from 'tslint/lib/utils';
 
 interface IStorageUserData {

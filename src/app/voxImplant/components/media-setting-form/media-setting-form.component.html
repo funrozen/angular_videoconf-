@@ -54,7 +54,7 @@
         ></button>
       </div>
     </div>
-    <form class="js__settings-form" [formGroup]="settingForm">
+    <form class="js__settings-form" [formGroup]="settingForm" (ngSubmit)="onSubmit($event)">
       <div class="conf__form-row conf__form-row_camera">
         <label for="cameraSettings">Camera</label>
 
