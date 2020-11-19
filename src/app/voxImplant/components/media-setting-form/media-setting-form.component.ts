@@ -156,29 +156,23 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
   }
 
   toggleMicrophone() {
-    this.dataBusService.send(<IToggleLocalMicMessage>{
-      type: DataBusMessageType.MicToggle,
-      data: {
-        status: this.currentUserService.microphoneEnabled ? 'mute' : 'unmute',
-      },
-      route: [Route.Inner],
-      sign: this.ID,
-    });
+    this.currentUserService.microphoneEnabled = !this.currentUserService.microphoneEnabled;
+    this.viManagerService.enableLocalMic(this.currentUserService.microphoneEnabled);
   }
 
   toggleLocalVideo() {
-    this.dataBusService.send(<IToggleLocalCameraMessage>{
-      type: DataBusMessageType.CameraToggle,
-      data: {
-        status: this.currentUserService.cameraStatus ? 'hide' : 'show',
-      },
-      route: [Route.Inner],
-      sign: this.ID,
-    });
-    // TODO it is not good solution
-    setTimeout(() => {
-      this.updateLocalVideoSrc();
-    }, 100);
+    if (this.viManagerService.permissions.video === false) {
+      this.logger.warn('it impossible switch local video when it is not allow');
+    } else {
+      this.currentUserService.cameraStatus = !this.currentUserService.cameraStatus;
+      (this.viManagerService.enableLocalCam(this.currentUserService.cameraStatus) as Promise<any>)
+        .then((e: any) => {
+          this.updateLocalVideoSrc();
+        })
+        .catch(() => {
+          this.logger.warn("Can't change the camera state");
+        });
+    }
   }
 
   private updateLocalVideoSrc() {

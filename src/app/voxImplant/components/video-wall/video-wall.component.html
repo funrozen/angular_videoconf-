@@ -18,11 +18,18 @@
           />
         </svg>
       </div>
-      <form action="">
+      <form action="" [formGroup]="inviteForm">
         <h4 class="conf__info-title">Invite someone to start meeting</h4>
         <div class="conf__form-row conf__info-form-row">
           <label for="roomId"></label>
-          <input type="text" class="js__ivite-link" id="roomId" placeholder="https://conferencedomain.com/room_" />
+          <!--- TODO placeholder copy link -->
+          <input
+            type="text"
+            class="js__ivite-link"
+            id="roomId"
+            formControlName="roomId"
+            placeholder="https://conferencedomain.com/room_"
+          />
         </div>
         <div class="conf__form-btn conf__info-form-btn">
           <button class="button js__copy-link" type="button">
@@ -38,7 +45,7 @@
         </div>
       </form>
 
-      <video class="videoStub" poster="img/video.png" width="400" height="300"></video>
+      <video class="videoStub" poster="/assets/images/video.png" width="400" height="300"></video>
     </div>
   </section>
 

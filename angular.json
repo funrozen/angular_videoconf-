@@ -29,7 +29,11 @@
               "src/robots.txt",
               "src/manifest.webmanifest",
               "src/assets",
-              "src/app/voxImplant/assets"
+              {
+                "glob": "**/*",
+                "input": "./src/app/voxImplant/assets",
+                "output": "./assets/"
+              }
             ],
             "styles": ["src/main.scss"],
             "scripts": []

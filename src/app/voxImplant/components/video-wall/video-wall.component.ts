@@ -1,9 +1,11 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { DataBusMessageType, DataBusService, IEndpointMessage } from '@core/data-bus.service';
 import { filter } from 'rxjs/operators';
 import { createLogger, untilDestroyed } from '@core';
 import { fromEvent } from 'rxjs';
 import { IIDClass } from '@app/interfaces/IIDClass';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { CurrentUserService } from '@core/current-user.service';
 
 type VideoEnpointType = {
   id: string;
@@ -17,7 +19,7 @@ type scaleSelectorResult = { Nx: number; Ny: number; targetW: number; targetH: n
   templateUrl: './video-wall.component.html',
   styleUrls: ['./video-wall.component.scss'],
 })
-export class VideoWallComponent implements OnInit, OnDestroy, IIDClass {
+export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IIDClass {
   readonly ID = 'VideoWallComponent';
   private logger = createLogger(this.ID);
   private supportMessageTypes: DataBusMessageType[] = [
@@ -26,11 +28,14 @@ export class VideoWallComponent implements OnInit, OnDestroy, IIDClass {
     DataBusMessageType.RemoteMediaRemoved,
     DataBusMessageType.EndpointRemoved,
   ];
-  isLocalVideoShow = false;
+  inviteForm: FormGroup;
+  isLocalVideoShow = true;
   videoEndpoints: VideoEnpointType[] = [];
-
+  roomId: string;
+  initPromise: Promise<void>;
+  initPromiseResolve: () => void;
   //TODO it probably need store to save video wall state
-  constructor(private dataBusService: DataBusService) {
+  constructor(private currentUserService: CurrentUserService, private dataBusService: DataBusService) {
     dataBusService.inner$
       .pipe(
         filter((message) => this.supportMessageTypes.includes(message.type)),
@@ -147,10 +152,22 @@ export class VideoWallComponent implements OnInit, OnDestroy, IIDClass {
             break;
         }
       });
+    this.initPromise = new Promise<void>((resolve) => {
+      this.logger.info('resolve');
+      this.initPromiseResolve = resolve;
+    });
   }
 
   ngOnInit(): void {
+    this.roomId = this.currentUserService.serviceId;
+    this.inviteForm = new FormGroup({
+      roomId: new FormControl(this.roomId, Validators.required),
+    });
     this.subscribeToResizeEvent();
+  }
+
+  ngAfterViewInit(): void {
+    this.initPromiseResolve();
   }
 
   ngOnDestroy() {}
@@ -166,46 +183,51 @@ export class VideoWallComponent implements OnInit, OnDestroy, IIDClass {
   }
 
   getDVideo(containerW: number, containerH: number) {
-    if (containerW >= containerH) return this.dVideo;
-    else return 1 / this.dVideo;
+    if (containerW >= containerH) {
+      return this.dVideo;
+    } else {
+      return 1 / this.dVideo;
+    }
   }
 
   @ViewChild('videoSection') videoSection: ElementRef;
 
-  setVideoSectionWidth() {
+  async setVideoSectionWidth() {
     //const perf1 = window.performance.now();
+    await this.initPromiseResolve();
     this.logger.info('Calculating layout');
-    const videoSection = this.videoSection.nativeElement;
-    const calculatingVideo = [...videoSection.querySelectorAll('.conf__video')];
-    let videoAmount = this.videoEndpoints.length + (this.isLocalVideoShow ? 1 : 0);
-    const allVideo =
-      videoAmount === 1 ? [...videoSection.querySelectorAll('.conf__video-section>div')] : calculatingVideo;
-    const containerW = videoSection.clientWidth - 20;
-    const containerH = window.innerHeight - 88;
-    const N = videoAmount > 1 ? videoAmount : containerW < 584 ? 1 : 2; // additional container for the invite block if needed
 
-    let { Nx, Ny, targetW, targetH } = this.scaleSelector(N, containerW, containerH);
-
-    allVideo.forEach((el) => {
-      el.style.width = targetW + 'px';
-      el.style.height = targetH + 'px';
-      const video = el.querySelector('video');
-      if (video) {
-        video.style.objectFit = this.getDVideo(containerW, containerH) !== this.dVideo ? 'cover' : 'contain';
-      } else {
-        setTimeout(() => {
-          if (video)
-            video.style.objectFit = this.getDVideo(containerW, containerH) !== this.dVideo ? 'cover' : 'contain';
-        }, 1000);
-      }
-    });
-    const containerPaddingW = (videoSection.clientWidth - targetW * Nx) / 2;
-    const containerPaddingH = (containerH - targetH * Ny) / 2;
-    if (containerPaddingW > 0 && containerPaddingH > 0)
-      videoSection.style.padding = `${containerPaddingH}px ${containerPaddingW}px`;
-    else if (containerPaddingH > 0) videoSection.style.padding = `${containerPaddingH}px 0`;
-    else if (containerPaddingW > 0) videoSection.style.padding = `0 ${containerPaddingW}px`;
-    else videoSection.style.padding = `0`;
+    // const videoSection = this.videoSection.nativeElement;
+    // const calculatingVideo = [...videoSection.querySelectorAll('.conf__video')];
+    // let videoAmount = this.videoEndpoints.length + (this.isLocalVideoShow ? 1 : 0);
+    // const allVideo =
+    //   videoAmount === 1 ? [...videoSection.querySelectorAll('.conf__video-section>div')] : calculatingVideo;
+    // const containerW = videoSection.clientWidth - 20;
+    // const containerH = window.innerHeight - 88;
+    // const N = videoAmount > 1 ? videoAmount : containerW < 584 ? 1 : 2; // additional container for the invite block if needed
+    //
+    // let { Nx, Ny, targetW, targetH } = this.scaleSelector(N, containerW, containerH);
+    //
+    // allVideo.forEach((el) => {
+    //   el.style.width = targetW + 'px';
+    //   el.style.height = targetH + 'px';
+    //   const video = el.querySelector('video');
+    //   if (video) {
+    //     video.style.objectFit = this.getDVideo(containerW, containerH) !== this.dVideo ? 'cover' : 'contain';
+    //   } else {
+    //     setTimeout(() => {
+    //       if (video)
+    //         video.style.objectFit = this.getDVideo(containerW, containerH) !== this.dVideo ? 'cover' : 'contain';
+    //     }, 1000);
+    //   }
+    // });
+    // const containerPaddingW = (videoSection.clientWidth - targetW * Nx) / 2;
+    // const containerPaddingH = (containerH - targetH * Ny) / 2;
+    // if (containerPaddingW > 0 && containerPaddingH > 0)
+    //   videoSection.style.padding = `${containerPaddingH}px ${containerPaddingW}px`;
+    // else if (containerPaddingH > 0) videoSection.style.padding = `${containerPaddingH}px 0`;
+    // else if (containerPaddingW > 0) videoSection.style.padding = `0 ${containerPaddingW}px`;
+    // else videoSection.style.padding = `0`;
     //const perf2 = window.performance.now();
     //console.log(`Layout calculating took ${perf2 - perf1} ms`);
   }

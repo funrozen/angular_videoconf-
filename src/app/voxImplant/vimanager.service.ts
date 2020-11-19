@@ -77,12 +77,15 @@ export class VIManagerService implements IIDClass {
 
   stopLocalMedia = () => {
     if (this.localStream) {
+      this.logger.info('stopLocalMedia');
       this.localStream.getTracks().forEach((tr) => tr.stop());
       this.localStream = null;
     }
     if (this.audioContext) {
+      this.logger.info('audioContext');
       this.audioContext.close();
     }
+    debugger;
   };
 
   enableLocalCam = (flag: boolean) => {

@@ -38,28 +38,30 @@ export class CallManagerService implements IIDClass {
       sign: this.ID,
       data: {},
     });
+    setTimeout(() => {
+      this.currentConf = this.sdk.callConference(newCallParams);
+      this.logger.info('call conference inited');
+      this.reporter = callReporter(
+        this.currentConf,
+        this.currentUserService.name,
+        this.currentUserService.serviceId,
+        this.currentUserService.uuid
+      );
 
-    this.currentConf = this.sdk.callConference(newCallParams);
-    this.logger.info('call conference inited');
-    this.reporter = callReporter(
-      this.currentConf,
-      this.currentUserService.name,
-      this.currentUserService.serviceId,
-      this.currentUserService.uuid
-    );
+      this.bindCallCallbacks();
 
-    this.bindCallCallbacks();
+      this.dataBusService.send({
+        type: DataBusMessageType.CallInited,
+        route: [Route.Inner],
+        sign: this.ID,
+        data: {},
+      });
 
-    this.dataBusService.send({
-      type: DataBusMessageType.CallInited,
-      route: [Route.Inner],
-      sign: this.ID,
-      data: {},
-    });
-    // TODO
+      // TODO
 
-    // registerCallbacks(this.callInterface);
-    // this.updateChatManager(currentUser);
+      // registerCallbacks(this.callInterface);
+      // this.updateChatManager(currentUser);
+    }, 1000);
   }
 
   /**
@@ -106,14 +108,15 @@ export class CallManagerService implements IIDClass {
       sign: this.ID,
     });
 
-    this.checkAndSwitchCameraOff();
+    this.toggleCamera();
     this.checkAndMuteMicrophone();
     /** end */
     this.logger.warn(`[WebSDk] Call connected ID: ${e.call.id()}`);
   }
 
-  private checkAndSwitchCameraOff() {
-    if (this.currentUserService.cameraStatus !== true) {
+  private toggleCamera() {
+    let showVideo = this.currentUserService.cameraStatus !== true;
+    if (!showVideo) {
       //TODO make interface for the message
       this.dataBusService.send({
         type: DataBusMessageType.CameraToggle,
@@ -123,6 +126,28 @@ export class CallManagerService implements IIDClass {
         route: [Route.Inner],
         sign: this.ID,
       });
+    }
+    showVideo = true;
+    if (showVideo) {
+      // this.reporter.sendVideo();
+      this.currentConf.sendVideo(true);
+      if (!document.getElementById('voximplantlocalvideo')) {
+        this.sdk.showLocalVideo(true);
+      }
+      //this.currentUserService.cameraStatus = true;
+      //LayerManager.toggleVideoStub('localVideoNode', false);
+      //WSService.notifyVideo(true);
+      //this.cam.classList.remove('option--off');
+    } else {
+      this.reporter.stopSendVideo();
+      this.currentConf.sendVideo(false);
+      if (document.getElementById('voximplantlocalvideo')) {
+        this.sdk.showLocalVideo(false);
+      }
+      this.currentUserService.cameraStatus = false;
+      // WSService.notifyVideo(false);
+      // LayerManager.toggleVideoStub('localVideoNode', true);
+      //this.cam.classList.add('option--off');
     }
   }
 
@@ -184,7 +209,15 @@ export class CallManagerService implements IIDClass {
 
   onCallFailed(e: any) {
     this.logger.warn(`[WebSDk] Call failed ID: ${e.call.id()}`, e);
-    this.askForReconnect(e);
+    if (e?.reason === 'Payment Required') {
+      this.dataBusService.sendError({
+        data: e.reason,
+        description: e.toString(),
+        id: ErrorId.OutOfMoney,
+      });
+    } else {
+      this.askForReconnect(e);
+    }
   }
 
   calculateParticipants() {
@@ -229,8 +262,8 @@ export class CallManagerService implements IIDClass {
         };
         this.dataBusService.send(message);
 
-        this.checkAndSwitchCameraOff();
-        this.checkAndMuteMicrophone();
+        //this.checkAndSwitchCameraOff();
+        //this.checkAndMuteMicrophone();
       } else {
         const message: IEndpointMessage = {
           data: {

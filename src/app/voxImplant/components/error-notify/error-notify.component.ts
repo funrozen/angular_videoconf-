@@ -11,7 +11,7 @@ import { untilDestroyed } from '@core';
 export class ErrorNotifyComponent implements IIDClass, OnDestroy {
   readonly ID = 'ErrorNotify';
   text: string;
-  defaultShowTimeMs: number = 30 * 1000;
+  defaultShowTimeMs: number = 3000 * 1000;
   timeoutId: any;
   show: boolean = false;
   constructor(private dataBusService: DataBusService) {

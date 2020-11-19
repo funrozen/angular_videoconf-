@@ -8,6 +8,8 @@ import { createLogger } from '@core/logger.service';
 import { CallManager } from 'voximplant-websdk/Call/CallManager';
 import { CallManagerService } from '@app/voxImplant/call-manager.service';
 import { CurrentUserService } from '@core/current-user.service';
+import { LogRecord } from 'voximplant-websdk/Structures';
+import { LogLevel } from 'voximplant-websdk';
 
 @Injectable({
   providedIn: 'root',
@@ -52,6 +54,21 @@ export class SDKService implements IIDClass {
           })
           .then((_: any) => {
             this.logger.warn('[WebSDk] Init completed');
+            this.sdk.setLoggerCallback((record: LogRecord) => {
+              const { formattedText, category, label, level } = record;
+              switch (level) {
+                case LogLevel.WARNING:
+                  this.logger.warn(VoxImplant.LogCategory[category], label, formattedText);
+                  break;
+                case LogLevel.ERROR:
+                  this.logger.error(VoxImplant.LogCategory[category], label, formattedText);
+                  break;
+                default:
+                  //this.logger.log(VoxImplant.LogCategory[category], label, formattedText);
+                  break;
+              }
+            });
+
             resolve(_);
           })
           .catch(reject);

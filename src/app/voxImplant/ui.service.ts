@@ -38,7 +38,8 @@ export class UIService implements IIDClass, OnDestroy {
 
     this.dataBusService.inner$.pipe(untilDestroyed(this)).subscribe((message: IDataBusMessage) => {
       switch (message.type) {
-        case DataBusMessageType.CallConnected:
+        case DataBusMessageType.CallInit:
+          //case DataBusMessageType.CallConnected:
           this.state = UIState.videoWall;
           break;
       }

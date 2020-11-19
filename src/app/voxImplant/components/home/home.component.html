@@ -5,6 +5,7 @@
   <app-browser-is-not-supported *ngIf="uiService.state === states.browserIsSupported"></app-browser-is-not-supported>
   <app-media-setting-form *ngIf="uiService.state === states.needMediaSetting"></app-media-setting-form>
   <app-media-allow-notify *ngIf="uiService.state === states.mediaAccessError"></app-media-allow-notify>
+  <app-video-wall *ngIf="uiService.state === states.videoWall"></app-video-wall>
 </div>
 <app-error-notify></app-error-notify>
 <app-enviroment></app-enviroment>

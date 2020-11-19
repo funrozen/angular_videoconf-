@@ -41,7 +41,6 @@ export class ConferenceManagementService implements IIDClass, OnDestroy {
                 this.currentUserService.microphoneEnabled = true;
                 break;
             }
-            this.vimanagerService.enableLocalMic(this.currentUserService.microphoneEnabled);
           }
           break;
         case DataBusMessageType.CameraToggle:
@@ -57,14 +56,6 @@ export class ConferenceManagementService implements IIDClass, OnDestroy {
                   this.currentUserService.cameraStatus = true;
                   break;
               }
-              (this.vimanagerService.enableLocalCam(this.currentUserService.cameraStatus) as Promise<any>)
-                .then((e: any) => {
-                  //this.currentUserService.cameraStatus = !this.currentUserService.cameraStatus;
-                  //TODO switch camera status here instead few rows above
-                })
-                .catch(() => {
-                  this.logger.warn("Can't change the camera state");
-                });
             }
           }
           break;
