@@ -85,7 +85,6 @@ export class VIManagerService implements IIDClass {
       this.logger.info('audioContext');
       this.audioContext.close();
     }
-    debugger;
   };
 
   enableLocalCam = (flag: boolean) => {

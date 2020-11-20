@@ -20,6 +20,7 @@ import { LocalVideoComponent } from './components/local-video/local-video.compon
 import { EndpointVideoComponent } from './components/endpoint-video/endpoint-video.component';
 
 import { EnviromentComponent } from './components/enviroment/enviroment.component';
+import { LeaveRoomComponent } from './components/leave-room/leave-room.component';
 @NgModule({
   imports: [CommonModule, TranslateModule, SharedModule, ReactiveFormsModule, VoxImplantConferenceRoutingModule],
   declarations: [
@@ -37,6 +38,8 @@ import { EnviromentComponent } from './components/enviroment/enviroment.componen
     EndpointVideoComponent,
 
     EnviromentComponent,
+
+    LeaveRoomComponent,
   ],
 })
 export class VoxImplantConferenceModule {}

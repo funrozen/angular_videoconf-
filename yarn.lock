@@ -195,13 +195,6 @@
   dependencies:
     tslib "^2.0.0"
 
-"@angular/common@^7.2.15":
-  version "7.2.16"
-  resolved "http://95.217.45.234:8088/@angular%2fcommon/-/common-7.2.16.tgz#72127b5ed7d75a400c58b9bd6c2cd691f47c8096"
-  integrity sha512-lPo2Vt5zmKeKTdMxHMUuViouMiK4QsmO6dGTIhJ7QAx9mov0QYb4sUVKN9Ix32Aeeznaa97qJnhevyDncJqvSA==
-  dependencies:
-    tslib "^1.9.0"
-
 "@angular/compiler-cli@^10.1.4":
   version "10.2.2"
   resolved "http://95.217.45.234:8088/@angular%2fcompiler-cli/-/compiler-cli-10.2.2.tgz#5095e009ebf8d799ffac5cc225d3fa48dcc6b451"
@@ -233,13 +226,6 @@
   dependencies:
     tslib "^2.0.0"
 
-"@angular/compiler@^7.2.15":
-  version "7.2.16"
-  resolved "http://95.217.45.234:8088/@angular%2fcompiler/-/compiler-7.2.16.tgz#081f58e9f50399ff0eef346fff37c9c6201cda8d"
-  integrity sha512-8iX+E9Cnet2167RdP8wM5PGPoEnw/jZNvHrtTRHs4g53n/Rg45iLmE9qFzxCqXGBmUO9LXKYdcXnettFKFLifg==
-  dependencies:
-    tslib "^1.9.0"
-
 "@angular/core@9.0.0":
   version "9.0.0"
   resolved "http://95.217.45.234:8088/@angular%2fcore/-/core-9.0.0.tgz#227dc53e1ac81824f998c6e76000b7efc522641e"
@@ -252,33 +238,12 @@
   dependencies:
     tslib "^2.0.0"
 
-"@angular/core@^7.2.15":
-  version "7.2.16"
-  resolved "http://95.217.45.234:8088/@angular%2fcore/-/core-7.2.16.tgz#317f707bc75ca5a90ba470c34e49e6adb7026e85"
-  integrity sha512-z1RuBinuYeC4KLv8Z95YOgIQLd4nkoApdxkIZaWALwSkgeBuHJn4bCBn2cL0gJ/KO2x18TiTU5HuC+uyBt0AVQ==
-  dependencies:
-    tslib "^1.9.0"
-
 "@angular/forms@^10.1.4":
   version "10.2.2"
   resolved "http://95.217.45.234:8088/@angular%2fforms/-/forms-10.2.2.tgz#d470ab43e01da83c136aec516251617ee5e121fb"
   integrity sha512-ATPMEvM1I/oEXn24qyHpgihYsXrXqnBXJkIGMFb4Tty2ay9xWDtV9aDknvd/7In1/SbHwcSdwhfJJ43apDB6yg==
   dependencies:
     tslib "^2.0.0"
-
-"@angular/forms@^7.2.15":
-  version "7.2.16"
-  resolved "http://95.217.45.234:8088/@angular%2fforms/-/forms-7.2.16.tgz#18769a2203edf87a1cc279dc2145da62b82f144e"
-  integrity sha512-50JTXco6w1HOi5o6RQ6PVSR0tD4Y2aRcCFBfLXvzDi78aZOSEdOYaSm78RDUNzGCbjwdMCIbX8eOdQgUUtsEFA==
-  dependencies:
-    tslib "^1.9.0"
-
-"@angular/http@^7.2.15":
-  version "7.2.16"
-  resolved "http://95.217.45.234:8088/@angular%2fhttp/-/http-7.2.16.tgz#f05337dd56faa86ce05b0dc378218a00fb337040"
-  integrity sha512-yvjbNyzFSmmz4UTjCdy5M8mk0cZqf9TvSf8yN5UVIwtw4joyuUdlgJCuin0qSbQOKIf/JjHoofpO2JkPCGSNww==
-  dependencies:
-    tslib "^1.9.0"
 
 "@angular/language-service@^10.1.4":
   version "10.2.2"
@@ -292,13 +257,6 @@
   dependencies:
     tslib "^2.0.0"
 
-"@angular/platform-browser-dynamic@^7.2.15":
-  version "7.2.16"
-  resolved "http://95.217.45.234:8088/@angular%2fplatform-browser-dynamic/-/platform-browser-dynamic-7.2.16.tgz#57f7f11cece3a3109a821d20b3456d94419718d4"
-  integrity sha512-xsQ0qB54h7oY5UATK9VW25Y4dvG7uQe9+X4cf/GWB+R3eCzP8J9Ekxs4VU9y2ujlQkD64PV8gpKu0FHFh7wjIQ==
-  dependencies:
-    tslib "^1.9.0"
-
 "@angular/platform-browser@^10.1.4":
   version "10.2.2"
   resolved "http://95.217.45.234:8088/@angular%2fplatform-browser/-/platform-browser-10.2.2.tgz#96517ecb01e6ab717209404ade21bdaa0524ccbb"
@@ -306,35 +264,12 @@
   dependencies:
     tslib "^2.0.0"
 
-"@angular/platform-browser@^7.2.15":
-  version "7.2.16"
-  resolved "http://95.217.45.234:8088/@angular%2fplatform-browser/-/platform-browser-7.2.16.tgz#c14d47108e47ac6b2ebbad06fdd69f952b29df32"
-  integrity sha512-6LltxoPlbtUgSec5a+BGPHZ0UYdqFizxSsplC1PoJdqH17DDxQjxcluAfXnLlvOYFSSPvYa73PSOpmUU2vp4gA==
-  dependencies:
-    tslib "^1.9.0"
-
-"@angular/platform-server@^7.2.15":
-  version "7.2.16"
-  resolved "http://95.217.45.234:8088/@angular%2fplatform-server/-/platform-server-7.2.16.tgz#542aa87e94a5f46ff375b88e436fe1f3526c2966"
-  integrity sha512-I6i4oy543iKiUHRzCMp/SuAOPP7WPMcVKz8sNwtWbI2mT2i5dihK9fBLOYoMVSYN5oL7yVEd/9dkcp881/ojxg==
-  dependencies:
-    domino "^2.1.0"
-    tslib "^1.9.0"
-    xhr2 "^0.1.4"
-
 "@angular/router@^10.1.4":
   version "10.2.2"
   resolved "http://95.217.45.234:8088/@angular%2frouter/-/router-10.2.2.tgz#cb2575f72e11d61faf46427d2a43c1baf13e616a"
   integrity sha512-jskLB4B3ccJS9YUFGgrR8JC6Ae31U1iw6gefh/S0xP742IxhgexxrxDUu/NAZkLV51sQ++snpnUK9DZU1kpXmA==
   dependencies:
     tslib "^2.0.0"
-
-"@angular/router@^7.2.15":
-  version "7.2.16"
-  resolved "http://95.217.45.234:8088/@angular%2frouter/-/router-7.2.16.tgz#7518a387ff959c13ba2648ce52e0bcd48f3292ca"
-  integrity sha512-SXDfkoGVUHhy83K+sR+39mmqTs4nSUh4DZbhFe4gii+mgAtBvlbeH8KBCqPNf7xq24aadyI2LCSGnGwgVKmXrA==
-  dependencies:
-    tslib "^1.9.0"
 
 "@angular/service-worker@^10.1.4":
   version "10.2.2"
@@ -1552,28 +1487,6 @@
     call-me-maybe "^1.0.1"
     glob-to-regexp "^0.3.0"
 
-"@ng-web-apis/audio@ng-web-apis/audio":
-  version "1.3.0"
-  resolved "https://codeload.github.com/ng-web-apis/audio/tar.gz/b5f94534fa6d03389c3caea55fb82be0c369a1b3"
-  dependencies:
-    "@angular/animations" "^7.2.15"
-    "@angular/common" "^7.2.15"
-    "@angular/compiler" "^7.2.15"
-    "@angular/core" "^7.2.15"
-    "@angular/forms" "^7.2.15"
-    "@angular/http" "^7.2.15"
-    "@angular/platform-browser" "^7.2.15"
-    "@angular/platform-browser-dynamic" "^7.2.15"
-    "@angular/platform-server" "^7.2.15"
-    "@angular/router" "^7.2.15"
-    "@nguniversal/common" "^7.1.1"
-    "@nguniversal/express-engine" "^7.1.1"
-    "@nguniversal/module-map-ngfactory-loader" "^7.1.1"
-    core-js "^2.5.4"
-    rxjs "^6.5.2"
-    tslib "^1.10.0"
-    zone.js "~0.8.29"
-
 "@ngtools/webpack@10.1.7":
   version "10.1.7"
   resolved "http://95.217.45.234:8088/@ngtools%2fwebpack/-/webpack-10.1.7.tgz#0778473a92f49ba72a56167104dcfb26ed7cebb0"
@@ -1582,21 +1495,6 @@
     "@angular-devkit/core" "10.1.7"
     enhanced-resolve "4.3.0"
     webpack-sources "1.4.3"
-
-"@nguniversal/common@^7.1.1":
-  version "7.1.1"
-  resolved "http://95.217.45.234:8088/@nguniversal%2fcommon/-/common-7.1.1.tgz#6738e9debbe0ad75a3fb397b34702f6e48d321c3"
-  integrity sha512-riqmrHGacd8xbaDiFmP77cpu/hfwNTo3MHIXOB0fiqxUWJXpdOm5dvJd/B+scsetv6/uMTF9MRd3tW68cN/xBg==
-
-"@nguniversal/express-engine@^7.1.1":
-  version "7.1.1"
-  resolved "http://95.217.45.234:8088/@nguniversal%2fexpress-engine/-/express-engine-7.1.1.tgz#9445ccb374dabdadccc8de98ca8a79b536ae14de"
-  integrity sha512-RJ2VATA6s48bYNrAfjnkjUCohpR7ehiOySwGA2vuUIWCWXKDIIPxgmET5ffVHy1a2XdMsOgrQ9Whth7+CxnUgw==
-
-"@nguniversal/module-map-ngfactory-loader@^7.1.1":
-  version "7.1.1"
-  resolved "http://95.217.45.234:8088/@nguniversal%2fmodule-map-ngfactory-loader/-/module-map-ngfactory-loader-7.1.1.tgz#488a6f8c5890d44b7ad8468180919644a4d1a1ae"
-  integrity sha512-cZaxdY64C5xPwbE3qqEQGmnKIEgIA57JTozAsT1gvlxNYwssxTlhCYT0HQcqNfNBBjf3xdqXTfRPC7lfpE4qWA==
 
 "@ngx-rocket/ascii-logo@^1.1.0":
   version "1.1.0"
@@ -2591,6 +2489,13 @@ aws4@^1.8.0:
   version "1.11.0"
   resolved "http://95.217.45.234:8088/aws4/-/aws4-1.11.0.tgz#d61f46d83b2519250e2784daf5b09479a8b41c59"
   integrity sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==
+
+axios@^0.21.0:
+  version "0.21.0"
+  resolved "http://95.217.45.234:8088/axios/-/axios-0.21.0.tgz#26df088803a2350dff2c27f96fef99fe49442aca"
+  integrity sha512-fmkJBknJKoZwem3/IKSSLpkdNXZeBu5Q7GA/aRsr2btgrptmSCxi2oFjZHqGdK9DoTil9PIHlPIZw2EcRJXRvw==
+  dependencies:
+    follow-redirects "^1.10.0"
 
 axobject-query@2.0.2:
   version "2.0.2"
@@ -3843,7 +3748,7 @@ core-js@3.6.4:
   resolved "http://95.217.45.234:8088/core-js/-/core-js-3.6.4.tgz#440a83536b458114b9cb2ac1580ba377dc470647"
   integrity sha512-4paDGScNgZP2IXXilaffL9X7968RuvwlkK3xWtZRVqgd8SYNiVKRJvkFd1aqqEuPfN7E68ZHEp9hDj6lHj4Hyw==
 
-core-js@^2.4.0, core-js@^2.5.4:
+core-js@^2.4.0:
   version "2.6.11"
   resolved "http://95.217.45.234:8088/core-js/-/core-js-2.6.11.tgz#38831469f9922bded8ee21c9dc46985e0399308c"
   integrity sha512-5wjnpaT/3dV+XB4borEsnAYQchn00XSgTAWKDkEqv+K8KevjbzmofK6hfJ9TZIlpj2N0xQpazy7PiRQiWHqzWg==
@@ -4811,11 +4716,6 @@ domhandler@^2.3.0:
   dependencies:
     domelementtype "1"
 
-domino@^2.1.0:
-  version "2.1.6"
-  resolved "http://95.217.45.234:8088/domino/-/domino-2.1.6.tgz#fe4ace4310526e5e7b9d12c7de01b7f485a57ffe"
-  integrity sha512-3VdM/SXBZX2omc9JF9nOPCtDaYQ67BGp5CoLpIQlO2KCAPETs8TcDHacF26jXadGbvUteZzRTeos2fhID5+ucQ==
-
 domutils@1.5.1:
   version "1.5.1"
   resolved "http://95.217.45.234:8088/domutils/-/domutils-1.5.1.tgz#dcd8488a26f563d61079e48c9f7b7e32373682cf"
@@ -5657,7 +5557,7 @@ flush-write-stream@^1.0.0:
     inherits "^2.0.3"
     readable-stream "^2.3.6"
 
-follow-redirects@^1.0.0:
+follow-redirects@^1.0.0, follow-redirects@^1.10.0:
   version "1.13.0"
   resolved "http://95.217.45.234:8088/follow-redirects/-/follow-redirects-1.13.0.tgz#b42e8d93a2a7eea5ed88633676d6597bc8e384db"
   integrity sha512-aq6gF1BEKje4a9i9+5jimNFIpq4Q1WiwBToeRK5NvZBd/TRsmW8BsJfOEGkr76TbOyPVD3OVDN910EcUNtRYEA==
@@ -10878,7 +10778,7 @@ rxjs@6.6.2:
   dependencies:
     tslib "^1.9.0"
 
-rxjs@^6.5.2, rxjs@^6.5.3, rxjs@^6.6.0, rxjs@^6.6.3:
+rxjs@^6.5.3, rxjs@^6.6.0, rxjs@^6.6.3:
   version "6.6.3"
   resolved "http://95.217.45.234:8088/rxjs/-/rxjs-6.6.3.tgz#8ca84635c4daa900c0d3967a6ee7ac60271ee552"
   integrity sha512-trsQc+xYYXZ3urjOiJOuCOa5N3jAZ3eiSpQB5hIT8zGlL2QfnHLJ2r7GMkBGuIausdJN1OneaI6gQlsqNHHmZQ==
@@ -13255,11 +13155,6 @@ ws@^7.2.3:
   resolved "http://95.217.45.234:8088/ws/-/ws-7.3.1.tgz#d0547bf67f7ce4f12a72dfe31262c68d7dc551c8"
   integrity sha512-D3RuNkynyHmEJIpD2qrgVkc9DQ23OrN/moAwZX4L8DfvszsJxpjQuUq3LMx6HoYji9fbIOBY18XWBsAux1ZZUA==
 
-xhr2@^0.1.4:
-  version "0.1.4"
-  resolved "http://95.217.45.234:8088/xhr2/-/xhr2-0.1.4.tgz#7f87658847716db5026323812f818cadab387a5f"
-  integrity sha1-f4dliEdxbbUCYyOBL4GMras4el8=
-
 xml-name-validator@^3.0.0:
   version "3.0.0"
   resolved "http://95.217.45.234:8088/xml-name-validator/-/xml-name-validator-3.0.0.tgz#6ae73e06de4d8c6e47f9fb181f78d648ad457c6a"
@@ -13428,8 +13323,3 @@ zone.js@~0.10.3:
   version "0.10.3"
   resolved "http://95.217.45.234:8088/zone.js/-/zone.js-0.10.3.tgz#3e5e4da03c607c9dcd92e37dd35687a14a140c16"
   integrity sha512-LXVLVEq0NNOqK/fLJo3d0kfzd4sxwn2/h67/02pjCjfKDxgx1i9QqpvtHD8CrBnSSwMw5+dy11O7FRX5mkO7Cg==
-
-zone.js@~0.8.29:
-  version "0.8.29"
-  resolved "http://95.217.45.234:8088/zone.js/-/zone.js-0.8.29.tgz#8dce92aa0dd553b50bc5bfbb90af9986ad845a12"
-  integrity sha512-mla2acNCMkWXBD+c+yeUrBUrzOxYMNFdQ6FGfigGGtEVBPJx07BQeJekjt9DmH1FtZek4E9rE1eRR9qQpxACOQ==

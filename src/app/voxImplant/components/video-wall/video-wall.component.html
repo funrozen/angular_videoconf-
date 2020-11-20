@@ -75,10 +75,10 @@
     <div class="conf__info-footer-spacer"></div>
 
     <div class="conf__info-footer-icon-wrap">
-      <div class="conf__info-footer-icon conf__info-footer-icon-cam js__cam"></div>
+      <div class="conf__info-footer-icon conf__info-footer-icon-cam js__cam" (click)="toggleCam()"></div>
     </div>
     <div class="conf__info-footer-icon-wrap">
-      <div class="conf__info-footer-icon conf__info-footer-icon-micro js__mic"></div>
+      <div class="conf__info-footer-icon conf__info-footer-icon-micro js__mic" (click)="toggleMic()"></div>
     </div>
     <div class="conf__info-footer-icon-wrap conf__info-footer--nofs">
       <div class="conf__info-footer-icon conf__info-footer-icon-share js__share"></div>
@@ -87,7 +87,7 @@
       <div class="conf__info-footer-icon conf__info-footer-icon-users js__chat"></div>
     </div>
     <div class="conf__info-footer-icon-wrap conf__info-footer--nofs">
-      <div class="conf__info-footer-icon conf__info-footer-icon-leave js__leave"></div>
+      <div class="conf__info-footer-icon conf__info-footer-icon-leave js__leave" (click)="leaveRoom()"></div>
     </div>
     <div class="conf__info-footer-spacer"></div>
     <div class="conf__info-footer-icon-wrap conf__info-footer--nofs">

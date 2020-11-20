@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import {
   DataBusMessageType,
   DataBusService,
@@ -13,13 +13,14 @@ import { Call } from 'voximplant-websdk/Call/Call';
 import { CurrentUserService } from '@core/current-user.service';
 import { callReporter } from '@app/voxImplant/vi-helpers';
 import { IIDClass } from '@app/interfaces/IIDClass';
-import { createLogger, ILogger } from '@core';
+import { createLogger, ILogger, untilDestroyed } from '@core';
 import { MediaRenderer } from 'voximplant-websdk/Media/MediaRenderer';
+import { filter } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
-export class CallManagerService implements IIDClass {
+export class CallManagerService implements IIDClass, OnDestroy {
   readonly ID = 'CallManagerService';
   private endPointsSet: any;
   private currentConf: Call;
@@ -27,10 +28,29 @@ export class CallManagerService implements IIDClass {
   private reporter: any;
   private logger: ILogger = createLogger(this.ID);
 
-  constructor(private dataBusService: DataBusService, private currentUserService: CurrentUserService) {}
+  constructor(private dataBusService: DataBusService, private currentUserService: CurrentUserService) {
+    this.subscribe();
+  }
+
+  private subscribeToTypes: DataBusMessageType[] = [DataBusMessageType.CameraToggled];
+  private subscribe() {
+    this.dataBusService.inner$
+      .pipe(
+        filter((message) => this.subscribeToTypes.includes(message.type)),
+        untilDestroyed(this)
+      )
+      .subscribe((message) => {
+        switch (message.type) {
+          case DataBusMessageType.CameraToggled:
+            this.onCameraToggled();
+            break;
+        }
+      });
+  }
 
   public init(newCallParams: any, sdk: Client) {
     this.endPointsSet = {};
+
     this.sdk = sdk;
     this.dataBusService.send({
       type: DataBusMessageType.CallInit,
@@ -40,7 +60,7 @@ export class CallManagerService implements IIDClass {
     });
     setTimeout(() => {
       this.currentConf = this.sdk.callConference(newCallParams);
-      this.logger.info('call conference inited');
+      this.logger.info('call conference inited', newCallParams);
       this.reporter = callReporter(
         this.currentConf,
         this.currentUserService.name,
@@ -108,43 +128,48 @@ export class CallManagerService implements IIDClass {
       sign: this.ID,
     });
 
-    this.toggleCamera();
-    this.checkAndMuteMicrophone();
+    this.onCameraToggled();
+    this.onToggleMicrophone();
     /** end */
     this.logger.warn(`[WebSDk] Call connected ID: ${e.call.id()}`);
   }
 
   private toggleCamera() {
-    let showVideo = this.currentUserService.cameraStatus !== true;
-    if (!showVideo) {
-      //TODO make interface for the message
-      this.dataBusService.send({
-        type: DataBusMessageType.CameraToggle,
-        data: {
-          status: 'hide',
-        },
-        route: [Route.Inner],
-        sign: this.ID,
-      });
-    }
-    showVideo = true;
+    //TODO make interface for the message
+    this.dataBusService.send({
+      type: DataBusMessageType.CameraToggle,
+      data: {
+        status: this.currentUserService.cameraStatus ? 'hide' : 'show',
+      },
+      route: [Route.Inner],
+      sign: this.ID,
+    });
+  }
+
+  private onCameraToggled() {
+    let showVideo = this.currentUserService.cameraStatus;
     if (showVideo) {
+      //TODO
       // this.reporter.sendVideo();
       this.currentConf.sendVideo(true);
+      //TODO this is not angular way!
       if (!document.getElementById('voximplantlocalvideo')) {
         this.sdk.showLocalVideo(true);
       }
-      //this.currentUserService.cameraStatus = true;
+      //TODO
+
       //LayerManager.toggleVideoStub('localVideoNode', false);
       //WSService.notifyVideo(true);
       //this.cam.classList.remove('option--off');
     } else {
-      this.reporter.stopSendVideo();
+      //TODO
+      //this.reporter.stopSendVideo();
       this.currentConf.sendVideo(false);
       if (document.getElementById('voximplantlocalvideo')) {
         this.sdk.showLocalVideo(false);
       }
-      this.currentUserService.cameraStatus = false;
+
+      //TODO
       // WSService.notifyVideo(false);
       // LayerManager.toggleVideoStub('localVideoNode', true);
       //this.cam.classList.add('option--off');
@@ -157,11 +182,34 @@ export class CallManagerService implements IIDClass {
       this.dataBusService.send({
         type: DataBusMessageType.MicToggle,
         data: {
-          status: 'mute',
+          status: this.currentUserService.microphoneEnabled ? 'mute' : 'unmute',
         },
         route: [Route.Inner],
         sign: this.ID,
       });
+    }
+  }
+
+  onToggleMicrophone() {
+    let localVideo = document.getElementById('localVideoNode');
+    let muteLocalLabel = localVideo.querySelector('.conf__video-wrap .conf__video-micro');
+
+    let mute = this.currentUserService.microphoneEnabled;
+
+    if (!mute) {
+      this.currentConf.unmuteMicrophone();
+      //TODO
+      //WSService.notifyMute(false);
+      //muteLocalLabel.classList.add('hidden');
+
+      //this.mic.classList.remove('option--off');
+    } else {
+      this.currentConf.muteMicrophone();
+      //TODO
+      //WSService.notifyMute(true);
+      //muteLocalLabel.classList.remove('hidden');
+      ///currentUser.microphoneEnabled = false;
+      //this.mic.classList.add('option--off');
     }
   }
 
@@ -261,7 +309,7 @@ export class CallManagerService implements IIDClass {
           type: DataBusMessageType.EndpointAdded,
         };
         this.dataBusService.send(message);
-
+        // todo why we need it?
         //this.checkAndSwitchCameraOff();
         //this.checkAndMuteMicrophone();
       } else {
@@ -304,6 +352,28 @@ export class CallManagerService implements IIDClass {
   onRemoteMediaAdded(e: any) {
     this.logger.warn(`[WebSDk] New MediaRenderer in ${e.endpoint.id}`, e);
     if (this.endPointsSet[`${e.endpoint.id}`] && !e.endpoint.isDefault) {
+      const endpointNode = document.getElementById(e.endpoint.id);
+      // if (
+      //   e.mediaRenderer.kind === "video" &&
+      //   document.getElementById(`videoStub-${e.endpoint.id}`)
+      // ) {
+      //   LayerManager.toggleVideoStub(e.endpoint.id, false);
+      // }
+      //
+      // if (e.mediaRenderer.kind === "sharing") {
+      //   LayerManager.toggleVideoStub(e.endpoint.id, false);
+      // }
+      //
+      e.mediaRenderer.render(endpointNode);
+      e.mediaRenderer.placed = true;
+      //
+      // if (
+      //   !e.endpoint.mediaRenderers.find(
+      //     (renderer) => renderer.kind === "video" || renderer.kind === "sharing"
+      //   )
+      // ) {
+      //   LayerManager.toggleVideoStub(e.endpoint.id, true);
+      // }
       this.dataBusService.send({
         data: {
           mediaEvent: e,
@@ -359,6 +429,8 @@ export class CallManagerService implements IIDClass {
     }
   }
 
+  ngOnDestroy(): void {}
+
   // updateChatManager(currentUser)
   // {
   //   ChatManager.setConnectionId(currentUser.uuid);
@@ -366,4 +438,7 @@ export class CallManagerService implements IIDClass {
   //   this.callInterface.registerMessageHandlers(ChatManager.sendMessage, ChatManager.addChatMessage);
   //   ChatManager.addChatMessage = this.callInterface.addChatMessage;
   // }
+  onLeaveRoom() {
+    this.disconnect();
+  }
 }

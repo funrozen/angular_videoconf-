@@ -21,7 +21,7 @@ export class ErrorNotifyComponent implements IIDClass, OnDestroy {
       if (e?.data?.showTime) {
         time = e.data.showTime;
       }
-      debugger;
+
       if (this.timeoutId) {
         clearTimeout(this.timeoutId);
       }

@@ -123,7 +123,7 @@ export class CurrentUserService {
   isConferenceOwner() {
     return !this.getServiceIdFromUrl(window.location);
   }
-
+  //TODO move it out of environment
   getServiceIdFromUrl(url: Location) {
     return environment.appConfig.getServiceIdFromUrl(url);
   }

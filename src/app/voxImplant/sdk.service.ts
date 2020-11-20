@@ -165,4 +165,8 @@ export class SDKService implements IIDClass {
       this.connectToVoxCloud();
     });
   }
+
+  onLeaveRoom() {
+    VoxImplant.getInstance().showLocalVideo(false);
+  }
 }

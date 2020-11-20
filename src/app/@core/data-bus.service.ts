@@ -55,8 +55,10 @@ export enum DataBusMessageType {
   CallConnected = 'CallConnected', // happens on call init
   // CallConnected - logic on conference-management
 
-  CameraToggle = 'CameraToggle', // toggle camera -  this.callInterface.cameraToggle('', 'hide');
-  MicToggle = 'MicToggle', // toggle microphone  - this.callInterface.muteToggle('', 'mute');
+  CameraToggle = 'CameraToggle', // toggle camera - toggle camera setting
+  CameraToggled = 'CameraToggled', // when camera setting toggled
+  MicToggle = 'MicToggle', // toggle microphone  - toggle mic setting
+  MicToggled = 'MicToggled', // when camera mic toggled
   ReConnect = 'ReConnect', // invoke reconnect sdk
   JoinToChat = 'JoinToChat', //
   ChatMessage = 'ChatMessage', //send message to render
@@ -67,6 +69,7 @@ export enum DataBusMessageType {
   RemoteMediaRemoved = 'RemoteMediaRemoved', // on RemoteMedia removed
   ShowInviteForm = 'ShowInviteForm',
   HideInviteForm = 'ShowInviteForm',
+  LeaveRoom = 'LeaveRoom',
 }
 
 export interface IDataBusMessage {
@@ -91,14 +94,14 @@ export interface IToggleLocalMicMessage extends IDataBusMessage {
   type: DataBusMessageType.MicToggle;
   route: [Route.Inner];
   data: {
-    status: 'mute' | 'unmute';
+    status?: 'mute' | 'unmute';
   };
 }
 export interface IToggleLocalCameraMessage extends IDataBusMessage {
   type: DataBusMessageType.CameraToggle;
   route: [Route.Inner];
   data: {
-    status: 'hide' | 'show';
+    status?: 'hide' | 'show';
   };
 }
 

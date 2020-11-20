@@ -5,6 +5,7 @@ import {
   IDataBusMessage,
   IToggleLocalCameraMessage,
   IToggleLocalMicMessage,
+  Route,
 } from '@core/data-bus.service';
 import { SDKService } from '@app/voxImplant/sdk.service';
 import { CurrentUserService } from '../@core/current-user.service';
@@ -31,33 +32,57 @@ export class ConferenceManagementService implements IIDClass, OnDestroy {
         case DataBusMessageType.ReConnect:
           this.sdkService.reconnect();
           break;
+
         case DataBusMessageType.MicToggle:
           {
-            switch ((<IToggleLocalMicMessage>message).data.status) {
-              case 'mute':
-                this.currentUserService.microphoneEnabled = false;
-                break;
-              case 'unmute':
-                this.currentUserService.microphoneEnabled = true;
-                break;
+            if ((<IToggleLocalMicMessage>message).data?.status) {
+              switch ((<IToggleLocalMicMessage>message).data.status) {
+                case 'mute':
+                  this.currentUserService.microphoneEnabled = false;
+                  break;
+                case 'unmute':
+                  this.currentUserService.microphoneEnabled = true;
+                  break;
+              }
+            } else {
+              this.currentUserService.microphoneEnabled = !this.currentUserService.microphoneEnabled;
             }
+            this.dataBusService.send({
+              data: {},
+              route: [Route.Inner],
+              sign: this.ID,
+              type: DataBusMessageType.MicToggled,
+            });
           }
           break;
+
         case DataBusMessageType.CameraToggle:
           {
             if (this.vimanagerService.permissions.video === false) {
               this.logger.warn('it impossible switch local video when it is not allow');
             } else {
-              switch ((<IToggleLocalCameraMessage>message).data.status) {
-                case 'hide':
-                  this.currentUserService.cameraStatus = false;
-                  break;
-                case 'show':
-                  this.currentUserService.cameraStatus = true;
-                  break;
+              if ((<IToggleLocalCameraMessage>message).data?.status) {
+                switch ((<IToggleLocalCameraMessage>message).data.status) {
+                  case 'hide':
+                    this.currentUserService.cameraStatus = false;
+                    break;
+                  case 'show':
+                    this.currentUserService.cameraStatus = true;
+                    break;
+                }
+              } else {
+                this.currentUserService.cameraStatus = !this.currentUserService.cameraStatus;
               }
             }
           }
+
+          this.dataBusService.send({
+            data: {},
+            route: [Route.Inner],
+            sign: this.ID,
+            type: DataBusMessageType.CameraToggled,
+          });
+
           break;
 
         case DataBusMessageType.InitCall: {
@@ -79,6 +104,16 @@ export class ConferenceManagementService implements IIDClass, OnDestroy {
             // }
             //settingsApplyButton.disabled = false;
             //settingsApplyButton.classList.remove('loading');
+          }
+          break;
+
+        case DataBusMessageType.LeaveRoom:
+          {
+            this.logger.info('Leave Room');
+            //TODO
+            //unregisterCallback();
+            this.sdkService.onLeaveRoom();
+            this.callManagerService.onLeaveRoom();
           }
           break;
 

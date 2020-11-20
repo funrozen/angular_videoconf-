@@ -6,6 +6,7 @@
   <app-media-setting-form *ngIf="uiService.state === states.needMediaSetting"></app-media-setting-form>
   <app-media-allow-notify *ngIf="uiService.state === states.mediaAccessError"></app-media-allow-notify>
   <app-video-wall *ngIf="uiService.state === states.videoWall"></app-video-wall>
+  <app-leave-room *ngIf="uiService.state === states.leaveRoom"></app-leave-room>
 </div>
 <app-error-notify></app-error-notify>
 <app-enviroment></app-enviroment>

@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { DataBusMessageType, DataBusService, IEndpointMessage } from '@core/data-bus.service';
+import { DataBusMessageType, DataBusService, IEndpointMessage, Route } from '@core/data-bus.service';
 import { filter } from 'rxjs/operators';
 import { createLogger, untilDestroyed } from '@core';
 import { fromEvent } from 'rxjs';
@@ -48,26 +48,6 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
               let message: IEndpointMessage = _message as IEndpointMessage;
 
               let endpoint = message.data.endpoint;
-
-              /* if (!CallManager.endPointsSet[`${e.endpoint.id}`]) {
-                e.endpoint.on(window.VoxImplant.EndpointEvents.Removed, (e) => this.onEndpointRemoved(e));
-                e.endpoint.on(window.VoxImplant.EndpointEvents.RemoteMediaAdded, (e) =>
-                  this.onRemoteMediaAdded(e)
-                );
-                e.endpoint.on(window.VoxImplant.EndpointEvents.RemoteMediaRemoved, (e) =>
-                  this.onRemoteMediaRemoved(e)
-                );
-
-                // all actions with endpoint only inside this
-                console.warn(
-                  `[WebSDk] New endpoint ID: ${e.endpoint.id} (${
-                    e.endpoint.isDefault ? 'default' : 'regular'
-                  })`
-                );
-                if (e.endpoint.isDefault) {
-                  CallManager.endPointsSet = {};
-                }
-                CallManager.endPointsSet[`${e.endpoint.id}`] = e.endpoint;*/
 
               if (endpoint.isDefault) {
                 this.isLocalVideoShow = true;
@@ -307,5 +287,32 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
       return { Nx, Ny, targetW, targetH };
     }
     return { Nx: 0, Ny: 0, targetW: 0, targetH: 0 };
+  }
+
+  toggleCam() {
+    this.dataBusService.send({
+      type: DataBusMessageType.CameraToggle,
+      data: {},
+      route: [Route.Inner],
+      sign: this.ID,
+    });
+  }
+
+  toggleMic() {
+    this.dataBusService.send({
+      type: DataBusMessageType.MicToggle,
+      data: {},
+      route: [Route.Inner],
+      sign: this.ID,
+    });
+  }
+
+  leaveRoom() {
+    this.dataBusService.send({
+      type: DataBusMessageType.LeaveRoom,
+      data: {},
+      route: [Route.Inner],
+      sign: this.ID,
+    });
   }
 }

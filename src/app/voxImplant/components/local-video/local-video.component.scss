@@ -4,3 +4,10 @@
   min-height: 300px;
   background: white;
 }
+
+#localVideoNode video {
+  transform: rotateY(180deg);
+}
+#localVideoNode.is--sharing video {
+  transform: none;
+}

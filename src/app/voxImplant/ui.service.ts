@@ -8,6 +8,9 @@ import { createLogger, untilDestroyed } from '@core';
 import { VIManagerService } from '@app/voxImplant/vimanager.service';
 import { DataBusMessageType, DataBusService, ErrorId, IDataBusMessage } from '@core/data-bus.service';
 import { ConferenceManagementService } from '@app/voxImplant/conference-management.service';
+import { ActivatedRoute, NavigationEnd, Router, UrlSegment } from '@angular/router';
+import { filter, map, switchMap } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 export enum UIState {
   needRoomId = 'needRoomId',
@@ -17,6 +20,7 @@ export enum UIState {
   browserIsSupported = 'conf__access-not-supported',
   mediaAccessError = 'mediaAccessError',
   videoWall = 'conf__video-section-wrapper',
+  leaveRoom = 'conf__leave',
 }
 
 //TODO  move to module
@@ -26,21 +30,43 @@ export enum UIState {
 export class UIService implements IIDClass, OnDestroy {
   readonly ID = 'UIService';
   private logger = createLogger(this.ID);
+
+  navigationEnd: any;
+  routePathParam: any;
+
   constructor(
     private sdkService: SDKService,
     private currentUserService: CurrentUserService,
     private statisticsService: StatisticsService,
     private viManagerServer: VIManagerService,
     private dataBusService: DataBusService,
-    private conferenceManagement: ConferenceManagementService
+    private conferenceManagement: ConferenceManagementService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {
-    this.state = this.roomId ? UIState.needInfo : UIState.needRoomId;
+    this.route.pathFromRoot;
+
+    // route.url.subscribe((s:UrlSegment[]) => {
+    //   console.log("url", s);
+    //   let ss = route.snapshot;
+    //   debugger;
+    // });
+
+    if (this.roomId) {
+      this.onWelcome();
+    } else {
+      this.state = UIState.needRoomId;
+    }
 
     this.dataBusService.inner$.pipe(untilDestroyed(this)).subscribe((message: IDataBusMessage) => {
       switch (message.type) {
         case DataBusMessageType.CallInit:
           //case DataBusMessageType.CallConnected:
           this.state = UIState.videoWall;
+          break;
+        case DataBusMessageType.LeaveRoom:
+          //case DataBusMessageType.CallConnected:
+          this.state = UIState.leaveRoom;
           break;
       }
     });
@@ -50,7 +76,7 @@ export class UIService implements IIDClass, OnDestroy {
     return this.currentUserService.serviceId;
   }
 
-  onWelcome(e: MouseEvent | TouchEvent) {
+  onWelcome(e?: MouseEvent | TouchEvent) {
     if (e && e.preventDefault) {
       e.preventDefault();
     }
@@ -64,8 +90,8 @@ export class UIService implements IIDClass, OnDestroy {
         '',
         environment.appConfig.replaceHistoryPrefix + this.currentUserService.serviceId
       );
-      this.state = UIState.needInfo;
     }
+    this.state = UIState.needInfo;
   }
 
   state: UIState;
