@@ -117,6 +117,59 @@ export class ConferenceManagementService implements IIDClass, OnDestroy {
           }
           break;
 
+        case DataBusMessageType.ShareScreenStopped:
+          {
+            this.logger.info('Share screen stopped');
+            // TODO
+            // if video stub active
+            // if (currentUser.cameraStatus === 0) {
+            //   LayerManager.toggleVideoStub('localVideoNode', true);
+            // }
+            //
+            // WSService.notifySharing(false);
+            // this.share.classList.toggle('option--off');
+            // document.getElementById('localVideoNode').classList.toggle('is--sharing');
+          }
+          break;
+
+        case DataBusMessageType.ShareScreenStarted:
+          {
+            //
+            //   WSService.notifySharing(true);
+            //   this.share.classList.toggle('option--off');
+            //   document.getElementById('localVideoNode').classList.toggle('is--sharing');
+            //
+            //   let renderer = window.VoxImplant.Hardware.StreamManager.get().getLocalMediaRenderers()[0];
+            //   if (renderer.kind === 'sharing') {
+            //     renderer.stream.getTracks().forEach((tr) => {
+            //       tr.addEventListener('ended', () => {
+            //         WSService.notifySharing(false);
+            //         document.getElementById('localVideoNode').classList.toggle('is--sharing');
+            //         this.share.classList.toggle('option--off');
+            //         // if video stub active
+            //         if (currentUser.cameraStatus === 0) {
+            //           LayerManager.toggleVideoStub('localVideoNode', true);
+            //         }
+            //       });
+            //     });
+            //   }
+            // })
+            // .catch((e) => {
+            //   console.error(`[WebSDk] Sharing failed: ${e.message}`);
+            //   if (currentUser.cameraStatus === 0) {
+            //     LayerManager.toggleVideoStub('localVideoNode', true);
+            //   }
+            // });
+          }
+          break;
+
+        case DataBusMessageType.ShareScreenStartedError: {
+          //TODO
+          // if (currentUser.cameraStatus === 0) {
+          //   LayerManager.toggleVideoStub('localVideoNode', true);
+          // }
+        }
+
         default:
           break;
       }

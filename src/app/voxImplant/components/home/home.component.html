@@ -5,8 +5,16 @@
   <app-browser-is-not-supported *ngIf="uiService.state === states.browserIsSupported"></app-browser-is-not-supported>
   <app-media-setting-form *ngIf="uiService.state === states.needMediaSetting"></app-media-setting-form>
   <app-media-allow-notify *ngIf="uiService.state === states.mediaAccessError"></app-media-allow-notify>
-  <app-video-wall *ngIf="uiService.state === states.videoWall"></app-video-wall>
+  <app-video-wall
+    *ngIf="uiService.state === states.videoWall"
+    (sidePanelEmitter)="onSidePanelOpen($event)"
+  ></app-video-wall>
   <app-leave-room *ngIf="uiService.state === states.leaveRoom"></app-leave-room>
 </div>
+<app-side-panel
+  *ngIf="uiService.state === states.videoWall && isSidePanelOpen"
+  (closePanelEmitter)="onClose($event)"
+  [participants]="uiService.participants"
+></app-side-panel>
 <app-error-notify></app-error-notify>
 <app-enviroment></app-enviroment>

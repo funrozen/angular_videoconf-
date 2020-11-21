@@ -1,4 +1,6 @@
-import { Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, ElementRef, Inject, Input, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { FullScreenService } from '@app/voxImplant/full-screen.service';
 
 @Component({
   selector: 'app-endpoint-video',
@@ -7,12 +9,18 @@ import { Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
   encapsulation: ViewEncapsulation.None,
 })
 export class EndpointVideoComponent implements OnInit {
-  constructor() {}
+  constructor(@Inject(DOCUMENT) private document: Document, private fullScreenService: FullScreenService) {}
 
   @Input() id: string;
   @Input() name: string;
   //template.content.querySelector('.js__endpoint').style.order = place;
   @Input() place: string;
 
+  @ViewChild('theElement') theElementRef: ElementRef;
+
   ngOnInit(): void {}
+
+  toggleFullScreen() {
+    this.fullScreenService.toggleFullScreen(this.theElementRef.nativeElement);
+  }
 }

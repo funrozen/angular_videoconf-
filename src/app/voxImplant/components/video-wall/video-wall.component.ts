@@ -1,4 +1,13 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { DataBusMessageType, DataBusService, IEndpointMessage, Route } from '@core/data-bus.service';
 import { filter } from 'rxjs/operators';
 import { createLogger, untilDestroyed } from '@core';
@@ -27,6 +36,8 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
     DataBusMessageType.RemoteMediaAdded,
     DataBusMessageType.RemoteMediaRemoved,
     DataBusMessageType.EndpointRemoved,
+    DataBusMessageType.ShareScreenStarted,
+    DataBusMessageType.ShareScreenStopped,
   ];
   inviteForm: FormGroup;
   isLocalVideoShow = true;
@@ -34,6 +45,9 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
   roomId: string;
   initPromise: Promise<void>;
   initPromiseResolve: () => void;
+
+  @Output() sidePanelEmitter: EventEmitter<boolean> = new EventEmitter();
+
   //TODO it probably need store to save video wall state
   constructor(private currentUserService: CurrentUserService, private dataBusService: DataBusService) {
     dataBusService.inner$
@@ -130,12 +144,28 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
               }
             }
             break;
+
+          case DataBusMessageType.ShareScreenStopped:
+            {
+              this.isSharing = false;
+            }
+            break;
+
+          case DataBusMessageType.ShareScreenStarted:
+            {
+              this.isSharing = true;
+            }
+            break;
         }
       });
     this.initPromise = new Promise<void>((resolve) => {
       this.logger.info('resolve');
       this.initPromiseResolve = resolve;
     });
+  }
+
+  onToggleSidePanel() {
+    this.sidePanelEmitter.emit();
   }
 
   ngOnInit(): void {
@@ -171,6 +201,7 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
   }
 
   @ViewChild('videoSection') videoSection: ElementRef;
+  isSharing: boolean = false;
 
   async setVideoSectionWidth() {
     //const perf1 = window.performance.now();
@@ -310,6 +341,15 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
   leaveRoom() {
     this.dataBusService.send({
       type: DataBusMessageType.LeaveRoom,
+      data: {},
+      route: [Route.Inner],
+      sign: this.ID,
+    });
+  }
+
+  toggleSharing() {
+    this.dataBusService.send({
+      type: this.isSharing ? DataBusMessageType.StopShareScreen : DataBusMessageType.StartShareScreen,
       data: {},
       route: [Route.Inner],
       sign: this.ID,

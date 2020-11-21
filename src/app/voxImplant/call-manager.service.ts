@@ -17,12 +17,18 @@ import { createLogger, ILogger, untilDestroyed } from '@core';
 import { MediaRenderer } from 'voximplant-websdk/Media/MediaRenderer';
 import { filter } from 'rxjs/operators';
 
+interface EndpointsData {
+  displayName: string;
+  id: string;
+  isDefault: boolean;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class CallManagerService implements IIDClass, OnDestroy {
   readonly ID = 'CallManagerService';
-  private endPointsSet: any;
+  private endPointsSet: Map<string, EndpointsData> = new Map<string, EndpointsData>();
   private currentConf: Call;
   private sdk: Client;
   private reporter: any;
@@ -32,7 +38,11 @@ export class CallManagerService implements IIDClass, OnDestroy {
     this.subscribe();
   }
 
-  private subscribeToTypes: DataBusMessageType[] = [DataBusMessageType.CameraToggled];
+  private subscribeToTypes: DataBusMessageType[] = [
+    DataBusMessageType.CameraToggled,
+    DataBusMessageType.StartShareScreen,
+    DataBusMessageType.StopShareScreen,
+  ];
   private subscribe() {
     this.dataBusService.inner$
       .pipe(
@@ -44,13 +54,19 @@ export class CallManagerService implements IIDClass, OnDestroy {
           case DataBusMessageType.CameraToggled:
             this.onCameraToggled();
             break;
+
+          case DataBusMessageType.StartShareScreen:
+            this.startSharingScreen();
+            break;
+
+          case DataBusMessageType.StopShareScreen:
+            this.stopSharingScreen();
+            break;
         }
       });
   }
 
   public init(newCallParams: any, sdk: Client) {
-    this.endPointsSet = {};
-
     this.sdk = sdk;
     this.dataBusService.send({
       type: DataBusMessageType.CallInit,
@@ -115,11 +131,11 @@ export class CallManagerService implements IIDClass, OnDestroy {
   onCallConnected(e: any) {
     this.logger.info('CallConnected');
     /** Bug fix for FireFox */
-    this.endPointsSet[`${this.currentUserService.uuid}`] = {
+    this.endPointsSet.set(this.currentUserService.uuid, <EndpointsData>{
       displayName: this.currentUserService.name,
       id: this.currentUserService.uuid,
       isDefault: true,
-    };
+    });
 
     this.dataBusService.send({
       type: DataBusMessageType.CallConnected,
@@ -270,7 +286,8 @@ export class CallManagerService implements IIDClass, OnDestroy {
 
   calculateParticipants() {
     const data: any[] = [];
-    this.currentConf.getEndpoints().forEach((endpoint) => {
+    this.endPointsSet.forEach((endpoint) => {
+      //TODO it ok to send default with flag
       if (!endpoint.isDefault) {
         data.push({
           displayName: endpoint.displayName,
@@ -286,17 +303,17 @@ export class CallManagerService implements IIDClass, OnDestroy {
   }
 
   onEndpointAdded(e: any) {
-    if (!this.endPointsSet[`${e.endpoint.id}`]) {
+    if (!this.endPointsSet.has(e.endpoint.id)) {
       e.endpoint.on(VoxImplant.EndpointEvents.Removed, (e: any) => this.onEndpointRemoved(e));
       e.endpoint.on(VoxImplant.EndpointEvents.RemoteMediaAdded, (e: any) => this.onRemoteMediaAdded(e));
       e.endpoint.on(VoxImplant.EndpointEvents.RemoteMediaRemoved, (e: any) => this.onRemoteMediaRemoved(e));
 
       // all actions with endpoint only inside this
       this.logger.warn(`[WebSDk] New endpoint ID: ${e.endpoint.id} (${e.endpoint.isDefault ? 'default' : 'regular'})`);
-      if (e.endpoint.isDefault) {
-        this.endPointsSet = {};
+      if (!e.endpoint.isDefault) {
+        // default is already there
+        this.endPointsSet.set(e.endpoint.id, e.endpoint);
       }
-      this.endPointsSet[`${e.endpoint.id}`] = e.endpoint;
 
       if (e.endpoint.isDefault) {
         const message: IEndpointMessage = {
@@ -329,7 +346,7 @@ export class CallManagerService implements IIDClass, OnDestroy {
         });
       }
 
-      if (Object.keys(this.endPointsSet).length < 2) {
+      if (this.endPointsSet.size < 2) {
         this.dataBusService.send({
           data: undefined,
           route: [Route.Inner],
@@ -351,7 +368,7 @@ export class CallManagerService implements IIDClass, OnDestroy {
 
   onRemoteMediaAdded(e: any) {
     this.logger.warn(`[WebSDk] New MediaRenderer in ${e.endpoint.id}`, e);
-    if (this.endPointsSet[`${e.endpoint.id}`] && !e.endpoint.isDefault) {
+    if (this.endPointsSet.has(e.endpoint.id) && !e.endpoint.isDefault) {
       const endpointNode = document.getElementById(e.endpoint.id);
       // if (
       //   e.mediaRenderer.kind === "video" &&
@@ -387,7 +404,7 @@ export class CallManagerService implements IIDClass, OnDestroy {
 
   onRemoteMediaRemoved(e: any) {
     this.logger.warn(`[WebSDk] MediaRenderer removed from ${e.endpoint.id}`, e);
-    if (this.endPointsSet[`${e.endpoint.id}`] && !e.endpoint.isDefault) {
+    if (this.endPointsSet.has(e.endpoint.id) && !e.endpoint.isDefault) {
       if (
         !e.endpoint.mediaRenderers.find(
           (renderer: MediaRenderer) => renderer.kind === 'video' || renderer.kind === 'sharing'
@@ -406,20 +423,20 @@ export class CallManagerService implements IIDClass, OnDestroy {
   }
 
   onEndpointRemoved(e: any) {
-    delete this.endPointsSet[`${e.endpoint.id}`];
+    this.endPointsSet.delete(e.endpoint.id);
     const message: IEndpointMessage = {
       data: {
         endpoint: e.endpoint,
-        isNeedReCalcView: Object.keys(this.endPointsSet).length > 0,
+        isNeedReCalcView: this.endPointsSet.size > 0,
       },
       route: [Route.Inner],
       sign: this.ID,
-      type: DataBusMessageType.EndpointAdded,
+      type: DataBusMessageType.EndpointRemoved,
     };
 
     this.dataBusService.send(message);
 
-    if (Object.keys(this.endPointsSet).length < 2) {
+    if (this.endPointsSet.size < 2) {
       this.dataBusService.send({
         data: undefined,
         route: [Route.Inner],
@@ -427,6 +444,7 @@ export class CallManagerService implements IIDClass, OnDestroy {
         type: DataBusMessageType.ShowInviteForm,
       });
     }
+    this.calculateParticipants();
   }
 
   ngOnDestroy(): void {}
@@ -441,4 +459,79 @@ export class CallManagerService implements IIDClass, OnDestroy {
   onLeaveRoom() {
     this.disconnect();
   }
+
+  isSharing = false;
+  stopSharingScreen() {
+    this.currentConf
+      .stopSharingScreen()
+      .then(() => {
+        //todo
+        // CallManager.reporter.stopSharingScreen();
+        this.isSharing = false;
+        this.dataBusService.send({
+          data: undefined,
+          route: [Route.Inner],
+          sign: this.ID,
+          type: DataBusMessageType.ShareScreenStopped,
+        });
+      })
+      .catch((e) => {
+        this.logger.error(`[WebSDk] Cannot stop sharing: ${e.message}`);
+      });
+  }
+
+  startSharingScreen() {
+    // todo
+    //CallManager.reporter.shareScreen(true, true);
+    this.currentConf
+      .shareScreen(true, true)
+      .then(() => {
+        this.isSharing = true;
+        this.dataBusService.send({
+          data: undefined,
+          route: [Route.Inner],
+          sign: this.ID,
+          type: DataBusMessageType.ShareScreenStarted,
+        });
+
+        let renderers = VoxImplant.Hardware.StreamManager.get().getLocalMediaRenderers();
+
+        let renderer = renderers[0];
+        //if (renderer.kind === 'sharing') { //TODO actually it is video
+        // TODO this one is not working but should  https://stackoverflow.com/questions/25141080/how-to-listen-for-stop-sharing-click-in-chrome-desktopcapture-api
+        if (renderer) {
+          renderer.stream.getTracks().forEach((tr) => {
+            //tr.removeEventListener('ended', this._onSharingStopped);
+            tr.addEventListener('ended', () => {
+              debugger;
+              this._onSharingStopped();
+            });
+            tr.addEventListener('inactive', () => {
+              debugger;
+              this._onSharingStopped();
+            });
+          });
+        }
+      })
+      .catch((e) => {
+        this.logger.error(`[WebSDk] Sharing failed: ${e.message}`);
+        this.dataBusService.send({
+          data: undefined,
+          route: [Route.Inner],
+          sign: this.ID,
+          type: DataBusMessageType.ShareScreenStartedError,
+        });
+      });
+  }
+
+  private _onSharingStopped = () => {
+    //TODO once run
+    this.isSharing = false;
+    this.dataBusService.send({
+      data: undefined,
+      route: [Route.Inner],
+      sign: this.ID,
+      type: DataBusMessageType.ShareScreenStopped,
+    });
+  };
 }

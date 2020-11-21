@@ -81,10 +81,14 @@
       <div class="conf__info-footer-icon conf__info-footer-icon-micro js__mic" (click)="toggleMic()"></div>
     </div>
     <div class="conf__info-footer-icon-wrap conf__info-footer--nofs">
-      <div class="conf__info-footer-icon conf__info-footer-icon-share js__share"></div>
+      <div
+        class="conf__info-footer-icon conf__info-footer-icon-share js__share"
+        [class.option--off]="isSharing"
+        (click)="toggleSharing()"
+      ></div>
     </div>
     <div class="conf__info-footer-icon-wrap conf__info-footer--nofs">
-      <div class="conf__info-footer-icon conf__info-footer-icon-users js__chat"></div>
+      <div class="conf__info-footer-icon conf__info-footer-icon-users js__chat" (click)="onToggleSidePanel()"></div>
     </div>
     <div class="conf__info-footer-icon-wrap conf__info-footer--nofs">
       <div class="conf__info-footer-icon conf__info-footer-icon-leave js__leave" (click)="leaveRoom()"></div>

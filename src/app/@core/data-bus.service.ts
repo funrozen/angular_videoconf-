@@ -70,6 +70,15 @@ export enum DataBusMessageType {
   ShowInviteForm = 'ShowInviteForm',
   HideInviteForm = 'ShowInviteForm',
   LeaveRoom = 'LeaveRoom',
+  StartShareScreen = 'StartShareScreen',
+
+  StopShareScreen = 'StopShareScreen',
+  ShareScreenStarted = 'ShareScreenStarted',
+  ShareScreenStartedError = 'ShareScreenStartedError',
+  ShareScreenStopped = 'ShareScreenStopped',
+
+  FullScreenStopped = 'FullScreenStopped',
+  FullScreenStarted = 'FullScreenStarted',
 }
 
 export interface IDataBusMessage {

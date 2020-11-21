@@ -16,6 +16,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   ];
   isLoading = false;
   states = UIState;
+  isSidePanelOpen: boolean = false;
+
   constructor(private dataBusService: DataBusService, public uiService: UIService) {
     this.dataBusService.inner$
       .pipe(
@@ -38,4 +40,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.isLoading = true;
   }
   ngOnDestroy() {}
+
+  onClose($event: boolean) {
+    this.isSidePanelOpen = false;
+  }
+
+  onSidePanelOpen($event: boolean) {
+    this.isSidePanelOpen = !this.isSidePanelOpen;
+  }
 }

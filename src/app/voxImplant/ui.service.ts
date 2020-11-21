@@ -6,7 +6,13 @@ import { StatisticsService } from '@app/voxImplant/statistics.service';
 import { IIDClass } from '@app/interfaces/IIDClass';
 import { createLogger, untilDestroyed } from '@core';
 import { VIManagerService } from '@app/voxImplant/vimanager.service';
-import { DataBusMessageType, DataBusService, ErrorId, IDataBusMessage } from '@core/data-bus.service';
+import {
+  DataBusMessageType,
+  DataBusService,
+  ErrorId,
+  IDataBusMessage,
+  IEndpointParticipantMessage,
+} from '@core/data-bus.service';
 import { ConferenceManagementService } from '@app/voxImplant/conference-management.service';
 import { ActivatedRoute, NavigationEnd, Router, UrlSegment } from '@angular/router';
 import { filter, map, switchMap } from 'rxjs/operators';
@@ -31,8 +37,10 @@ export class UIService implements IIDClass, OnDestroy {
   readonly ID = 'UIService';
   private logger = createLogger(this.ID);
 
-  navigationEnd: any;
-  routePathParam: any;
+  participants: {
+    id: string;
+    displayName: string;
+  }[] = [];
 
   constructor(
     private sdkService: SDKService,
@@ -40,18 +48,9 @@ export class UIService implements IIDClass, OnDestroy {
     private statisticsService: StatisticsService,
     private viManagerServer: VIManagerService,
     private dataBusService: DataBusService,
-    private conferenceManagement: ConferenceManagementService,
-    private route: ActivatedRoute,
-    private router: Router
+    //it's not non-use it is just need to load it
+    private conferenceManagement: ConferenceManagementService
   ) {
-    this.route.pathFromRoot;
-
-    // route.url.subscribe((s:UrlSegment[]) => {
-    //   console.log("url", s);
-    //   let ss = route.snapshot;
-    //   debugger;
-    // });
-
     if (this.roomId) {
       this.onWelcome();
     } else {
@@ -67,6 +66,20 @@ export class UIService implements IIDClass, OnDestroy {
         case DataBusMessageType.LeaveRoom:
           //case DataBusMessageType.CallConnected:
           this.state = UIState.leaveRoom;
+          break;
+
+        case DataBusMessageType.Participants:
+          {
+            this.participants = [
+              ...[
+                {
+                  displayName: this.currentUserService.name + ' (you)',
+                  id: 'js__local_participant_enlist',
+                },
+              ],
+              ...(message as IEndpointParticipantMessage).data,
+            ];
+          }
           break;
       }
     });
@@ -103,6 +116,13 @@ export class UIService implements IIDClass, OnDestroy {
     this.statisticsService.initReporter('Videoconf', '', '');
 
     this.logger.info('New User:', { user: this.currentUserService.name });
+
+    this.participants = [
+      {
+        displayName: this.currentUserService.name + ' (you)',
+        id: 'js__local_participant_enlist',
+      },
+    ];
 
     if (this.viManagerServer.checkBrowser()) {
       this.logger.info('[WebSDk] RTC SUPPORTED');
