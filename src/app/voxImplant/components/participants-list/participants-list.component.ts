@@ -13,6 +13,7 @@ export class ParticipantsListComponent implements OnInit, OnDestroy {
   @Input() participants: {
     id: string;
     displayName: string;
+    isDefault: boolean;
   }[] = [];
   constructor(private dataBusService: DataBusService) {}
 

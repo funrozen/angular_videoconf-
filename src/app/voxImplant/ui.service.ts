@@ -40,6 +40,7 @@ export class UIService implements IIDClass, OnDestroy {
   participants: {
     id: string;
     displayName: string;
+    isDefault: boolean;
   }[] = [];
 
   constructor(
@@ -70,15 +71,7 @@ export class UIService implements IIDClass, OnDestroy {
 
         case DataBusMessageType.Participants:
           {
-            this.participants = [
-              ...[
-                {
-                  displayName: this.currentUserService.name + ' (you)',
-                  id: 'js__local_participant_enlist',
-                },
-              ],
-              ...(message as IEndpointParticipantMessage).data,
-            ];
+            this.participants = [...(message as IEndpointParticipantMessage).data];
           }
           break;
       }
@@ -117,12 +110,7 @@ export class UIService implements IIDClass, OnDestroy {
 
     this.logger.info('New User:', { user: this.currentUserService.name });
 
-    this.participants = [
-      {
-        displayName: this.currentUserService.name + ' (you)',
-        id: 'js__local_participant_enlist',
-      },
-    ];
+    this.participants = [];
 
     if (this.viManagerServer.checkBrowser()) {
       this.logger.info('[WebSDk] RTC SUPPORTED');

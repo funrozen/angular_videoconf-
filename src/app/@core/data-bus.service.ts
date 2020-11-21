@@ -96,6 +96,7 @@ export interface IEndpointParticipantMessage extends IDataBusMessage {
   data: {
     id: string;
     displayName: string;
+    isDefault: boolean;
   }[];
 }
 

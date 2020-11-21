@@ -287,13 +287,11 @@ export class CallManagerService implements IIDClass, OnDestroy {
   calculateParticipants() {
     const data: any[] = [];
     this.endPointsSet.forEach((endpoint) => {
-      //TODO it ok to send default with flag
-      if (!endpoint.isDefault) {
-        data.push({
-          displayName: endpoint.displayName,
-          id: endpoint.id,
-        });
-      }
+      data.push({
+        displayName: endpoint.displayName,
+        id: endpoint.id,
+        isDefault: endpoint.isDefault,
+      });
     });
     this.dataBusService.send({
       data: data,

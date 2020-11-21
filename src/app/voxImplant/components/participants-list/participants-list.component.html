@@ -1,6 +1,6 @@
 <ul class="conf__sidebar-participants-list">
   <li class="conf__sidebar-participant-item" *ngFor="let item of participants" [id]="item.id">
-    <div class="conf__sidebar-participant-title">{{ item.displayName }}</div>
+    <div class="conf__sidebar-participant-title">{{ item.displayName }} <span *ngIf="item.isDefault">(you)</span></div>
     <div class="conf__sidebar-participant-spacer"></div>
     <div class="conf__sidebar-participant-states">
       <svg
