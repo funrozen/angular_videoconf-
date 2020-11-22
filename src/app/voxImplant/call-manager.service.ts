@@ -96,7 +96,7 @@ export class CallManagerService implements IIDClass, OnDestroy {
       // TODO
 
       // registerCallbacks(this.callInterface);
-      // this.updateChatManager(currentUser);
+      //
     }, 1000);
   }
 
@@ -148,6 +148,10 @@ export class CallManagerService implements IIDClass, OnDestroy {
     this.onToggleMicrophone();
     /** end */
     this.logger.warn(`[WebSDk] Call connected ID: ${e.call.id()}`);
+  }
+
+  sendMessage(msg: string) {
+    this.currentConf.sendMessage(msg);
   }
 
   private toggleCamera() {

@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { IChatMessage, IParticipant } from '@app/voxImplant/interfaces';
 
 @Component({
   selector: 'app-side-panel',
@@ -8,12 +9,15 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 export class SidePanelComponent implements OnInit {
   isPeopleShow: boolean = true;
 
+  @Input() selfName: string;
+
+  @Input() messages: IChatMessage[];
+
   @Output() closePanelEmitter: EventEmitter<boolean> = new EventEmitter();
 
-  @Input() participants: {
-    id: string;
-    displayName: string;
-  }[] = [];
+  @Output() chatMessage: EventEmitter<string> = new EventEmitter();
+
+  @Input() participants: IParticipant[] = [];
 
   onClickClose() {
     this.closePanelEmitter.emit(true);
@@ -22,4 +26,8 @@ export class SidePanelComponent implements OnInit {
   constructor() {}
 
   ngOnInit(): void {}
+
+  sendChatMessage(value: string) {
+    this.chatMessage.emit(value);
+  }
 }

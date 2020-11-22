@@ -1,10 +1,29 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import * as VoxImplant from 'voximplant-websdk';
-import { DataBusMessageType, DataBusService, IDataBusMessage, Route } from '@core/data-bus.service';
+import {
+  DataBusMessageType,
+  DataBusService,
+  IDataBusChatMessage,
+  IDataBusMessage,
+  Route,
+} from '@core/data-bus.service';
 import { IIDClass } from '@app/interfaces/IIDClass';
 import { createLogger, untilDestroyed } from '@core';
 import { Messaging } from 'voximplant-websdk/Messaging';
 import { Conversation } from 'voximplant-websdk/Messaging/src/Conversation';
+import { IChatMessage } from '@app/voxImplant/interfaces';
+
+interface IVIMessage {
+  conversation: string;
+  payload: {
+    connectionId: string;
+    displayName: string;
+    time: string;
+  }[];
+  sender: string;
+  text: string;
+  uuid: string;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +42,7 @@ export class ChatManagerService implements IIDClass, OnDestroy {
     this.dataBusService.inner$.pipe(untilDestroyed(this)).subscribe((message: IDataBusMessage) => {
       switch (message.type) {
         case DataBusMessageType.JoinToChat:
-          let payload = JSON.parse(message.data.payload);
+          let payload = message.data.payload;
 
           if (payload.owner) {
             this.logger.log('payload for owner', payload);
@@ -37,6 +56,12 @@ export class ChatManagerService implements IIDClass, OnDestroy {
             if (payload.roomId) {
               this.join(payload.roomId);
             }
+          }
+          break;
+
+        case DataBusMessageType.SendMessageToChat:
+          {
+            this.sendMessage(message.data.text);
           }
           break;
       }
@@ -59,10 +84,6 @@ export class ChatManagerService implements IIDClass, OnDestroy {
     });
   }
 
-  get call() {
-    return window['currentCall'];
-  }
-
   get roomId() {
     return this.conversation && this.conversation.uuid;
   }
@@ -78,7 +99,12 @@ export class ChatManagerService implements IIDClass, OnDestroy {
 
         this.isOwner = true;
         const message = `{"event":"set_room_id","roomId":"${this.roomId}"}`;
-        this.call.sendMessage(message);
+        this.dataBusService.send({
+          data: message,
+          route: [Route.Inner],
+          sign: this.ID,
+          type: DataBusMessageType.SendMessageToCall,
+        });
         this.logger.info(`send message:${message}`);
       })
       .catch((reason) => {
@@ -141,21 +167,26 @@ export class ChatManagerService implements IIDClass, OnDestroy {
    * RetransmittedEvent
    * @param event
    */
-  addMessageByEvent(event: { message: any }) {
+  addMessageByEvent(event: { message: IVIMessage }) {
     if (event.message) {
       this.messages.push(event.message);
       //message send
       this.addChatMessage(event.message);
     }
   }
-  // handler to CallInterface
-  addChatMessage = (message: any) => {
+
+  addChatMessage = (message: IVIMessage) => {
     const payload = message.payload[0];
     //TODO check time on render
     //const time = new Date(payload.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    this.dataBusService.send({
+    this.dataBusService.send(<IDataBusChatMessage>{
       type: DataBusMessageType.ChatMessage,
-      data: { payload },
+      data: <IChatMessage>{
+        id: message.uuid,
+        payload: payload,
+        text: message.text,
+        conversation: message.conversation,
+      },
       route: [Route.Inner],
       sign: this.ID,
     });

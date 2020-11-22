@@ -12,11 +12,10 @@ import {
   ErrorId,
   IDataBusMessage,
   IEndpointParticipantMessage,
+  Route,
 } from '@core/data-bus.service';
 import { ConferenceManagementService } from '@app/voxImplant/conference-management.service';
-import { ActivatedRoute, NavigationEnd, Router, UrlSegment } from '@angular/router';
-import { filter, map, switchMap } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { IChatMessage, IParticipant } from '@app/voxImplant/interfaces';
 
 export enum UIState {
   needRoomId = 'needRoomId',
@@ -37,11 +36,9 @@ export class UIService implements IIDClass, OnDestroy {
   readonly ID = 'UIService';
   private logger = createLogger(this.ID);
 
-  participants: {
-    id: string;
-    displayName: string;
-    isDefault: boolean;
-  }[] = [];
+  participants: IParticipant[] = [];
+
+  chatMessages: IChatMessage[] = [];
 
   constructor(
     private sdkService: SDKService,
@@ -74,12 +71,22 @@ export class UIService implements IIDClass, OnDestroy {
             this.participants = [...(message as IEndpointParticipantMessage).data];
           }
           break;
+
+        case DataBusMessageType.ChatMessage:
+          {
+            this.chatMessages.push(message.data);
+          }
+          break;
       }
     });
   }
 
   get roomId(): string {
     return this.currentUserService.serviceId;
+  }
+
+  get selfName(): string {
+    return this.currentUserService.name;
   }
 
   onWelcome(e?: MouseEvent | TouchEvent) {
@@ -133,6 +140,15 @@ export class UIService implements IIDClass, OnDestroy {
       .catch(() => {
         this.state = UIState.mediaAccessError;
       });
+  }
+
+  onNewChatMessage($event: string) {
+    this.dataBusService.send({
+      data: { text: $event },
+      route: [Route.Inner],
+      sign: this.ID,
+      type: DataBusMessageType.SendMessageToChat,
+    });
   }
 
   ngOnDestroy(): void {}

@@ -22,6 +22,7 @@ import { EndpointVideoComponent } from './components/endpoint-video/endpoint-vid
 import { EnviromentComponent } from './components/enviroment/enviroment.component';
 import { LeaveRoomComponent } from './components/leave-room/leave-room.component';
 import { SidePanelComponent } from './components/side-panel/side-panel.component';
+import { ChatComponent } from './components/chat/chat.component';
 @NgModule({
   imports: [CommonModule, TranslateModule, SharedModule, ReactiveFormsModule, VoxImplantConferenceRoutingModule],
   declarations: [
@@ -43,6 +44,8 @@ import { SidePanelComponent } from './components/side-panel/side-panel.component
     LeaveRoomComponent,
 
     SidePanelComponent,
+
+    ChatComponent,
   ],
 })
 export class VoxImplantConferenceModule {}

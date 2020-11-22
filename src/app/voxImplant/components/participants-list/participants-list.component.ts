@@ -15,7 +15,7 @@ export class ParticipantsListComponent implements OnInit, OnDestroy {
     displayName: string;
     isDefault: boolean;
   }[] = [];
-  constructor(private dataBusService: DataBusService) {}
+  constructor() {}
 
   ngOnInit(): void {}
   ngOnDestroy(): void {}

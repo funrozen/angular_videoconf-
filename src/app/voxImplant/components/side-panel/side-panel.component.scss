@@ -94,3 +94,34 @@ button.button_toggle_inactive {
   border: solid 1px #662eff;
   color: #662eff;
 }
+
+//chat part
+.conf__sidebar-body-chat .conf__sidebar-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.conf__sidebar-chat-message-input-container {
+  height: 40px;
+  width: 350px;
+
+  position: fixed;
+  bottom: 5px;
+  display: flex;
+  border-top: solid 1px black;
+  justify-content: space-between;
+}
+.conf__sidebar-chat-message-sendButton {
+  width: 60px;
+  height: 40px;
+}
+input.conf__sidebar-chat-message-input {
+  border: none;
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 20px;
+  width: 280px;
+  margin-left: 8px;
+}

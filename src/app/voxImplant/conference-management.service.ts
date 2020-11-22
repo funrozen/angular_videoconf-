@@ -117,6 +117,12 @@ export class ConferenceManagementService implements IIDClass, OnDestroy {
           }
           break;
 
+        case DataBusMessageType.SendMessageToCall:
+          {
+            this.callManagerService.sendMessage(message.data);
+          }
+          break;
+
         case DataBusMessageType.ShareScreenStopped:
           {
             this.logger.info('Share screen stopped');

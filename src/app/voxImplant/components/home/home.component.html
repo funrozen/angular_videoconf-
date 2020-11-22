@@ -15,6 +15,9 @@
   *ngIf="uiService.state === states.videoWall && isSidePanelOpen"
   (closePanelEmitter)="onClose($event)"
   [participants]="uiService.participants"
+  (chatMessage)="uiService.onNewChatMessage($event)"
+  [messages]="uiService.chatMessages"
+  [selfName]="uiService.selfName"
 ></app-side-panel>
 <app-error-notify></app-error-notify>
 <app-enviroment></app-enviroment>

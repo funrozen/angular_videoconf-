@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
+//TODO move move to voximplant module
+import { IChatMessage, IParticipant } from '@app/voxImplant/interfaces';
 
 export enum ErrorId {
   SDKError = 'SDK Error', // LayerManager.show('conf__error');
@@ -55,6 +57,8 @@ export enum DataBusMessageType {
   CallConnected = 'CallConnected', // happens on call init
   // CallConnected - logic on conference-management
 
+  SendMessageToCall = 'SendMessageToCall',
+
   CameraToggle = 'CameraToggle', // toggle camera - toggle camera setting
   CameraToggled = 'CameraToggled', // when camera setting toggled
   MicToggle = 'MicToggle', // toggle microphone  - toggle mic setting
@@ -62,6 +66,7 @@ export enum DataBusMessageType {
   ReConnect = 'ReConnect', // invoke reconnect sdk
   JoinToChat = 'JoinToChat', //
   ChatMessage = 'ChatMessage', //send message to render
+  SendMessageToChat = 'SendMessageToChat', //send message to render
   Participants = 'Participants', //send participants to render data:IEndpointParticipantMessage
   EndpointAdded = 'EndpointAdded', // on Endpoint added
   EndpointRemoved = 'EndpointRemoved', // on Endpoint removed
@@ -93,11 +98,13 @@ export interface IDataBusMessage {
 export interface IEndpointParticipantMessage extends IDataBusMessage {
   type: DataBusMessageType.Participants;
   route: [Route.Inner];
-  data: {
-    id: string;
-    displayName: string;
-    isDefault: boolean;
-  }[];
+  data: IParticipant[];
+}
+
+export interface IDataBusChatMessage extends IDataBusMessage {
+  type: DataBusMessageType.ChatMessage;
+  route: [Route.Inner];
+  data: IChatMessage;
 }
 
 export interface IToggleLocalMicMessage extends IDataBusMessage {

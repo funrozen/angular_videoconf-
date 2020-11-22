@@ -10,6 +10,7 @@ import { CallManagerService } from '@app/voxImplant/call-manager.service';
 import { CurrentUserService } from '@core/current-user.service';
 import { LogRecord } from 'voximplant-websdk/Structures';
 import { LogLevel } from 'voximplant-websdk';
+import { ChatManagerService } from '@app/voxImplant/chat-manager.service';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +24,7 @@ export class SDKService implements IIDClass {
   constructor(
     private dataBusService: DataBusService,
     private callManagerService: CallManagerService,
+    private chatManagerService: ChatManagerService,
     private currentUserService: CurrentUserService
   ) {
     this.isReconnecting = false;
@@ -126,10 +128,16 @@ export class SDKService implements IIDClass {
   rejoinConf() {
     this.isReconnecting = false;
     this.callManagerService.init(this.currentUserService.getCallSettings(), this.sdk);
+    this.chatManagerService.setConnectionId(this.currentUserService.uuid);
+    this.chatManagerService.setDisplayName(this.currentUserService.name);
   }
 
   joinConf() {
     this.callManagerService.init(this.currentUserService.getCallSettings(), this.sdk);
+
+    this.chatManagerService.setConnectionId(this.currentUserService.uuid);
+    this.chatManagerService.setDisplayName(this.currentUserService.name);
+
     this.logger.info(` Call create from serviceID: conf_${this.currentUserService.serviceId}`);
   }
 

@@ -33,10 +33,11 @@
 
     <div class="conf__sidebar-body-chat" *ngIf="!isPeopleShow">
       <div class="conf__sidebar-body">
-        <ul class="conf__sidebar-chat-message-list"></ul>
+        <app-chat [messages]="messages" [selfName]="selfName"></app-chat>
         <div class="conf__sidebar-chat-message-input-container">
-          <input class="conf__sidebar-chat-message-input" value="" /><button
+          <input class="conf__sidebar-chat-message-input" value="" #chatInput /><button
             class="conf__sidebar-chat-message-sendButton"
+            (click)="sendChatMessage(chatInput.value)"
           >
             <svg width="20" height="20" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
