@@ -94,6 +94,7 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
               this.setVideoSectionWidth();
             }
             break;
+
           case DataBusMessageType.RemoteMediaAdded:
             {
               // const endpointNode = document.getElementById(e.endpoint.id);
@@ -130,6 +131,12 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
           case DataBusMessageType.EndpointRemoved:
             {
               let message: IEndpointMessage = _message as IEndpointMessage;
+              this.logger.info(' video removed by endpoint: ', message);
+              const index = this.videoEndpoints.findIndex((item) => item.id === message.data.endpoint.id);
+              if (index !== -1) {
+                this.videoEndpoints.splice(index, 1);
+              }
+
               //this.soundRemoved.play();
               //       this.callInterface.checkFullScreen(e.endpoint.id);
               //       this.logger.warn(`[WebSDk] Endpoint was removed ID: ${e.endpoint.id}`);
@@ -137,6 +144,7 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
               //       if (node) {
               //         container.removeChild(node);
               //       }
+
               if (message.data.isNeedReCalcView) {
                 setTimeout(() => {
                   this.setVideoSectionWidth();
