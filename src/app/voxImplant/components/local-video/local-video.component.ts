@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { CurrentUserService } from '@core/current-user.service';
 
 @Component({
   selector: 'app-local-video',
@@ -7,7 +8,7 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
   encapsulation: ViewEncapsulation.None,
 })
 export class LocalVideoComponent implements OnInit {
-  constructor() {}
+  constructor(private currentUserService: CurrentUserService) {}
 
   ngOnInit(): void {}
 }

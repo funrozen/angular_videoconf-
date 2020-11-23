@@ -17,6 +17,7 @@ export class EndpointVideoComponent implements OnInit {
   @Input() place: string;
 
   @ViewChild('theElement') theElementRef: ElementRef;
+  isMicrophoneMuted: boolean = false;
 
   ngOnInit(): void {}
 
