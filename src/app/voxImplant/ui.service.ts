@@ -61,9 +61,15 @@ export class UIService implements IIDClass, OnDestroy {
           //case DataBusMessageType.CallConnected:
           this.state = UIState.videoWall;
           break;
+
         case DataBusMessageType.LeaveRoom:
           //case DataBusMessageType.CallConnected:
           this.state = UIState.leaveRoom;
+          break;
+
+        case DataBusMessageType.ToggleShowSetting:
+          //case DataBusMessageType.CallConnected:
+          this.isSettingsShown = !this.isSettingsShown;
           break;
 
         case DataBusMessageType.Participants:
@@ -106,7 +112,7 @@ export class UIService implements IIDClass, OnDestroy {
     }
     this.state = UIState.needInfo;
   }
-
+  isSettingsShown: boolean = false;
   state: UIState;
   onJoin(serviceId: string, userEmail: string, userName: string) {
     this.currentUserService.serviceId = serviceId;

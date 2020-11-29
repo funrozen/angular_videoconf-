@@ -139,7 +139,7 @@ export class CallManagerService implements IIDClass, OnDestroy {
 
     this.dataBusService.send({
       type: DataBusMessageType.CallConnected,
-      data: {},
+      data: { e },
       route: [Route.Inner],
       sign: this.ID,
     });
@@ -168,6 +168,7 @@ export class CallManagerService implements IIDClass, OnDestroy {
 
   private onCameraToggled() {
     let showVideo = this.currentUserService.cameraStatus;
+    if (!this.currentConf) return;
     if (showVideo) {
       //TODO
       // this.reporter.sendVideo();
@@ -211,6 +212,8 @@ export class CallManagerService implements IIDClass, OnDestroy {
   }
 
   onToggleMicrophone() {
+    if (!this.currentConf) return;
+    //TODO remove getElementById
     let localVideo = document.getElementById('localVideoNode');
     let muteLocalLabel = localVideo.querySelector('.conf__video-wrap .conf__video-micro');
 

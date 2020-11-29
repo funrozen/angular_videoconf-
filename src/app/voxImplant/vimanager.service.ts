@@ -33,9 +33,17 @@ export class VIManagerService implements IIDClass {
   };
 
   //this.audioMeterHtmlElement = document.querySelector('.mic__level-value');
-  initAudioMeter(el: HTMLElement) {
+  async initAudioMeter(el: HTMLElement) {
     this.audioMeterHtmlElement = el;
+    await this.isLocalStream();
     this.prepareAudioNodes(this.localStream);
+  }
+
+  isLocalStream(): Promise<any> {
+    if (this.localStream) {
+      return Promise.resolve();
+    }
+    return this.getLocalMedia();
   }
 
   getLocalMedia() {

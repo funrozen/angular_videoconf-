@@ -3,6 +3,9 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
+  HostListener,
+  Input,
+  OnDestroy,
   OnInit,
   Renderer2,
   ViewChild,
@@ -11,18 +14,13 @@ import {
 
 import { CurrentUserService } from '@core/current-user.service';
 import { IIDClass } from '@app/interfaces/IIDClass';
-import { createLogger } from '@core';
+import { createLogger, untilDestroyed } from '@core';
 import { VIManagerService } from '@app/voxImplant/vimanager.service';
 import * as VoxImplant from 'voximplant-websdk';
 import { AudioOutputInfo, AudioSourceInfo, VideoSourceInfo } from 'voximplant-websdk/Structures';
 import { FormGroup } from '@angular/forms';
-import {
-  DataBusMessageType,
-  DataBusService,
-  IToggleLocalCameraMessage,
-  IToggleLocalMicMessage,
-  Route,
-} from '@core/data-bus.service';
+import { DataBusMessageType, DataBusService, Route } from '@core/data-bus.service';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-media-setting-form',
@@ -30,11 +28,13 @@ import {
   styleUrls: ['./media-setting-form.component.scss'],
   encapsulation: ViewEncapsulation.None,
 })
-export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClass {
+export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClass, OnDestroy {
   readonly ID = 'MediaSettingFormComponent';
   settingForm: FormGroup;
   @ViewChild('videoContainer') videoContainer: ElementRef;
   @ViewChild('micLevelValue') micLevelValue: ElementRef;
+  @Input() showAsPopup: boolean = false;
+
   public cameraItems: { id: number | string; name: string }[] = [];
   public currentCamera = 'Choose';
   public isCameraOpen = false;
@@ -46,6 +46,7 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
   public isSpeakerOpen = false;
   private logger = createLogger(this.ID);
   private localVideoElement: HTMLVideoElement;
+  private subscribeToTypes = [DataBusMessageType.MicToggled, DataBusMessageType.CameraToggled];
 
   constructor(
     private viManagerService: VIManagerService,
@@ -54,6 +55,22 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
     private dataBusService: DataBusService,
     private changeDetector: ChangeDetectorRef
   ) {}
+
+  @HostListener('document:keyup', ['$event'])
+  handleDeleteKeyboardEvent(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      this.togglePopupSetting();
+    }
+  }
+
+  private togglePopupSetting() {
+    this.dataBusService.send({
+      type: DataBusMessageType.ToggleShowSetting,
+      data: {},
+      route: [Route.Inner],
+      sign: this.ID,
+    });
+  }
 
   get isMicEnabled() {
     return this.currentUserService.microphoneEnabled;
@@ -65,9 +82,24 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
 
   ngOnInit() {
     this.settingForm = new FormGroup({});
+    this.dataBusService.inner$
+      .pipe(
+        filter((message) => this.subscribeToTypes.includes(message.type)),
+        untilDestroyed(this)
+      )
+      .subscribe((message) => {
+        switch (message.type) {
+          case DataBusMessageType.CameraToggled:
+            this.onCameraToggled();
+            break;
+          case DataBusMessageType.MicToggled:
+            this.onMicrophoneToggled();
+            break;
+        }
+      });
   }
 
-  ngAfterViewInit(): void {
+  async ngAfterViewInit() {
     this.viManagerService.initAudioMeter(this.micLevelValue.nativeElement);
     if (this.viManagerService.permissions.video) {
       this.localVideoElement = document.createElement('video');
@@ -75,8 +107,9 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
       this.localVideoElement.setAttribute('playsinline', 'true');
       this.localVideoElement.setAttribute('autoplay', 'true');
       this.renderer.appendChild(this.videoContainer.nativeElement, this.localVideoElement);
-
-      this.updateLocalVideoSrc();
+      try {
+        await this.updateLocalVideoSrc();
+      } catch (e) {}
     } else {
       this.currentUserService.cameraStatus = false;
     }
@@ -145,18 +178,31 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
     this.viManagerService.setSettings();
     // TODO inviteInput!!!
     //inviteInput.value = `${Env.url}${Env.replaceHistoryPrefix}${user.serviceId}`;
-    this.dataBusService.send({
-      data: {},
-      route: [Route.Inner],
-      sign: this.ID,
-      type: DataBusMessageType.InitCall,
-    });
+    if (this.showAsPopup) {
+      this.togglePopupSetting();
+    } else {
+      this.dataBusService.send({
+        data: {},
+        route: [Route.Inner],
+        sign: this.ID,
+        type: DataBusMessageType.InitCall,
+      });
+    }
 
     this.logger.info(`[WebSDk] About create call from serviceID: conf_${this.currentUserService.serviceId}`);
   }
 
   toggleMicrophone() {
-    this.currentUserService.microphoneEnabled = !this.currentUserService.microphoneEnabled;
+    this.dataBusService.send({
+      type: DataBusMessageType.MicToggle,
+      data: {},
+      route: [Route.Inner],
+      sign: this.ID,
+    });
+    this.onMicrophoneToggled();
+  }
+
+  private onMicrophoneToggled() {
     this.viManagerService.enableLocalMic(this.currentUserService.microphoneEnabled);
   }
 
@@ -164,18 +210,27 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
     if (this.viManagerService.permissions.video === false) {
       this.logger.warn('it impossible switch local video when it is not allow');
     } else {
-      this.currentUserService.cameraStatus = !this.currentUserService.cameraStatus;
-      (this.viManagerService.enableLocalCam(this.currentUserService.cameraStatus) as Promise<any>)
-        .then((e: any) => {
-          this.updateLocalVideoSrc();
-        })
-        .catch(() => {
-          this.logger.warn("Can't change the camera state");
-        });
+      this.dataBusService.send({
+        type: DataBusMessageType.CameraToggle,
+        data: {},
+        route: [Route.Inner],
+        sign: this.ID,
+      });
     }
   }
 
-  private updateLocalVideoSrc() {
+  private onCameraToggled() {
+    (this.viManagerService.enableLocalCam(this.currentUserService.cameraStatus) as Promise<any>)
+      .then((e: any) => {
+        this.updateLocalVideoSrc();
+      })
+      .catch(() => {
+        this.logger.warn("Can't change the camera state");
+      });
+  }
+
+  private async updateLocalVideoSrc() {
+    await this.viManagerService.isLocalStream();
     this.localVideoElement.srcObject = new MediaStream(this.viManagerService.localStream.getVideoTracks());
     if (this.viManagerService.permissions.video !== false && this.currentUserService.cameraStatus) {
       this.localVideoElement.play().catch(this.logger.error);
@@ -242,4 +297,9 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
         }
       });
   }
+
+  closePopUp() {
+    this.togglePopupSetting();
+  }
+  ngOnDestroy() {}
 }

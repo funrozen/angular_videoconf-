@@ -6,6 +6,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  Renderer2,
   ViewChild,
 } from '@angular/core';
 import { DataBusMessageType, DataBusService, IEndpointMessage, Route } from '@core/data-bus.service';
@@ -38,6 +39,7 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
     DataBusMessageType.EndpointRemoved,
     DataBusMessageType.ShareScreenStarted,
     DataBusMessageType.ShareScreenStopped,
+    DataBusMessageType.Mute,
   ];
   inviteForm: FormGroup;
   isLocalVideoShow = true;
@@ -49,7 +51,11 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
   @Output() sidePanelEmitter: EventEmitter<boolean> = new EventEmitter();
 
   //TODO it probably need store to save video wall state
-  constructor(private currentUserService: CurrentUserService, private dataBusService: DataBusService) {
+  constructor(
+    private currentUserService: CurrentUserService,
+    private dataBusService: DataBusService,
+    private renderer: Renderer2
+  ) {
     dataBusService.inner$
       .pipe(
         filter((message) => this.supportMessageTypes.includes(message.type)),
@@ -166,10 +172,19 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
             break;
         }
       });
+
     this.initPromise = new Promise<void>((resolve) => {
       this.logger.info('resolve');
       this.initPromiseResolve = resolve;
     });
+  }
+
+  get isMicMuted() {
+    return !this.currentUserService.microphoneEnabled;
+  }
+
+  get isCameraMuted() {
+    return !this.currentUserService.cameraStatus;
   }
 
   onToggleSidePanel() {
@@ -216,37 +231,44 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
     await this.initPromiseResolve();
     this.logger.info('Calculating layout');
 
-    // const videoSection = this.videoSection.nativeElement;
-    // const calculatingVideo = [...videoSection.querySelectorAll('.conf__video')];
-    // let videoAmount = this.videoEndpoints.length + (this.isLocalVideoShow ? 1 : 0);
-    // const allVideo =
-    //   videoAmount === 1 ? [...videoSection.querySelectorAll('.conf__video-section>div')] : calculatingVideo;
-    // const containerW = videoSection.clientWidth - 20;
-    // const containerH = window.innerHeight - 88;
-    // const N = videoAmount > 1 ? videoAmount : containerW < 584 ? 1 : 2; // additional container for the invite block if needed
-    //
-    // let { Nx, Ny, targetW, targetH } = this.scaleSelector(N, containerW, containerH);
-    //
-    // allVideo.forEach((el) => {
-    //   el.style.width = targetW + 'px';
-    //   el.style.height = targetH + 'px';
-    //   const video = el.querySelector('video');
-    //   if (video) {
-    //     video.style.objectFit = this.getDVideo(containerW, containerH) !== this.dVideo ? 'cover' : 'contain';
-    //   } else {
-    //     setTimeout(() => {
-    //       if (video)
-    //         video.style.objectFit = this.getDVideo(containerW, containerH) !== this.dVideo ? 'cover' : 'contain';
-    //     }, 1000);
-    //   }
-    // });
-    // const containerPaddingW = (videoSection.clientWidth - targetW * Nx) / 2;
-    // const containerPaddingH = (containerH - targetH * Ny) / 2;
-    // if (containerPaddingW > 0 && containerPaddingH > 0)
-    //   videoSection.style.padding = `${containerPaddingH}px ${containerPaddingW}px`;
-    // else if (containerPaddingH > 0) videoSection.style.padding = `${containerPaddingH}px 0`;
-    // else if (containerPaddingW > 0) videoSection.style.padding = `0 ${containerPaddingW}px`;
-    // else videoSection.style.padding = `0`;
+    const videoSection = this.videoSection.nativeElement;
+    //non -angular-way
+    const calculatingVideo = [...videoSection.querySelectorAll('.conf__video')];
+    let videoAmount = this.videoEndpoints.length + (this.isLocalVideoShow ? 1 : 0);
+    const allVideo =
+      videoAmount === 1 ? [...videoSection.querySelectorAll('.conf__video-section div.conf__video')] : calculatingVideo;
+    const containerW = videoSection.clientWidth - 20;
+    const containerH = window.innerHeight - 88;
+    const N = videoAmount > 1 ? videoAmount : containerW < 584 ? 1 : 2; // additional container for the invite block if needed
+
+    let { Nx, Ny, targetW, targetH } = this.scaleSelector(N, containerW, containerH);
+
+    allVideo.forEach((el) => {
+      el.style.width = targetW + 'px';
+      el.style.height = targetH + 'px';
+      const video = el.querySelector('video');
+      if (video) {
+        let objectFit = this.getDVideo(containerW, containerH) !== this.dVideo ? 'cover' : 'contain';
+        this.renderer.setStyle(video, 'object-fit', objectFit);
+        this.renderer.setStyle(video, 'objectFit', objectFit);
+        //video.style.objectFit = objectFit;
+      } else {
+        setTimeout(() => {
+          if (video) {
+            let objectFit = this.getDVideo(containerW, containerH) !== this.dVideo ? 'cover' : 'contain';
+            video.style.objectFit = objectFit;
+            //video.style.objectFit = this.getDVideo(containerW, containerH) !== this.dVideo ? 'cover' : 'contain';
+          }
+        }, 1000);
+      }
+    });
+    const containerPaddingW = (videoSection.clientWidth - targetW * Nx) / 2;
+    const containerPaddingH = (containerH - targetH * Ny) / 2;
+    if (containerPaddingW > 0 && containerPaddingH > 0)
+      videoSection.style.padding = `${containerPaddingH}px ${containerPaddingW}px`;
+    else if (containerPaddingH > 0) videoSection.style.padding = `${containerPaddingH}px 0`;
+    else if (containerPaddingW > 0) videoSection.style.padding = `0 ${containerPaddingW}px`;
+    else videoSection.style.padding = `0`;
     //const perf2 = window.performance.now();
     //console.log(`Layout calculating took ${perf2 - perf1} ms`);
   }
@@ -349,6 +371,15 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
   leaveRoom() {
     this.dataBusService.send({
       type: DataBusMessageType.LeaveRoom,
+      data: {},
+      route: [Route.Inner],
+      sign: this.ID,
+    });
+  }
+
+  toggleShowSetting() {
+    this.dataBusService.send({
+      type: DataBusMessageType.ToggleShowSetting,
       data: {},
       route: [Route.Inner],
       sign: this.ID,

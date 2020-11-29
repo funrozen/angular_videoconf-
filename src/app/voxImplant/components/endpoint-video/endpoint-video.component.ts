@@ -1,6 +1,8 @@
-import { Component, ElementRef, Inject, Input, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, ElementRef, Inject, Input, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { FullScreenService } from '@app/voxImplant/full-screen.service';
+import { DataBusMessageType, DataBusService, IMuteMessage } from '@core/data-bus.service';
+import { untilDestroyed } from '@core';
 
 @Component({
   selector: 'app-endpoint-video',
@@ -8,8 +10,25 @@ import { FullScreenService } from '@app/voxImplant/full-screen.service';
   styleUrls: ['./endpoint-video.component.scss'],
   encapsulation: ViewEncapsulation.None,
 })
-export class EndpointVideoComponent implements OnInit {
-  constructor(@Inject(DOCUMENT) private document: Document, private fullScreenService: FullScreenService) {}
+export class EndpointVideoComponent implements OnInit, OnDestroy {
+  constructor(
+    @Inject(DOCUMENT) private document: Document,
+    private fullScreenService: FullScreenService,
+    private dataBusService: DataBusService
+  ) {
+    this.dataBusService.inward$.pipe(untilDestroyed(this)).subscribe((message) => {
+      switch (message.type) {
+        case DataBusMessageType.Mute:
+          {
+            //TODO move to filter
+            if ((<IMuteMessage>message).data.endpointId === this.id) {
+              this.isMicrophoneMuted = !!(<IMuteMessage>message).data.value;
+            }
+          }
+          break;
+      }
+    });
+  }
 
   @Input() id: string;
   @Input() name: string;
@@ -24,4 +43,5 @@ export class EndpointVideoComponent implements OnInit {
   toggleFullScreen() {
     this.fullScreenService.toggleFullScreen(this.theElementRef.nativeElement);
   }
+  ngOnDestroy() {}
 }

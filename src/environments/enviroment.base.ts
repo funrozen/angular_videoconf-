@@ -20,6 +20,7 @@ export const appBaseConfig: IAppConfig = {
     if (params.length === 2) return params[1];
     return null;
   },
+  webSocketConnectionString: 'wss://irbisadm.dev/videoconf',
   sendUID: true,
   credentials: {
     userName: '',

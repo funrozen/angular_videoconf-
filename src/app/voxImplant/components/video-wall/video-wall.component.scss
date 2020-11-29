@@ -1,3 +1,7 @@
+:host {
+  width: 100%;
+}
+
 video,
 img {
   display: block;
@@ -286,4 +290,127 @@ img {
 .conf__info-icon_settings {
   background: url(/assets/images/icons/settings_24px.svg) center no-repeat #382854;
   margin-left: 8px;
+}
+
+.conf__info-form-wrap {
+  position: relative;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background: #000000;
+  border-radius: 4px;
+  color: #fff;
+  min-width: 280px;
+  min-height: 218px;
+  padding: 4px;
+  box-sizing: border-box;
+}
+
+.conf__info-form-wrap .setup-close {
+  display: none;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1001;
+  padding: 4px;
+}
+
+.conf__info-form-wrap.popup-view {
+  position: absolute;
+  z-index: 1000;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-height: 400px;
+  padding: 16px;
+  width: calc(100% - 32px);
+  max-width: 600px;
+  height: auto;
+}
+
+.conf__info-form-wrap.popup-view .setup-close {
+  display: block;
+}
+
+@media (max-width: 600px) {
+  .conf__info-form-wrap {
+    position: absolute;
+    z-index: 1000;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-height: 400px;
+    padding: 64px 16px;
+    width: calc(100% - 32px);
+    min-height: 280px;
+  }
+  .conf__info-form-wrap .setup-close {
+    display: block;
+  }
+}
+
+.conf__info-form-wrap.hidden {
+  display: none !important;
+}
+
+.conf__info-form-wrap form {
+  position: absolute;
+  z-index: 30;
+  padding: 20px;
+  min-width: 320px;
+  max-width: 320px;
+}
+
+.conf__info-form-row {
+  margin-top: 16px;
+}
+
+.conf__info-form-btn {
+  font-family: "Roboto Mono";
+  margin: 8px 0 24px 0;
+}
+
+.conf__info-form-row input {
+  padding: 8px 12px;
+  width: 100%;
+  border-radius: 4px;
+  border: 1px solid #d8dce6;
+  color: #000000;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 24px;
+}
+
+.conf__info-form-select {
+  width: 100%;
+}
+
+.conf__info-form-select label {
+  font-size: 12px;
+  line-height: 12px;
+}
+
+.conf__form-number-wrap {
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -ms-flex;
+  display: -o-flex;
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.conf__form-number {
+  padding: 4px 12px;
+  background: #382853;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 24px;
+}
+
+.conf__form-number:first-child {
+  margin-right: 8px;
 }

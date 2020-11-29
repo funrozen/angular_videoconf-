@@ -8,7 +8,7 @@ import { CurrentUserService } from '@core/current-user.service';
   encapsulation: ViewEncapsulation.None,
 })
 export class LocalVideoComponent implements OnInit {
-  constructor(private currentUserService: CurrentUserService) {}
+  constructor(public currentUserService: CurrentUserService) {}
 
   ngOnInit(): void {}
 }

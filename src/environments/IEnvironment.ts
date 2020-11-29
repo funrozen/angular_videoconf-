@@ -8,6 +8,7 @@ export interface IAppConfig {
   getServiceIdFromUrl: (url: Location) => string;
   sendUID: boolean;
   credentials: IAppCredentials;
+  webSocketConnectionString: string;
 }
 
 export interface IEnvironment {

@@ -75,6 +75,7 @@ export enum DataBusMessageType {
   ShowInviteForm = 'ShowInviteForm',
   HideInviteForm = 'ShowInviteForm',
   LeaveRoom = 'LeaveRoom',
+  ToggleShowSetting = 'ToggleShowSetting',
   StartShareScreen = 'StartShareScreen',
 
   StopShareScreen = 'StopShareScreen',
@@ -84,6 +85,7 @@ export enum DataBusMessageType {
 
   FullScreenStopped = 'FullScreenStopped',
   FullScreenStarted = 'FullScreenStarted',
+  Mute = 'Mute',
 }
 
 export interface IDataBusMessage {
@@ -133,6 +135,14 @@ export interface IEndpointMessage extends IDataBusMessage {
       isDefault: boolean;
     };
     isNeedReCalcView: boolean;
+  };
+}
+
+export interface IMuteMessage extends IDataBusMessage {
+  type: DataBusMessageType.Mute;
+  data: {
+    value: any;
+    endpointId: string;
   };
 }
 

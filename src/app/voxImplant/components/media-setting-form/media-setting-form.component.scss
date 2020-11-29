@@ -1,4 +1,28 @@
 @use "../base_form_component";
+
+.conf .conf__settings--popup {
+  display: block !important;
+  position: absolute;
+  z-index: 1500;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.conf__settings--popup .conf__form-wrap {
+  margin-top: 0;
+}
+.conf__settings--popup .conf__settings-setup-close {
+  display: block;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: #000;
+  cursor: pointer;
+}
+.conf__settings--popup .conf__settings-icon {
+  display: none;
+}
+
 .conf__settings-icon {
   display: flex;
   justify-content: center;

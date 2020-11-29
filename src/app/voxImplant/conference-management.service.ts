@@ -13,6 +13,7 @@ import { VIManagerService } from './vimanager.service';
 import { IIDClass } from '@app/interfaces/IIDClass';
 import { createLogger, untilDestroyed } from '@core';
 import { CallManagerService } from '@app/voxImplant/call-manager.service';
+import { WSService } from '@app/voxImplant/ws.service';
 
 @Injectable({
   providedIn: 'root',
@@ -25,7 +26,8 @@ export class ConferenceManagementService implements IIDClass, OnDestroy {
     private sdkService: SDKService,
     private currentUserService: CurrentUserService,
     private vimanagerService: VIManagerService,
-    private callManagerService: CallManagerService
+    private callManagerService: CallManagerService,
+    private wsService: WSService
   ) {
     this.dataBusService.inner$.pipe(untilDestroyed(this)).subscribe((message: IDataBusMessage) => {
       switch (message.type) {
@@ -48,7 +50,9 @@ export class ConferenceManagementService implements IIDClass, OnDestroy {
               this.currentUserService.microphoneEnabled = !this.currentUserService.microphoneEnabled;
             }
             this.dataBusService.send({
-              data: {},
+              data: {
+                microphoneEnabled: this.currentUserService.microphoneEnabled,
+              },
               route: [Route.Inner],
               sign: this.ID,
               type: DataBusMessageType.MicToggled,
@@ -77,7 +81,9 @@ export class ConferenceManagementService implements IIDClass, OnDestroy {
           }
 
           this.dataBusService.send({
-            data: {},
+            data: {
+              cameraEnabled: this.currentUserService.cameraStatus,
+            },
             route: [Route.Inner],
             sign: this.ID,
             type: DataBusMessageType.CameraToggled,
@@ -92,18 +98,13 @@ export class ConferenceManagementService implements IIDClass, OnDestroy {
 
         case DataBusMessageType.CallConnected:
           {
-            // WSService.login(
-            //   e.headers['X-Conf-Sess'],
-            //   e.headers['X-Conf-Call'],
-            //   !currentUser.microphoneEnabled,
-            //   false,
-            //   currentUser.cameraStatus === 1 ? true : false
-            // );
-            // if (CallManager.currentConf.settings.video.sendVideo) {
-            //   window.VoxImplant.getInstance().showLocalVideo(true);
-            // }
-            //settingsApplyButton.disabled = false;
-            //settingsApplyButton.classList.remove('loading');
+            this.wsService.login(
+              message.data.e.headers['X-Conf-Sess'],
+              message.data.e.headers['X-Conf-Call'],
+              !this.currentUserService.microphoneEnabled,
+              false,
+              this.currentUserService.cameraStatus
+            );
           }
           break;
 
