@@ -222,6 +222,7 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
 
   @ViewChild('videoSection') videoSection: ElementRef;
   isSharing: boolean = false;
+  showPopupInvite: boolean = false;
 
   async setVideoSectionWidth() {
     //const perf1 = window.performance.now();
@@ -398,5 +399,11 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
     setTimeout(() => {
       inputElement.blur();
     }, 100);
+  }
+
+  openInvitePopup() {
+    if (!this.showInviteForm) {
+      this.showPopupInvite = !this.showPopupInvite;
+    }
   }
 }

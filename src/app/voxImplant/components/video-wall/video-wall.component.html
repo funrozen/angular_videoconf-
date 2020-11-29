@@ -7,8 +7,12 @@
       [name]="e.displayName"
       [place]="e.place"
     ></app-endpoint-video>
-    <div class="conf_vc conf__info-form-wrap js__invite-form" *ngIf="showInviteForm">
-      <div class="setup-close">
+    <div
+      class="conf_vc conf__info-form-wrap js__invite-form"
+      *ngIf="showInviteForm || showPopupInvite"
+      [ngClass]="{ 'popup-view': showPopupInvite }"
+    >
+      <div class="setup-close" (click)="showPopupInvite = false">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
             fill-rule="evenodd"
@@ -102,7 +106,10 @@
     </div>
     <div class="conf__info-footer-spacer"></div>
     <div class="conf__info-footer-icon-wrap conf__info-footer--nofs">
-      <div class="conf__info-footer-icon conf__info-icon_add-user add-user-setup-open"></div>
+      <div
+        class="conf__info-footer-icon conf__info-icon_add-user add-user-setup-open"
+        (click)="openInvitePopup()"
+      ></div>
     </div>
     <div class="conf__info-footer-icon-wrap conf__info-footer--nofs">
       <div
