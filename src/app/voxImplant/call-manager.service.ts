@@ -55,6 +55,10 @@ export class CallManagerService implements IIDClass, OnDestroy {
             this.onCameraToggled();
             break;
 
+          case DataBusMessageType.MicToggled:
+            this.onToggleMicrophone();
+            break;
+
           case DataBusMessageType.StartShareScreen:
             this.startSharingScreen();
             break;
@@ -74,6 +78,7 @@ export class CallManagerService implements IIDClass, OnDestroy {
       sign: this.ID,
       data: {},
     });
+
     setTimeout(() => {
       this.currentConf = this.sdk.callConference(newCallParams);
       this.logger.info('call conference inited', newCallParams);
@@ -92,11 +97,6 @@ export class CallManagerService implements IIDClass, OnDestroy {
         sign: this.ID,
         data: {},
       });
-
-      // TODO
-
-      // registerCallbacks(this.callInterface);
-      //
     }, 1000);
   }
 
@@ -217,22 +217,12 @@ export class CallManagerService implements IIDClass, OnDestroy {
     let localVideo = document.getElementById('localVideoNode');
     let muteLocalLabel = localVideo.querySelector('.conf__video-wrap .conf__video-micro');
 
-    let mute = this.currentUserService.microphoneEnabled;
+    let isMicEnabled = this.currentUserService.microphoneEnabled;
 
-    if (!mute) {
+    if (!isMicEnabled) {
       this.currentConf.unmuteMicrophone();
-      //TODO
-      //WSService.notifyMute(false);
-      //muteLocalLabel.classList.add('hidden');
-
-      //this.mic.classList.remove('option--off');
     } else {
       this.currentConf.muteMicrophone();
-      //TODO
-      //WSService.notifyMute(true);
-      //muteLocalLabel.classList.remove('hidden');
-      ///currentUser.microphoneEnabled = false;
-      //this.mic.classList.add('option--off');
     }
   }
 
