@@ -7,7 +7,7 @@
       [name]="e.displayName"
       [place]="e.place"
     ></app-endpoint-video>
-    <div class="conf__info-form-wrap js__invite-form">
+    <div class="conf_vc conf__info-form-wrap js__invite-form" *ngIf="showInviteForm">
       <div class="setup-close">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
@@ -28,11 +28,12 @@
             class="js__ivite-link"
             id="roomId"
             formControlName="roomId"
+            #inputElement
             placeholder="https://conferencedomain.com/room_"
           />
         </div>
         <div class="conf__form-btn conf__info-form-btn">
-          <button class="button js__copy-link" type="button">
+          <button class="button js__copy-link" type="button" (click)="copy(inputElement)">
             <span>COPY</span>
             <div class="spinner"></div>
           </button>

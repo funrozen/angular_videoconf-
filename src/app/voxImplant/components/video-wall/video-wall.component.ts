@@ -3,6 +3,8 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  Inject,
+  Input,
   OnDestroy,
   OnInit,
   Output,
@@ -16,6 +18,8 @@ import { fromEvent } from 'rxjs';
 import { IIDClass } from '@app/interfaces/IIDClass';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { CurrentUserService } from '@core/current-user.service';
+
+import { DOCUMENT, PlatformLocation } from '@angular/common';
 
 type VideoEnpointType = {
   id: string;
@@ -48,13 +52,19 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
   initPromise: Promise<void>;
   initPromiseResolve: () => void;
 
+  get showInviteForm() {
+    return !!!this.videoEndpoints.length;
+  }
+
   @Output() sidePanelEmitter: EventEmitter<boolean> = new EventEmitter();
 
   //TODO it probably need store to save video wall state
   constructor(
     private currentUserService: CurrentUserService,
     private dataBusService: DataBusService,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    @Inject(DOCUMENT) private document: Document,
+    private platformLocation: PlatformLocation
   ) {
     dataBusService.inner$
       .pipe(
@@ -81,23 +91,10 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
                 });
 
                 this.logger.info(' video added by endpoint: ', endpoint);
-                //TODO fullscreen
-
-                // const fullscreen = document
-                //   .getElementById(e.endpoint.id)
-                //   .querySelector(".conf__video-fullscreen");
-                // if (fullscreen) {
-                //   if (!document.fullscreenEnabled) {
-                //     fullscreen.style.display = "none";
-                //   } else {
-                //     fullscreen.addEventListener("click", (event) => {
-                //       this.callInterface.toggleFullScreen(e.endpoint.id);
-                //     });
-                //   }
-                // }
               }
-
-              this.setVideoSectionWidth();
+              setTimeout(() => {
+                this.setVideoSectionWidth();
+              }, 200);
             }
             break;
 
@@ -192,9 +189,9 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
   }
 
   ngOnInit(): void {
-    this.roomId = this.currentUserService.serviceId;
+    let href = this.platformLocation.href;
     this.inviteForm = new FormGroup({
-      roomId: new FormControl(this.roomId, Validators.required),
+      roomId: new FormControl(href, Validators.required),
     });
     this.subscribeToResizeEvent();
   }
@@ -236,7 +233,7 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
     const calculatingVideo = [...videoSection.querySelectorAll('.conf__video')];
     let videoAmount = this.videoEndpoints.length + (this.isLocalVideoShow ? 1 : 0);
     const allVideo =
-      videoAmount === 1 ? [...videoSection.querySelectorAll('.conf__video-section div.conf__video')] : calculatingVideo;
+      videoAmount === 1 ? [...videoSection.querySelectorAll('.conf__video-section div.conf_vc')] : calculatingVideo;
     const containerW = videoSection.clientWidth - 20;
     const containerH = window.innerHeight - 88;
     const N = videoAmount > 1 ? videoAmount : containerW < 584 ? 1 : 2; // additional container for the invite block if needed
@@ -393,5 +390,13 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
       route: [Route.Inner],
       sign: this.ID,
     });
+  }
+
+  copy(inputElement: any) {
+    inputElement.select();
+    this.document.execCommand('copy');
+    setTimeout(() => {
+      inputElement.blur();
+    }, 100);
   }
 }

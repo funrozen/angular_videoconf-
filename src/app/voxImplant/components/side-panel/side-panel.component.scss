@@ -96,6 +96,9 @@ button.button_toggle_inactive {
 }
 
 //chat part
+.conf__sidebar-body-chat {
+  height: 100%;
+}
 .conf__sidebar-body-chat .conf__sidebar-body {
   display: flex;
   flex-direction: column;
