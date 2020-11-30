@@ -13,8 +13,8 @@ import {
 } from '@angular/core';
 import { DataBusMessageType, DataBusService, IEndpointMessage, Route } from '@core/data-bus.service';
 import { filter } from 'rxjs/operators';
-import { createLogger, untilDestroyed } from '@core';
-import { fromEvent } from 'rxjs';
+import { createLogger } from '@core';
+import { fromEvent, Subscription } from 'rxjs';
 import { IIDClass } from '@app/interfaces/IIDClass';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { CurrentUserService } from '@core/current-user.service';
@@ -58,7 +58,8 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
 
   @Output() sidePanelEmitter: EventEmitter<boolean> = new EventEmitter();
 
-  //TODO it probably need store to save video wall state
+  private subscriptions: Subscription = new Subscription();
+
   constructor(
     private currentUserService: CurrentUserService,
     private dataBusService: DataBusService,
@@ -66,109 +67,108 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
     @Inject(DOCUMENT) private document: Document,
     private platformLocation: PlatformLocation
   ) {
-    dataBusService.inner$
-      .pipe(
-        filter((message) => this.supportMessageTypes.includes(message.type)),
-        untilDestroyed(this)
-      )
-      .subscribe((_message) => {
-        switch (_message.type) {
-          case DataBusMessageType.EndpointAdded:
-            {
-              let message: IEndpointMessage = _message as IEndpointMessage;
+    this.subscriptions.add(
+      dataBusService.inner$
+        .pipe(filter((message) => this.supportMessageTypes.includes(message.type)))
+        .subscribe((_message) => {
+          switch (_message.type) {
+            case DataBusMessageType.EndpointAdded:
+              {
+                let message: IEndpointMessage = _message as IEndpointMessage;
 
-              let endpoint = message.data.endpoint;
+                let endpoint = message.data.endpoint;
 
-              if (endpoint.isDefault) {
-                this.isLocalVideoShow = true;
+                if (endpoint.isDefault) {
+                  this.isLocalVideoShow = true;
 
-                //TODO switch local video and audio corresponding their state
-              } else {
-                this.videoEndpoints.push({
-                  id: endpoint.id,
-                  displayName: endpoint.displayName,
-                  place: 1 + endpoint.place,
-                });
+                  //TODO switch local video and audio corresponding their state
+                } else {
+                  this.videoEndpoints.push({
+                    id: endpoint.id,
+                    displayName: endpoint.displayName,
+                    place: 1 + endpoint.place,
+                  });
 
-                this.logger.info(' video added by endpoint: ', endpoint);
-              }
-              setTimeout(() => {
-                this.setVideoSectionWidth();
-              }, 200);
-            }
-            break;
-
-          case DataBusMessageType.RemoteMediaAdded:
-            {
-              // const endpointNode = document.getElementById(e.endpoint.id);
-              // if (
-              //   e.mediaRenderer.kind === "video" &&
-              //   document.getElementById(`videoStub-${e.endpoint.id}`)
-              // ) {
-              //   LayerManager.toggleVideoStub(e.endpoint.id, false);
-              // }
-              //
-              // if (e.mediaRenderer.kind === "sharing") {
-              //   LayerManager.toggleVideoStub(e.endpoint.id, false);
-              // }
-              //
-              // e.mediaRenderer.render(endpointNode);
-              // e.mediaRenderer.placed = true;
-              //
-              // if (
-              //   !e.endpoint.mediaRenderers.find(
-              //     (renderer) => renderer.kind === "video" || renderer.kind === "sharing"
-              //   )
-              // ) {
-              //   LayerManager.toggleVideoStub(e.endpoint.id, true);
-              // }
-            }
-            break;
-
-          case DataBusMessageType.RemoteMediaRemoved:
-            {
-              // LayerManager.toggleVideoStub(e.endpoint.id, true);
-            }
-            break;
-
-          case DataBusMessageType.EndpointRemoved:
-            {
-              let message: IEndpointMessage = _message as IEndpointMessage;
-              this.logger.info(' video removed by endpoint: ', message);
-              const index = this.videoEndpoints.findIndex((item) => item.id === message.data.endpoint.id);
-              if (index !== -1) {
-                this.videoEndpoints.splice(index, 1);
-              }
-
-              //this.soundRemoved.play();
-              //       this.callInterface.checkFullScreen(e.endpoint.id);
-              //       this.logger.warn(`[WebSDk] Endpoint was removed ID: ${e.endpoint.id}`);
-              //       const node = document.getElementById(e.endpoint.id);
-              //       if (node) {
-              //         container.removeChild(node);
-              //       }
-
-              if (message.data.isNeedReCalcView) {
+                  this.logger.info(' video added by endpoint: ', endpoint);
+                }
                 setTimeout(() => {
                   this.setVideoSectionWidth();
-                }, 0);
+                }, 200);
               }
-            }
-            break;
+              break;
 
-          case DataBusMessageType.ShareScreenStopped:
-            {
-              this.isSharing = false;
-            }
-            break;
+            case DataBusMessageType.RemoteMediaAdded:
+              {
+                // const endpointNode = document.getElementById(e.endpoint.id);
+                // if (
+                //   e.mediaRenderer.kind === "video" &&
+                //   document.getElementById(`videoStub-${e.endpoint.id}`)
+                // ) {
+                //   LayerManager.toggleVideoStub(e.endpoint.id, false);
+                // }
+                //
+                // if (e.mediaRenderer.kind === "sharing") {
+                //   LayerManager.toggleVideoStub(e.endpoint.id, false);
+                // }
+                //
+                // e.mediaRenderer.render(endpointNode);
+                // e.mediaRenderer.placed = true;
+                //
+                // if (
+                //   !e.endpoint.mediaRenderers.find(
+                //     (renderer) => renderer.kind === "video" || renderer.kind === "sharing"
+                //   )
+                // ) {
+                //   LayerManager.toggleVideoStub(e.endpoint.id, true);
+                // }
+              }
+              break;
 
-          case DataBusMessageType.ShareScreenStarted:
-            {
-              this.isSharing = true;
-            }
-            break;
-        }
-      });
+            case DataBusMessageType.RemoteMediaRemoved:
+              {
+                // LayerManager.toggleVideoStub(e.endpoint.id, true);
+              }
+              break;
+
+            case DataBusMessageType.EndpointRemoved:
+              {
+                let message: IEndpointMessage = _message as IEndpointMessage;
+                this.logger.info(' video removed by endpoint: ', message);
+                const index = this.videoEndpoints.findIndex((item) => item.id === message.data.endpoint.id);
+                if (index !== -1) {
+                  this.videoEndpoints.splice(index, 1);
+                }
+
+                //this.soundRemoved.play();
+                //       this.callInterface.checkFullScreen(e.endpoint.id);
+                //       this.logger.warn(`[WebSDk] Endpoint was removed ID: ${e.endpoint.id}`);
+                //       const node = document.getElementById(e.endpoint.id);
+                //       if (node) {
+                //         container.removeChild(node);
+                //       }
+
+                if (message.data.isNeedReCalcView) {
+                  setTimeout(() => {
+                    this.setVideoSectionWidth();
+                  }, 0);
+                }
+              }
+              break;
+
+            case DataBusMessageType.ShareScreenStopped:
+              {
+                this.isSharing = false;
+              }
+              break;
+
+            case DataBusMessageType.ShareScreenStarted:
+              {
+                this.isSharing = true;
+              }
+              break;
+          }
+        })
+    );
 
     this.initPromise = new Promise<void>((resolve) => {
       this.logger.info('resolve');
@@ -200,16 +200,20 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
     this.initPromiseResolve();
   }
 
-  ngOnDestroy() {}
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+  }
 
   readonly dVideo = 360 / 640; // constant video proportions
 
   subscribeToResizeEvent() {
-    fromEvent(window, 'resize')
-      .pipe(untilDestroyed(this))
-      .subscribe((_) => {
-        this.setVideoSectionWidth();
-      });
+    this.subscriptions.add(
+      fromEvent(window, 'resize')
+        .pipe()
+        .subscribe((_) => {
+          this.setVideoSectionWidth();
+        })
+    );
   }
 
   getDVideo(containerW: number, containerH: number) {

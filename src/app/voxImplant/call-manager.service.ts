@@ -13,9 +13,10 @@ import { Call } from 'voximplant-websdk/Call/Call';
 import { CurrentUserService } from '@core/current-user.service';
 import { callReporter } from '@app/voxImplant/vi-helpers';
 import { IIDClass } from '@app/interfaces/IIDClass';
-import { createLogger, ILogger, untilDestroyed } from '@core';
+import { createLogger, ILogger } from '@core';
 import { MediaRenderer } from 'voximplant-websdk/Media/MediaRenderer';
 import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 interface EndpointsData {
   displayName: string;
@@ -42,32 +43,33 @@ export class CallManagerService implements IIDClass, OnDestroy {
     DataBusMessageType.CameraToggled,
     DataBusMessageType.StartShareScreen,
     DataBusMessageType.StopShareScreen,
+    DataBusMessageType.MicToggled,
   ];
+  private subscriptions: Subscription = new Subscription();
   private subscribe() {
-    this.dataBusService.inner$
-      .pipe(
-        filter((message) => this.subscribeToTypes.includes(message.type)),
-        untilDestroyed(this)
-      )
-      .subscribe((message) => {
-        switch (message.type) {
-          case DataBusMessageType.CameraToggled:
-            this.onCameraToggled();
-            break;
+    this.subscriptions.add(
+      this.dataBusService.inner$
+        .pipe(filter((message) => this.subscribeToTypes.includes(message.type)))
+        .subscribe((message) => {
+          switch (message.type) {
+            case DataBusMessageType.CameraToggled:
+              this.onCameraToggled();
+              break;
 
-          case DataBusMessageType.MicToggled:
-            this.onToggleMicrophone();
-            break;
+            case DataBusMessageType.MicToggled:
+              this.onToggleMicrophone();
+              break;
 
-          case DataBusMessageType.StartShareScreen:
-            this.startSharingScreen();
-            break;
+            case DataBusMessageType.StartShareScreen:
+              this.startSharingScreen();
+              break;
 
-          case DataBusMessageType.StopShareScreen:
-            this.stopSharingScreen();
-            break;
-        }
-      });
+            case DataBusMessageType.StopShareScreen:
+              this.stopSharingScreen();
+              break;
+          }
+        })
+    );
   }
 
   public init(newCallParams: any, sdk: Client) {
@@ -217,9 +219,7 @@ export class CallManagerService implements IIDClass, OnDestroy {
     let localVideo = document.getElementById('localVideoNode');
     let muteLocalLabel = localVideo.querySelector('.conf__video-wrap .conf__video-micro');
 
-    let isMicEnabled = this.currentUserService.microphoneEnabled;
-
-    if (!isMicEnabled) {
+    if (this.currentUserService.microphoneEnabled) {
       this.currentConf.unmuteMicrophone();
     } else {
       this.currentConf.muteMicrophone();
@@ -362,7 +362,9 @@ export class CallManagerService implements IIDClass, OnDestroy {
   }
 
   onRemoteMediaAdded(e: any) {
-    this.logger.warn(`[WebSDk] New MediaRenderer in ${e.endpoint.id}`, e);
+    this.logger.info(
+      `[WebSDk] New MediaRenderer in ${e.endpoint.id} kind=${e.mediaRenderer.kind} stream.id=${e.mediaRenderer.stream.id}`
+    );
     if (this.endPointsSet.has(e.endpoint.id) && !e.endpoint.isDefault) {
       const endpointNode = document.getElementById(e.endpoint.id);
       // if (
@@ -442,7 +444,9 @@ export class CallManagerService implements IIDClass, OnDestroy {
     this.calculateParticipants();
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
 
   // updateChatManager(currentUser)
   // {
@@ -478,6 +482,8 @@ export class CallManagerService implements IIDClass, OnDestroy {
   startSharingScreen() {
     // todo
     //CallManager.reporter.shareScreen(true, true);
+    //
+
     this.currentConf
       .shareScreen(true, true)
       .then(() => {
@@ -488,25 +494,19 @@ export class CallManagerService implements IIDClass, OnDestroy {
           sign: this.ID,
           type: DataBusMessageType.ShareScreenStarted,
         });
+        setTimeout(() => {
+          let renderer = VoxImplant.Hardware.StreamManager.get().getLocalMediaRenderers()[0];
 
-        let renderers = VoxImplant.Hardware.StreamManager.get().getLocalMediaRenderers();
-
-        let renderer = renderers[0];
-        //if (renderer.kind === 'sharing') { //TODO actually it is video
-        // TODO this one is not working but should  https://stackoverflow.com/questions/25141080/how-to-listen-for-stop-sharing-click-in-chrome-desktopcapture-api
-        if (renderer) {
-          renderer.stream.getTracks().forEach((tr) => {
-            //tr.removeEventListener('ended', this._onSharingStopped);
-            tr.addEventListener('ended', () => {
-              debugger;
-              this._onSharingStopped();
+          if (renderer) {
+            renderer.stream.getTracks().forEach((tr) => {
+              //this.logger.info(' subcribe track id:',tr.id)
+              tr.removeEventListener('ended', this._onSharingStopped);
+              tr.addEventListener('ended', () => {
+                this._onSharingStopped();
+              });
             });
-            tr.addEventListener('inactive', () => {
-              debugger;
-              this._onSharingStopped();
-            });
-          });
-        }
+          }
+        }, 1000);
       })
       .catch((e) => {
         this.logger.error(`[WebSDk] Sharing failed: ${e.message}`);

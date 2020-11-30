@@ -2,7 +2,7 @@ import { Component, ElementRef, Inject, Input, OnDestroy, OnInit, ViewChild, Vie
 import { DOCUMENT } from '@angular/common';
 import { FullScreenService } from '@app/voxImplant/full-screen.service';
 import { DataBusMessageType, DataBusService, IMuteMessage } from '@core/data-bus.service';
-import { untilDestroyed } from '@core';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-endpoint-video',
@@ -11,23 +11,26 @@ import { untilDestroyed } from '@core';
   encapsulation: ViewEncapsulation.None,
 })
 export class EndpointVideoComponent implements OnInit, OnDestroy {
+  private subscriptions: Subscription = new Subscription();
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private fullScreenService: FullScreenService,
     private dataBusService: DataBusService
   ) {
-    this.dataBusService.inward$.pipe(untilDestroyed(this)).subscribe((message) => {
-      switch (message.type) {
-        case DataBusMessageType.Mute:
-          {
-            //TODO move to filter
-            if ((<IMuteMessage>message).data.endpointId === this.id) {
-              this.isMicrophoneMuted = !!(<IMuteMessage>message).data.value;
+    this.subscriptions.add(
+      this.dataBusService.inward$.pipe().subscribe((message) => {
+        switch (message.type) {
+          case DataBusMessageType.Mute:
+            {
+              //TODO move to filter
+              if ((<IMuteMessage>message).data.endpointId === this.id) {
+                this.isMicrophoneMuted = !!(<IMuteMessage>message).data.value;
+              }
             }
-          }
-          break;
-      }
-    });
+            break;
+        }
+      })
+    );
   }
 
   @Input() id: string;
@@ -43,5 +46,7 @@ export class EndpointVideoComponent implements OnInit, OnDestroy {
   toggleFullScreen() {
     this.fullScreenService.toggleFullScreen(this.theElementRef.nativeElement);
   }
-  ngOnDestroy() {}
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+  }
 }

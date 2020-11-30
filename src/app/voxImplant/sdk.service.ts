@@ -66,7 +66,7 @@ export class SDKService implements IIDClass {
                   this.logger.error(VoxImplant.LogCategory[category], label, formattedText);
                   break;
                 default:
-                  //this.logger.log(VoxImplant.LogCategory[category], label, formattedText);
+                  this.logger.log(VoxImplant.LogCategory[category], label, formattedText);
                   break;
               }
             });

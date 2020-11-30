@@ -106,7 +106,9 @@ export class VIManagerService implements IIDClass {
   //TODO set!
 
   enableLocalMic = (flag: boolean) => {
-    this.localStream.getAudioTracks().forEach((tr) => (tr.enabled = flag));
+    if (this.localStream) {
+      this.localStream.getAudioTracks().forEach((tr) => (tr.enabled = flag));
+    }
   };
 
   changeLocalCam(newCameraId?: number | string): Promise<MediaStream> {

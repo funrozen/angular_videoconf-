@@ -14,13 +14,14 @@ import {
 
 import { CurrentUserService } from '@core/current-user.service';
 import { IIDClass } from '@app/interfaces/IIDClass';
-import { createLogger, untilDestroyed } from '@core';
+import { createLogger } from '@core';
 import { VIManagerService } from '@app/voxImplant/vimanager.service';
 import * as VoxImplant from 'voximplant-websdk';
 import { AudioOutputInfo, AudioSourceInfo, VideoSourceInfo } from 'voximplant-websdk/Structures';
 import { FormGroup } from '@angular/forms';
 import { DataBusMessageType, DataBusService, Route } from '@core/data-bus.service';
 import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-media-setting-form',
@@ -52,8 +53,7 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
     private viManagerService: VIManagerService,
     private renderer: Renderer2,
     private currentUserService: CurrentUserService,
-    private dataBusService: DataBusService,
-    private changeDetector: ChangeDetectorRef
+    private dataBusService: DataBusService
   ) {}
 
   @HostListener('document:keyup', ['$event'])
@@ -79,24 +79,24 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
   get isCameraEnabled(): boolean {
     return this.currentUserService.cameraStatus;
   }
-
+  subscriptions: Subscription = new Subscription();
   ngOnInit() {
+    this.logger.info('Init');
     this.settingForm = new FormGroup({});
-    this.dataBusService.inner$
-      .pipe(
-        filter((message) => this.subscribeToTypes.includes(message.type)),
-        untilDestroyed(this)
-      )
-      .subscribe((message) => {
-        switch (message.type) {
-          case DataBusMessageType.CameraToggled:
-            this.onCameraToggled();
-            break;
-          case DataBusMessageType.MicToggled:
-            this.onMicrophoneToggled();
-            break;
-        }
-      });
+    this.subscriptions.add(
+      this.dataBusService.inner$
+        .pipe(filter((message) => this.subscribeToTypes.includes(message.type)))
+        .subscribe((message) => {
+          switch (message.type) {
+            case DataBusMessageType.CameraToggled:
+              this.onCameraToggled();
+              break;
+            case DataBusMessageType.MicToggled:
+              this.onMicrophoneToggled();
+              break;
+          }
+        })
+    );
   }
 
   async ngAfterViewInit() {
@@ -301,5 +301,8 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
   closePopUp() {
     this.togglePopupSetting();
   }
-  ngOnDestroy() {}
+  ngOnDestroy() {
+    this.logger.info('Destroyed');
+    this.subscriptions.unsubscribe();
+  }
 }

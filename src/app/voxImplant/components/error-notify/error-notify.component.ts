@@ -1,7 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DataBusService } from '@core/data-bus.service';
 import { IIDClass } from '@app/interfaces/IIDClass';
-import { untilDestroyed } from '@core';
+
+import { Subscription } from 'rxjs';
 //TODO how switch it off??
 @Component({
   selector: 'app-error-notify',
@@ -14,23 +15,28 @@ export class ErrorNotifyComponent implements IIDClass, OnDestroy {
   defaultShowTimeMs: number = 3000 * 1000;
   timeoutId: any;
   show: boolean = false;
+  private subscriptions: Subscription = new Subscription();
   constructor(private dataBusService: DataBusService) {
-    this.dataBusService.errorBus$.pipe(untilDestroyed(this)).subscribe((e) => {
-      this.text = e.description;
-      let time = this.defaultShowTimeMs;
-      if (e?.data?.showTime) {
-        time = e.data.showTime;
-      }
+    this.subscriptions.add(
+      this.dataBusService.errorBus$.pipe().subscribe((e) => {
+        this.text = e.description;
+        let time = this.defaultShowTimeMs;
+        if (e?.data?.showTime) {
+          time = e.data.showTime;
+        }
 
-      if (this.timeoutId) {
-        clearTimeout(this.timeoutId);
-      }
-      this.show = true;
-      this.timeoutId = setTimeout(() => {
-        this.show = false;
-      }, time);
-    });
+        if (this.timeoutId) {
+          clearTimeout(this.timeoutId);
+        }
+        this.show = true;
+        this.timeoutId = setTimeout(() => {
+          this.show = false;
+        }, time);
+      })
+    );
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
 }

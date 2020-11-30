@@ -2,8 +2,9 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { environment } from '@env/environment';
 import { DataBusMessageType, DataBusService, IMuteMessage, Route } from '@core/data-bus.service';
 import { IIDClass } from '@app/interfaces/IIDClass';
-import { createLogger, untilDestroyed } from '@core';
+import { createLogger } from '@core';
 import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 interface IWSMessage {
   value: any;
@@ -36,23 +37,25 @@ export class WSService implements OnDestroy, IIDClass {
 
   private ws: WebSocket;
   private subscribeToTypes = [DataBusMessageType.MicToggled, DataBusMessageType.CameraToggled];
-
+  private subscriptions: Subscription = new Subscription();
   constructor(private dataBusService: DataBusService) {
     this._connectionString = environment.appConfig.webSocketConnectionString;
 
-    this.dataBusService.inner$
-      .pipe(filter((message) => this.subscribeToTypes.includes(message.type), untilDestroyed(this)))
-      .subscribe((message) => {
-        switch (message.type) {
-          case DataBusMessageType.MicToggled:
-            this.notifyMute(!message.data.microphoneEnabled);
-            break;
+    this.subscriptions.add(
+      this.dataBusService.inner$
+        .pipe(filter((message) => this.subscribeToTypes.includes(message.type)))
+        .subscribe((message) => {
+          switch (message.type) {
+            case DataBusMessageType.MicToggled:
+              this.notifyMute(!message.data.microphoneEnabled);
+              break;
 
-          case DataBusMessageType.CameraToggled:
-            this.notifyVideo(message.data.cameraEnabled);
-            break;
-        }
-      });
+            case DataBusMessageType.CameraToggled:
+              this.notifyVideo(message.data.cameraEnabled);
+              break;
+          }
+        })
+    );
   }
 
   _connectAndLogin() {
@@ -208,6 +211,7 @@ export class WSService implements OnDestroy, IIDClass {
   }
 
   ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
     this.close();
   }
 }

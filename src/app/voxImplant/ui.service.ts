@@ -4,7 +4,7 @@ import { environment } from '@env/environment';
 import { CurrentUserService } from '@core/current-user.service';
 import { StatisticsService } from '@app/voxImplant/statistics.service';
 import { IIDClass } from '@app/interfaces/IIDClass';
-import { createLogger, untilDestroyed } from '@core';
+import { createLogger } from '@core';
 import { VIManagerService } from '@app/voxImplant/vimanager.service';
 import {
   DataBusMessageType,
@@ -16,6 +16,7 @@ import {
 } from '@core/data-bus.service';
 import { ConferenceManagementService } from '@app/voxImplant/conference-management.service';
 import { IChatMessage, IParticipant } from '@app/voxImplant/interfaces';
+import { Subscription } from 'rxjs';
 
 export enum UIState {
   needRoomId = 'needRoomId',
@@ -39,7 +40,7 @@ export class UIService implements IIDClass, OnDestroy {
   participants: IParticipant[] = [];
 
   chatMessages: IChatMessage[] = [];
-
+  subscriptions: Subscription = new Subscription();
   constructor(
     private sdkService: SDKService,
     private currentUserService: CurrentUserService,
@@ -55,36 +56,38 @@ export class UIService implements IIDClass, OnDestroy {
       this.state = UIState.needRoomId;
     }
 
-    this.dataBusService.inner$.pipe(untilDestroyed(this)).subscribe((message: IDataBusMessage) => {
-      switch (message.type) {
-        case DataBusMessageType.CallInit:
-          //case DataBusMessageType.CallConnected:
-          this.state = UIState.videoWall;
-          break;
+    this.subscriptions.add(
+      this.dataBusService.inner$.pipe().subscribe((message: IDataBusMessage) => {
+        switch (message.type) {
+          case DataBusMessageType.CallInit:
+            //case DataBusMessageType.CallConnected:
+            this.state = UIState.videoWall;
+            break;
 
-        case DataBusMessageType.LeaveRoom:
-          //case DataBusMessageType.CallConnected:
-          this.state = UIState.leaveRoom;
-          break;
+          case DataBusMessageType.LeaveRoom:
+            //case DataBusMessageType.CallConnected:
+            this.state = UIState.leaveRoom;
+            break;
 
-        case DataBusMessageType.ToggleShowSetting:
-          //case DataBusMessageType.CallConnected:
-          this.isSettingsShown = !this.isSettingsShown;
-          break;
+          case DataBusMessageType.ToggleShowSetting:
+            //case DataBusMessageType.CallConnected:
+            this.isSettingsShown = !this.isSettingsShown;
+            break;
 
-        case DataBusMessageType.Participants:
-          {
-            this.participants = [...(message as IEndpointParticipantMessage).data];
-          }
-          break;
+          case DataBusMessageType.Participants:
+            {
+              this.participants = [...(message as IEndpointParticipantMessage).data];
+            }
+            break;
 
-        case DataBusMessageType.ChatMessage:
-          {
-            this.chatMessages.push(message.data);
-          }
-          break;
-      }
-    });
+          case DataBusMessageType.ChatMessage:
+            {
+              this.chatMessages.push(message.data);
+            }
+            break;
+        }
+      })
+    );
   }
 
   get roomId(): string {
@@ -157,5 +160,7 @@ export class UIService implements IIDClass, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
 }

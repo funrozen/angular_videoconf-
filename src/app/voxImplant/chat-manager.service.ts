@@ -8,10 +8,11 @@ import {
   Route,
 } from '@core/data-bus.service';
 import { IIDClass } from '@app/interfaces/IIDClass';
-import { createLogger, untilDestroyed } from '@core';
+import { createLogger } from '@core';
 import { Messaging } from 'voximplant-websdk/Messaging';
 import { Conversation } from 'voximplant-websdk/Messaging/src/Conversation';
 import { IChatMessage } from '@app/voxImplant/interfaces';
+import { Subscription } from 'rxjs';
 
 interface IVIMessage {
   conversation: string;
@@ -37,35 +38,37 @@ export class ChatManagerService implements IIDClass, OnDestroy {
   private isOwner = false;
   connectionId: any;
   private displayName: string;
-
+  private subscriptions: Subscription = new Subscription();
   constructor(private dataBusService: DataBusService) {
-    this.dataBusService.inner$.pipe(untilDestroyed(this)).subscribe((message: IDataBusMessage) => {
-      switch (message.type) {
-        case DataBusMessageType.JoinToChat:
-          let payload = message.data.payload;
+    this.subscriptions.add(
+      this.dataBusService.inner$.pipe().subscribe((message: IDataBusMessage) => {
+        switch (message.type) {
+          case DataBusMessageType.JoinToChat:
+            let payload = message.data.payload;
 
-          if (payload.owner) {
-            this.logger.log('payload for owner', payload);
-            if (!payload.roomId) {
-              this.create();
+            if (payload.owner) {
+              this.logger.log('payload for owner', payload);
+              if (!payload.roomId) {
+                this.create();
+              } else {
+                this.join(payload.roomId);
+              }
             } else {
-              this.join(payload.roomId);
+              this.logger.log('payload for non-owner', payload);
+              if (payload.roomId) {
+                this.join(payload.roomId);
+              }
             }
-          } else {
-            this.logger.log('payload for non-owner', payload);
-            if (payload.roomId) {
-              this.join(payload.roomId);
-            }
-          }
-          break;
+            break;
 
-        case DataBusMessageType.SendMessageToChat:
-          {
-            this.sendMessage(message.data.text);
-          }
-          break;
-      }
-    });
+          case DataBusMessageType.SendMessageToChat:
+            {
+              this.sendMessage(message.data.text);
+            }
+            break;
+        }
+      })
+    );
   }
 
   // we need it after authorized
@@ -204,5 +207,7 @@ export class ChatManagerService implements IIDClass, OnDestroy {
     ]);
   };
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
 }

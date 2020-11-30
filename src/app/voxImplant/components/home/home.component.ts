@@ -1,8 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DataBusMessageType, DataBusService, Route } from '@core/data-bus.service';
 import { filter } from 'rxjs/operators';
-import { untilDestroyed } from '@core';
+
 import { UIService, UIState } from '@app/voxImplant/ui.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -17,29 +18,30 @@ export class HomeComponent implements OnInit, OnDestroy {
   isLoading = false;
   states = UIState;
   isSidePanelOpen: boolean = false;
-
+  private subscriptions: Subscription = new Subscription();
   constructor(private dataBusService: DataBusService, public uiService: UIService) {
-    this.dataBusService.inner$
-      .pipe(
-        filter((message) => this.supportMessageTypes.includes(message.type)),
-        untilDestroyed(this)
-      )
-      .subscribe((message) => {
-        switch (message.type) {
-          case DataBusMessageType.ShowInviteForm:
-            //inviteForm.classList.remove("hidden", "popup-view");
-            break;
-          case DataBusMessageType.HideInviteForm:
-            //inviteForm.classList.add("hidden", "popup-view");
-            break;
-        }
-      });
+    this.subscriptions.add(
+      this.dataBusService.inner$
+        .pipe(filter((message) => this.supportMessageTypes.includes(message.type)))
+        .subscribe((message) => {
+          switch (message.type) {
+            case DataBusMessageType.ShowInviteForm:
+              //inviteForm.classList.remove("hidden", "popup-view");
+              break;
+            case DataBusMessageType.HideInviteForm:
+              //inviteForm.classList.add("hidden", "popup-view");
+              break;
+          }
+        })
+    );
   }
 
   ngOnInit() {
     this.isLoading = true;
   }
-  ngOnDestroy() {}
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+  }
 
   onClose($event: boolean) {
     this.isSidePanelOpen = false;
