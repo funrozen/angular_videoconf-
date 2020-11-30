@@ -90,7 +90,7 @@ export class CallManagerService implements IIDClass, OnDestroy {
         this.currentUserService.serviceId,
         this.currentUserService.uuid
       );
-      debugger;
+
       this.bindCallCallbacks();
 
       this.dataBusService.send({

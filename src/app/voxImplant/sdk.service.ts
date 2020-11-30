@@ -36,7 +36,6 @@ export class SDKService implements IIDClass {
   }
 
   isReconnectedAllowed(): boolean {
-    debugger;
     return environment.reconnectTimes < 0 || environment.reconnectTimes < this.reconnectedTimes;
   }
 
