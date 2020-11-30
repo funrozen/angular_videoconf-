@@ -1,20 +1,52 @@
 # voximplant-conf-angular
 
+to prepare up the app  
+cp src/environments/config.local-example.ts to src/environments/config.local.ts
+
+and set **appCredentials**
+
+```{
+// voximplants username
+userName: 'your VoxImlant username',
+// voximplants password
+password: '',
+// voximplants appName
+appName: 'videoconf',
+// voximplants accountName
+accountName: 'videoconf-dev.n4',
+```
+
+for example for:
+_videoconf.videoconf-dev.n4.voximplant.com_
+
+your application **appName** is "_videoconf_"
+and **accountName** is _videoconf-dev.n4_
+
+To **run** / **build** / **manage** application check the Angular part.
+
+---
+
+---
+
+## Angular part
+
 This project was generated with [ngX-Rocket](https://github.com/ngx-rocket/generator-ngx-rocket/)
 version 9.1.0
 
-# Getting started
+---
+
+## Getting started
 
 1. Go to project folder and install dependencies:
 
 ```sh
-npm install
+yarn i
 ```
 
 2. Launch development server, and open `localhost:4200` in your browser:
 
 ```sh
-npm start
+yarn start
 ```
 
 # Project structure
@@ -48,19 +80,19 @@ proxy.conf.js                backend proxy configuration
 
 Task automation is based on [NPM scripts](https://docs.npmjs.com/misc/scripts).
 
-| Task                                            | Description                                                                                                      |
-| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `npm start`                                     | Run development server on `http://localhost:4200/`                                                               |
-| `npm run serve:sw`                              | Run test server on `http://localhost:4200/` with service worker enabled                                          |
-| `npm run build [-- --configuration=production]` | Lint code and build web app for production (with [AOT](https://angular.io/guide/aot-compiler)) in `dist/` folder |
-| `npm test`                                      | Run unit tests via [Karma](https://karma-runner.github.io) in watch mode                                         |
-| `npm run test:ci`                               | Lint code and run unit tests once for continuous integration                                                     |
-| `npm run e2e`                                   | Run e2e tests using [Protractor](http://www.protractortest.org)                                                  |
-| `npm run lint`                                  | Lint code                                                                                                        |
-| `npm run translations:extract`                  | Extract strings from code and templates to `src/app/translations/template.json`                                  |
-| `npm run docs`                                  | Display project documentation and coding guides                                                                  |
-| `npm run compodoc`                              | Generates and display generates documentation from code                                                          |
-| `npm run prettier`                              | Automatically format all `.ts`, `.js` & `.scss` files                                                            |
+| Task                                             | Description                                                                                                      |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| `yarn start`                                     | Run development server on `http://localhost:4200/`                                                               |
+| `yarn run serve:sw`                              | Run test server on `http://localhost:4200/` with service worker enabled                                          |
+| `yarn run build [-- --configuration=production]` | Lint code and build web app for production (with [AOT](https://angular.io/guide/aot-compiler)) in `dist/` folder |
+| `yarn test`                                      | Run unit tests via [Karma](https://karma-runner.github.io) in watch mode                                         |
+| `yarn run test:ci`                               | Lint code and run unit tests once for continuous integration                                                     |
+| `yarn run e2e`                                   | Run e2e tests using [Protractor](http://www.protractortest.org)                                                  |
+| `yarn run lint`                                  | Lint code                                                                                                        |
+| `yarn run translations:extract`                  | Extract strings from code and templates to `src/app/translations/template.json`                                  |
+| `yarn run docs`                                  | Display project documentation and coding guides                                                                  |
+| `yarn run compodoc`                              | Generates and display generates documentation from code                                                          |
+| `yarn run prettier`                              | Automatically format all `.ts`, `.js` & `.scss` files                                                            |
 
 When building the application, you can specify the target configuration using the additional flag
 `--configuration <name>` (do not forget to prepend `--` to pass arguments to npm scripts).
@@ -69,16 +101,16 @@ The default build configuration is `prod`.
 
 ## Development server
 
-Run `npm start` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change
+Run `yarn start` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change
 any of the source files.
 You should not use `ng serve` directly, as it does not use the backend proxy configuration by default.
 
 ## Code scaffolding
 
-Run `npm run generate -- component <name>` to generate a new component. You can also use
-`npm run generate -- directive|pipe|service|class|module`.
+Run `yarn run generate -- component <name>` to generate a new component. You can also use
+`yarn run generate -- directive|pipe|service|class|module`.
 
-If you have installed [angular-cli](https://github.com/angular/angular-cli) globally with `npm install -g @angular/cli`,
+If you have installed [angular-cli](https://github.com/angular/angular-cli) globally with `yarn install -g @angular/cli`,
 you can also use the command `ng generate` directly.
 
 ## Additional tools
@@ -94,7 +126,7 @@ and enforced via the `test:ci` script.
 A pre-commit git hook has been configured on this project to automatically format staged files, using
 (pretty-quick)[https://github.com/azz/pretty-quick], so you don't have to care for it.
 
-You can also force code formatting by running the command `npm run prettier`.
+You can also force code formatting by running the command `yarn run prettier`.
 
 # What's in the box
 

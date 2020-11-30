@@ -1,4 +1,4 @@
-// copy-paste this file to config.local.ts and charge properties
+// copy-paste this file to config.local.ts and change properties
 export const appCredentials = {
   // voximplants username
   userName: 'testtest',
