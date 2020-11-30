@@ -63,6 +63,7 @@ export enum DataBusMessageType {
   CameraToggled = 'CameraToggled', // when camera setting toggled
   MicToggle = 'MicToggle', // toggle microphone  - toggle mic setting
   MicToggled = 'MicToggled', // when camera mic toggled
+  NotifyStatuses = 'NotifyStatuses', // ask to notify microphone, video, sharing status
   ReConnect = 'ReConnect', // invoke reconnect sdk
   JoinToChat = 'JoinToChat', //
   ChatMessage = 'ChatMessage', //send message to render
@@ -121,6 +122,14 @@ export interface IToggleLocalCameraMessage extends IDataBusMessage {
   route: [Route.Inner];
   data: {
     status?: 'hide' | 'show';
+  };
+}
+export interface INotifyStatusMessage extends IDataBusMessage {
+  type: DataBusMessageType.NotifyStatuses;
+  route: [Route.Inner];
+  data: {
+    microphoneEnabled?: boolean;
+    cameraEnabled?: boolean;
   };
 }
 

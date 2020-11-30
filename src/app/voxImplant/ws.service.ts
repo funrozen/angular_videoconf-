@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { environment } from '@env/environment';
-import { DataBusMessageType, DataBusService, IMuteMessage, Route } from '@core/data-bus.service';
+import { DataBusMessageType, DataBusService, IMuteMessage, INotifyStatusMessage, Route } from '@core/data-bus.service';
 import { IIDClass } from '@app/interfaces/IIDClass';
 import { createLogger } from '@core';
 import { filter } from 'rxjs/operators';
@@ -36,7 +36,13 @@ export class WSService implements OnDestroy, IIDClass {
   private videoState: boolean;
 
   private ws: WebSocket;
-  private subscribeToTypes = [DataBusMessageType.MicToggled, DataBusMessageType.CameraToggled];
+  private subscribeToTypes = [
+    DataBusMessageType.MicToggled,
+    DataBusMessageType.CameraToggled,
+    DataBusMessageType.ShareScreenStarted,
+    DataBusMessageType.ShareScreenStopped,
+    DataBusMessageType.NotifyStatuses,
+  ];
   private subscriptions: Subscription = new Subscription();
   constructor(private dataBusService: DataBusService) {
     this._connectionString = environment.appConfig.webSocketConnectionString;
@@ -52,6 +58,23 @@ export class WSService implements OnDestroy, IIDClass {
 
             case DataBusMessageType.CameraToggled:
               this.notifyVideo(message.data.cameraEnabled);
+              break;
+
+            case DataBusMessageType.ShareScreenStarted:
+              this.notifySharing(true);
+              break;
+
+            case DataBusMessageType.ShareScreenStopped:
+              this.notifySharing(false);
+              break;
+
+            case DataBusMessageType.NotifyStatuses:
+              if ((message as INotifyStatusMessage).data.cameraEnabled !== undefined) {
+                this.notifyMute(!message.data.cameraEnabled);
+              }
+              if ((message as INotifyStatusMessage).data.microphoneEnabled !== undefined) {
+                this.notifyMute(!message.data.microphoneEnabled);
+              }
               break;
           }
         })

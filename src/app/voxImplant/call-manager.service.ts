@@ -466,13 +466,7 @@ export class CallManagerService implements IIDClass, OnDestroy {
       .then(() => {
         //todo
         // CallManager.reporter.stopSharingScreen();
-        this.isSharing = false;
-        this.dataBusService.send({
-          data: undefined,
-          route: [Route.Inner],
-          sign: this.ID,
-          type: DataBusMessageType.ShareScreenStopped,
-        });
+        this.onSharingStopped();
       })
       .catch((e) => {
         this.logger.error(`[WebSDk] Cannot stop sharing: ${e.message}`);
@@ -500,9 +494,9 @@ export class CallManagerService implements IIDClass, OnDestroy {
           if (renderer) {
             renderer.stream.getTracks().forEach((tr) => {
               //this.logger.info(' subcribe track id:',tr.id)
-              tr.removeEventListener('ended', this._onSharingStopped);
+              tr.removeEventListener('ended', this.onSharingStopped);
               tr.addEventListener('ended', () => {
-                this._onSharingStopped();
+                this.onSharingStopped();
               });
             });
           }
@@ -519,7 +513,7 @@ export class CallManagerService implements IIDClass, OnDestroy {
       });
   }
 
-  private _onSharingStopped = () => {
+  private onSharingStopped = () => {
     //TODO once run
     this.isSharing = false;
     this.dataBusService.send({

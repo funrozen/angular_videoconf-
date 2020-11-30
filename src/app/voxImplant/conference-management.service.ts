@@ -3,6 +3,7 @@ import {
   DataBusMessageType,
   DataBusService,
   IDataBusMessage,
+  INotifyStatusMessage,
   IToggleLocalCameraMessage,
   IToggleLocalMicMessage,
   Route,
@@ -130,46 +131,20 @@ export class ConferenceManagementService implements IIDClass, OnDestroy {
           case DataBusMessageType.ShareScreenStopped:
             {
               this.logger.info('Share screen stopped');
-              // TODO
-              // if video stub active
-              // if (currentUser.cameraStatus === 0) {
-              //   LayerManager.toggleVideoStub('localVideoNode', true);
-              // }
-              //
-              // WSService.notifySharing(false);
-              // this.share.classList.toggle('option--off');
-              // document.getElementById('localVideoNode').classList.toggle('is--sharing');
+              this.dataBusService.send(<INotifyStatusMessage>{
+                data: {
+                  microphoneEnabled: this.currentUserService.microphoneEnabled,
+                  cameraEnabled: this.currentUserService.cameraStatus,
+                },
+                route: [Route.Inner],
+                sign: this.ID,
+                type: DataBusMessageType.NotifyStatuses,
+              });
             }
             break;
 
           case DataBusMessageType.ShareScreenStarted:
             {
-              //
-              //   WSService.notifySharing(true);
-              //   this.share.classList.toggle('option--off');
-              //   document.getElementById('localVideoNode').classList.toggle('is--sharing');
-              //
-              //   let renderer = window.VoxImplant.Hardware.StreamManager.get().getLocalMediaRenderers()[0];
-              //   if (renderer.kind === 'sharing') {
-              //     renderer.stream.getTracks().forEach((tr) => {
-              //       tr.addEventListener('ended', () => {
-              //         WSService.notifySharing(false);
-              //         document.getElementById('localVideoNode').classList.toggle('is--sharing');
-              //         this.share.classList.toggle('option--off');
-              //         // if video stub active
-              //         if (currentUser.cameraStatus === 0) {
-              //           LayerManager.toggleVideoStub('localVideoNode', true);
-              //         }
-              //       });
-              //     });
-              //   }
-              // })
-              // .catch((e) => {
-              //   console.error(`[WebSDk] Sharing failed: ${e.message}`);
-              //   if (currentUser.cameraStatus === 0) {
-              //     LayerManager.toggleVideoStub('localVideoNode', true);
-              //   }
-              // });
             }
             break;
 

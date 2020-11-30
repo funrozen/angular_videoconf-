@@ -4,14 +4,19 @@ import {
   ElementRef,
   EventEmitter,
   Inject,
-  Input,
   OnDestroy,
   OnInit,
   Output,
   Renderer2,
   ViewChild,
 } from '@angular/core';
-import { DataBusMessageType, DataBusService, IEndpointMessage, Route } from '@core/data-bus.service';
+import {
+  DataBusMessageType,
+  DataBusService,
+  IEndpointMessage,
+  INotifyStatusMessage,
+  Route,
+} from '@core/data-bus.service';
 import { filter } from 'rxjs/operators';
 import { createLogger } from '@core';
 import { fromEvent, Subscription } from 'rxjs';
@@ -88,9 +93,19 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
                     displayName: endpoint.displayName,
                     place: 1 + endpoint.place,
                   });
-
                   this.logger.info(' video added by endpoint: ', endpoint);
                 }
+
+                this.dataBusService.send(<INotifyStatusMessage>{
+                  data: {
+                    microphoneEnabled: this.currentUserService.microphoneEnabled,
+                    cameraEnabled: this.currentUserService.cameraStatus,
+                  },
+                  route: [Route.Inner],
+                  sign: this.ID,
+                  type: DataBusMessageType.NotifyStatuses,
+                });
+
                 setTimeout(() => {
                   this.setVideoSectionWidth();
                 }, 200);
@@ -126,7 +141,6 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
 
             case DataBusMessageType.RemoteMediaRemoved:
               {
-                // LayerManager.toggleVideoStub(e.endpoint.id, true);
               }
               break;
 
@@ -138,14 +152,6 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
                 if (index !== -1) {
                   this.videoEndpoints.splice(index, 1);
                 }
-
-                //this.soundRemoved.play();
-                //       this.callInterface.checkFullScreen(e.endpoint.id);
-                //       this.logger.warn(`[WebSDk] Endpoint was removed ID: ${e.endpoint.id}`);
-                //       const node = document.getElementById(e.endpoint.id);
-                //       if (node) {
-                //         container.removeChild(node);
-                //       }
 
                 if (message.data.isNeedReCalcView) {
                   setTimeout(() => {
