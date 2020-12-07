@@ -22,6 +22,18 @@ _videoconf.videoconf-dev.n4.voximplant.com_
 your application **appName** is "_videoconf_"
 and **accountName** is _videoconf-dev.n4_
 
+# Build production
+
+```
+yarn run build --prod --configuration=production
+```
+
+this make "dist" folder. Copy this content folder to web folder.
+
+---
+
+for more details:
+
 To **run** / **build** / **manage** application check the Angular part.
 
 ---
