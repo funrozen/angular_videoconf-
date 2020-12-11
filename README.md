@@ -22,6 +22,19 @@ _videoconf.videoconf-dev.n4.voximplant.com_
 your application **appName** is "_videoconf_"
 and **accountName** is _videoconf-dev.n4_
 
+# enviroment
+
+/src/enviroment.ts - dev settings
+
+/src/enviroment.prod.ts - production settings
+
+There it is possible to change log level and how many times reconnection run.
+
+```
+  reconnectTimes: 5, //-1 means infintity attempts to reconnect
+  logLevel: 'verbose', // verbose|log|info|debug|warn|error:
+```
+
 # Build production
 
 ```

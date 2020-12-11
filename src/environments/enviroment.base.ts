@@ -29,14 +29,14 @@ export const appBaseConfig: IAppConfig = {
     password: '',
   },
 };
-// TODO describe in readme
+
 export const getEnvironmentBase = (appConfig: IAppConfig): IEnvironment => {
   return {
     appConfig,
     production: true,
     hmr: false,
     version: env.npm_package_version,
-    serverUrl: '/',
+
     defaultLanguage: 'en-US',
     supportedLanguages: ['en-US'],
     reconnectTimes: -1, // negative means infinity,

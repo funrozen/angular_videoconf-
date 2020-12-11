@@ -23,7 +23,6 @@ export const environment: IEnvironment = {
   production: false,
   hmr: true,
   version: env.npm_package_version + '-dev',
-  serverUrl: '/api',
   reconnectTimes: 5,
   logLevel: 'verbose',
 };

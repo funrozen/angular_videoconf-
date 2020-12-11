@@ -19,7 +19,7 @@ export interface IEnvironment {
   defaultLanguage: string;
   supportedLanguages: string[];
   appConfig: IAppConfig;
-  serverUrl: string;
+
   // negative means infinity
   reconnectTimes: number;
   logLevel: keyof IDebugLevels;

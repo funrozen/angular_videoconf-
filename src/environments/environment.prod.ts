@@ -16,5 +16,4 @@ const appConfig: IAppConfig = {
 
 export const environment: IEnvironment = {
   ...getEnvironmentBase(appConfig),
-  serverUrl: 'https://api.chucknorris.io',
 };
