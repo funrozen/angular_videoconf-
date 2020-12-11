@@ -123,9 +123,11 @@ export class CurrentUserService {
   isConferenceOwner() {
     return !this.getServiceIdFromUrl(window.location);
   }
-  //TODO move it out of environment
+
   getServiceIdFromUrl(url: Location) {
-    return environment.appConfig.getServiceIdFromUrl(url);
+    const params = url.pathname.split('/');
+    if (params.length === 2) return params[1];
+    return null;
   }
 
   getLocalStorage(): IStorageUserData {

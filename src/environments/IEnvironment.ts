@@ -5,7 +5,6 @@ export interface IAppConfig {
   baseUrl: string;
   replaceHistoryPrefix: string;
   url: string;
-  getServiceIdFromUrl: (url: Location) => string;
   sendUID: boolean;
   credentials: IAppCredentials;
   webSocketConnectionString: string;

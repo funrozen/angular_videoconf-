@@ -15,11 +15,6 @@ export const appBaseConfig: IAppConfig = {
   baseUrl: '/',
   replaceHistoryPrefix: '/',
   url: 'https://example.com',
-  getServiceIdFromUrl: function (url: Location) {
-    const params = url.pathname.split('/');
-    if (params.length === 2) return params[1];
-    return null;
-  },
   webSocketConnectionString: 'wss://irbisadm.dev/videoconf',
   sendUID: true,
   credentials: {
