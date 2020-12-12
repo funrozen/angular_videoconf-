@@ -17,6 +17,7 @@ import { createLogger, ILogger } from '@core';
 import { MediaRenderer } from 'voximplant-websdk/Media/MediaRenderer';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
+import { marker } from '@biesbjerg/ngx-translate-extract-marker';
 
 interface EndpointsData {
   displayName: string;
@@ -146,6 +147,10 @@ export class CallManagerService implements IIDClass, OnDestroy {
       sign: this.ID,
     });
 
+    this.dataBusService.sendError({
+      id: ErrorId.NoError,
+    });
+
     this.onCameraToggled();
     this.onToggleMicrophone();
     /** end */
@@ -231,14 +236,14 @@ export class CallManagerService implements IIDClass, OnDestroy {
     if (e.headers['X-Multiple-Login']) {
       this.dataBusService.sendError({
         id: ErrorId.XMultipleLogin,
-        description: 'You have connected to the conference in another browser tab or window.',
+        description: marker('conference in another browser'),
         data: e,
       });
       VoxImplant.getInstance().showLocalVideo(false);
-    } else if (e?.reason === 'Payment Required') {
+    } else if (e?.reason === marker('Payment Required')) {
       this.dataBusService.sendError({
-        data: e.reason,
-        description: e.toString(),
+        data: { ...e, ...{ showTime: 300 * 1000 } },
+        description: e.reason,
         id: ErrorId.OutOfMoney,
       });
     } else {
@@ -270,7 +275,7 @@ export class CallManagerService implements IIDClass, OnDestroy {
 
   onCallFailed(e: any) {
     this.logger.warn(`[WebSDk] Call failed ID: ${e.call.id()}`, e);
-    if (e?.reason === 'Payment Required') {
+    if (e?.reason === marker('Payment Required')) {
       this.dataBusService.sendError({
         data: e.reason,
         description: e.toString(),

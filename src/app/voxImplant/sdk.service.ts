@@ -11,6 +11,7 @@ import { CurrentUserService } from '@core/current-user.service';
 import { LogRecord } from 'voximplant-websdk/Structures';
 import { LogLevel } from 'voximplant-websdk';
 import { ChatManagerService } from '@app/voxImplant/chat-manager.service';
+import { marker } from '@biesbjerg/ngx-translate-extract-marker';
 
 @Injectable({
   providedIn: 'root',
@@ -87,6 +88,10 @@ export class SDKService implements IIDClass {
         this.signIn(isReconnect).then(() => {
           if (isReconnect) this.rejoinConf();
         });
+
+        this.dataBusService.sendError({
+          id: ErrorId.NoError,
+        });
       })
       .catch(() => {
         this.logger.error('[WebSDk] Connection failed');
@@ -112,7 +117,7 @@ export class SDKService implements IIDClass {
           resolve();
         })
         .catch((e: any) => {
-          const errorDescription = '[WebSDk] Wrong login or password';
+          const errorDescription = marker('Wrong login or password');
           this.dataBusService.sendError({
             id: ErrorId.SDKError,
             description: errorDescription,
@@ -144,7 +149,7 @@ export class SDKService implements IIDClass {
     if (!this.isReconnecting && this.isReconnectedAllowed()) {
       this.reconnectedTimes++;
 
-      const errorDescription = '[WebSDk] Start to reconnect';
+      const errorDescription = marker('Connection problem');
 
       this.dataBusService.sendError({
         id: ErrorId.ConnectionProblem,

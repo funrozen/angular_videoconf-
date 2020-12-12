@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { DataBusMessageType, DataBusService, Route } from '@core/data-bus.service';
+import { DataBusMessageType, DataBusService, ErrorId, Route } from '@core/data-bus.service';
 import { filter } from 'rxjs/operators';
 
 import { UIService, UIState } from '@app/voxImplant/ui.service';
@@ -19,7 +19,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   states = UIState;
   isSidePanelOpen: boolean = false;
   private subscriptions: Subscription = new Subscription();
-  constructor(private dataBusService: DataBusService, public uiService: UIService) {
+  constructor(public dataBusService: DataBusService, public uiService: UIService) {
     this.subscriptions.add(
       this.dataBusService.inner$
         .pipe(filter((message) => this.supportMessageTypes.includes(message.type)))
@@ -49,5 +49,11 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   onSidePanelOpen($event: boolean) {
     this.isSidePanelOpen = !this.isSidePanelOpen;
+  }
+  errors = ErrorId;
+  sendError(id: ErrorId) {
+    this.dataBusService.sendError({
+      id: id,
+    });
   }
 }

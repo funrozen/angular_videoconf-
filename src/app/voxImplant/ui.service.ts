@@ -17,6 +17,7 @@ import {
 import { ConferenceManagementService } from '@app/voxImplant/conference-management.service';
 import { IChatMessage, IParticipant } from '@app/voxImplant/interfaces';
 import { Subscription } from 'rxjs';
+import { marker } from '@biesbjerg/ngx-translate-extract-marker';
 
 export enum UIState {
   needRoomId = 'needRoomId',
@@ -135,7 +136,7 @@ export class UIService implements IIDClass, OnDestroy {
       this.state = UIState.browserIsSupported;
       this.dataBusService.sendError({
         id: ErrorId.BrowserIsNotSupported,
-        description: 'Browser not supported',
+        description: marker('This browser is not supported'),
       });
       this.logger.warn('[WebSDk] RTC NOT SUPPORTED!');
       return;

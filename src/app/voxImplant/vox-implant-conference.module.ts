@@ -23,8 +23,16 @@ import { EnviromentComponent } from './components/enviroment/enviroment.componen
 import { LeaveRoomComponent } from './components/leave-room/leave-room.component';
 import { SidePanelComponent } from './components/side-panel/side-panel.component';
 import { ChatComponent } from './components/chat/chat.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 @NgModule({
-  imports: [CommonModule, TranslateModule, SharedModule, ReactiveFormsModule, VoxImplantConferenceRoutingModule],
+  imports: [
+    CommonModule,
+    TranslateModule,
+    SharedModule,
+    ReactiveFormsModule,
+    BrowserAnimationsModule,
+    VoxImplantConferenceRoutingModule,
+  ],
   declarations: [
     HomeComponent,
     WelcomeComponent,

@@ -1,3 +1,4 @@
+@use "../cross-icon";
 .conf__sidebar {
   position: fixed;
   top: 0;
@@ -49,30 +50,6 @@
   text-align: center;
   color: #000000;
   padding: 16px 16px 0 16px;
-}
-
-.conf__sidebar-icon {
-  width: 25px;
-  height: 25px;
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  align-self: center;
-  -webkit-box-pack: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  border-radius: 2px;
-  cursor: pointer;
-  -webkit-transition: background-color 0.3s ease;
-  -o-transition: background-color 0.3s ease;
-  transition: background-color 0.3s ease;
-}
-
-.conf__sidebar-icon--close {
-  background: url(/assets/images/icons/cross_14px.svg) center no-repeat #ffffff;
-}
-.conf__sidebar-icon--close:hover {
-  background-color: #f0edff;
 }
 
 .conf__sidebar-body {

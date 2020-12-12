@@ -5,29 +5,14 @@ import { filter } from 'rxjs/operators';
 import { IChatMessage, IParticipant } from '@app/voxImplant/interfaces';
 
 export enum ErrorId {
-  SDKError = 'SDK Error', // LayerManager.show('conf__error');
-  // TODO for 'SDK Error'
-  // errorMessage.appendChild(document.createTextNode('SDK Error'));
+  //hide any errors
+  NoError,
+  SDKError = 'SDK Error',
 
   XMultipleLogin = 'X-Multiple-Login',
-  // TODO for XMultipleLogin
-  // LayerManager.show('conf__error');
-  //       errorMessage.appendChild(
-  //         document.createTextNode(
-  //           'You have connected to the conference in another browser tab or window.'
-  //         )
-  //       );
+
   ConnectionProblem = 'Connection problem',
-  // TODO for ConnectionProblem
-  //   while (errorMessage.firstChild) {
-  //   errorMessage.removeChild(errorMessage.lastChild);
-  // }
-  // errorMessage.appendChild(
-  //   document.createTextNode('Connection problem, reconnecting you to the conference, please wait…')
-  // );
-  //
-  // this.isReconnecting = true;
-  // LayerManager.show('conf__error');
+
   BrowserIsNotSupported = 'BrowserIsNotSupported',
 
   // Happens when there are no funds on account
