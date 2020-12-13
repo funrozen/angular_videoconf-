@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { IIDClass } from '../interfaces/IIDClass';
-import { createLogger } from '../@core';
+import { createLogger } from '@core';
 import * as VoxImplant from 'voximplant-websdk';
 import { Call } from 'voximplant-websdk/Call/Call';
-import { environment } from '../../environments/environment';
 
 export interface IMediaPermission {
   video: boolean;
@@ -15,9 +14,9 @@ export interface IMediaPermission {
 })
 export class VIManagerService implements IIDClass {
   readonly ID = 'VIManagerService';
-  private logger = createLogger(this.ID);
-
   public localStream: MediaStream = null;
+  permissions: IMediaPermission;
+  private logger = createLogger(this.ID);
   private cameraId: number | string = null;
   private micId: number | string = null;
   private speakerId: number | string = null;
@@ -25,8 +24,8 @@ export class VIManagerService implements IIDClass {
   private audioContext: AudioContext;
   private audioLevelNode: AudioWorkletNode;
   private audioMeterHtmlElement: HTMLElement;
-
-  permissions: IMediaPermission;
+  private audioSource: MediaStreamAudioSourceNode;
+  private audioAnalyser?: AnalyserNode;
 
   checkBrowser = () => {
     return VoxImplant.getInstance().isRTCsupported();
@@ -103,7 +102,6 @@ export class VIManagerService implements IIDClass {
       return Promise.resolve();
     }
   };
-  //TODO set!
 
   enableLocalMic = (flag: boolean) => {
     if (this.localStream) {
@@ -163,15 +161,27 @@ export class VIManagerService implements IIDClass {
   setSettings = () => {
     this.setStoredCameraAndMic();
     const { videoSettings, audioSettings } = this.generateConstraints();
-    VoxImplant.Hardware.CameraManager.get().setDefaultVideoSettings(videoSettings);
+    VoxImplant.Hardware.CameraManager.get()
+      .setDefaultVideoSettings(videoSettings)
+      .catch((reason) => {
+        this.logger.error('setDefaultVideoSettings fail:', { reason });
+      });
     VoxImplant.Hardware.AudioDeviceManager.get().setDefaultAudioSettings(audioSettings);
   };
 
   setCallSettings = (call: Call) => {
     this.setStoredCameraAndMic();
     const { videoSettings, audioSettings } = this.generateConstraints();
-    VoxImplant.Hardware.CameraManager.get().setCallVideoSettings(call, videoSettings);
-    VoxImplant.Hardware.AudioDeviceManager.get().setCallAudioSettings(call, audioSettings);
+    VoxImplant.Hardware.CameraManager.get()
+      .setCallVideoSettings(call, videoSettings)
+      .catch((reason) => {
+        this.logger.error('setCallVideoSettings fail:', { reason });
+      });
+    VoxImplant.Hardware.AudioDeviceManager.get()
+      .setCallAudioSettings(call, audioSettings)
+      .catch((reason) => {
+        this.logger.error('setCallAudioSettings fail:', { reason });
+      });
   };
 
   detectAudioWorklet = () => {
@@ -202,10 +212,6 @@ export class VIManagerService implements IIDClass {
       this.audioLevelNode.connect(this.audioContext.destination);
     }
   };
-
-  private audioSource: MediaStreamAudioSourceNode;
-  private audioAnalyser?: AnalyserNode;
-  private audioworkletNode: AudioWorkletNode;
 
   private createAudioContext(stream: MediaStream): AudioContext | undefined {
     const audioContext = new ((<any>window).AudioContext || (<any>window).webkitAudioContext)() as AudioContext;
