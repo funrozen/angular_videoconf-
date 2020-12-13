@@ -69,16 +69,12 @@ export class EndpointVideoComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {}
 
-  currentStyle: {
-    width?: any;
-    height?: any;
-  } = {};
-
   attribute: any;
   toggleFullScreen() {
     let el: HTMLElement = this.theElementRef.nativeElement;
     if (!this.fullScreenService.isFullScreen) {
       // take style out of the element - fix Safari issue
+      this.attribute = el.getAttribute('style');
       this.renderer.removeAttribute(el, 'style');
     } else {
       this.renderer.setAttribute(el, 'style', this.attribute);
