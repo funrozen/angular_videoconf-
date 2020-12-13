@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@angular/core';
 import { DataBusMessageType, DataBusService, Route } from './data-bus.service';
 import { DOCUMENT } from '@angular/common';
 import { IIDClass } from './interfaces/IIDClass';
+import * as screenfull from 'screenfull';
 
 @Injectable()
 export class FullScreenService implements IIDClass {
@@ -10,29 +11,38 @@ export class FullScreenService implements IIDClass {
   constructor(private dataBusService: DataBusService, @Inject(DOCUMENT) private document: Document) {}
 
   get isFullScreen(): boolean {
-    return !!this.document.fullscreenElement;
+    if (screenfull.isEnabled) {
+      return screenfull.isFullscreen;
+    }
+    return undefined;
   }
 
-  toggleFullScreen(el: HTMLElement) {
+  toggleFullScreen(el: HTMLElement, removeStyle: boolean = false) {
     if (!el) return false;
-    if (this.isFullScreen) {
-      this.document.exitFullscreen().then(() => {
-        this.dataBusService.send({
-          data: undefined,
-          route: [Route.Inner],
-          sign: this.ID,
-          type: DataBusMessageType.FullScreenStopped,
+    if (screenfull.isEnabled) {
+      if (screenfull.isFullscreen) {
+        screenfull.exit().then(() => {
+          //this.document.exitFullscreen().then(() => {
+          this.dataBusService.send({
+            data: undefined,
+            route: [Route.Inner],
+            sign: this.ID,
+            type: DataBusMessageType.FullScreenStopped,
+          });
         });
-      });
-    } else {
-      el.requestFullscreen().then(() => {
-        this.dataBusService.send({
-          data: undefined,
-          route: [Route.Inner],
-          sign: this.ID,
-          type: DataBusMessageType.FullScreenStarted,
+      } else {
+        screenfull.request(el).then(() => {
+          if (removeStyle) {
+            el.removeAttribute('style');
+          }
+          this.dataBusService.send({
+            data: undefined,
+            route: [Route.Inner],
+            sign: this.ID,
+            type: DataBusMessageType.FullScreenStarted,
+          });
         });
-      });
+      }
     }
   }
 }

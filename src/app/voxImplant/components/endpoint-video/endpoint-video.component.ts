@@ -1,4 +1,14 @@
-import { Component, ElementRef, Inject, Input, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  Inject,
+  Input,
+  OnDestroy,
+  OnInit,
+  Renderer2,
+  ViewChild,
+  ViewEncapsulation,
+} from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { FullScreenService } from '../../full-screen.service';
 import { Subscription } from 'rxjs';
@@ -13,11 +23,16 @@ import { DataBusMessageType, DataBusService, IMuteMessage } from '../../data-bus
 })
 export class EndpointVideoComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription = new Subscription();
-  private subscribeToTypes: DataBusMessageType[] = [DataBusMessageType.Mute];
+  private subscribeToTypes: DataBusMessageType[] = [
+    DataBusMessageType.Mute,
+    DataBusMessageType.FullScreenStarted,
+    DataBusMessageType.FullScreenStopped,
+  ];
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private fullScreenService: FullScreenService,
-    private dataBusService: DataBusService
+    private dataBusService: DataBusService,
+    private renderer: Renderer2
   ) {
     this.subscriptions.add(
       this.dataBusService.inward$
@@ -30,6 +45,14 @@ export class EndpointVideoComponent implements OnInit, OnDestroy {
                   this.isMicrophoneMuted = !!(<IMuteMessage>message).data.value;
                 }
               }
+              break;
+
+            case DataBusMessageType.FullScreenStopped:
+              this.renderer.setAttribute(this.theElementRef.nativeElement, 'style', this.attribute);
+              break;
+
+            case DataBusMessageType.FullScreenStarted:
+              this.renderer.removeAttribute(this.theElementRef.nativeElement, 'style');
               break;
           }
         })
@@ -46,8 +69,22 @@ export class EndpointVideoComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {}
 
+  currentStyle: {
+    width?: any;
+    height?: any;
+  } = {};
+
+  attribute: any;
   toggleFullScreen() {
-    this.fullScreenService.toggleFullScreen(this.theElementRef.nativeElement);
+    let el: HTMLElement = this.theElementRef.nativeElement;
+    if (!this.fullScreenService.isFullScreen) {
+      // take style out of the element - fix Safari issue
+      this.renderer.removeAttribute(el, 'style');
+    } else {
+      this.renderer.setAttribute(el, 'style', this.attribute);
+    }
+    // to prevent race also ask to remove style in fullScreenService
+    this.fullScreenService.toggleFullScreen(el, true);
   }
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
