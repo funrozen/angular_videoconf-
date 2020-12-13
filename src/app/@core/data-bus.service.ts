@@ -152,11 +152,11 @@ export class DataBusService {
   // Observable string sources
   private dataBus = new Subject<IDataBusMessage>();
   // Observable string streams
-  dataBus$ = this.dataBus.asObservable();
+  public dataBus$ = this.dataBus.asObservable();
 
-  inward$ = this.dataBus$.pipe(filter((message) => message.route.indexOf(Route.Inward) !== -1));
-  outward$ = this.dataBus$.pipe(filter((message) => message.route.indexOf(Route.Outward) !== -1));
-  inner$ = this.dataBus$.pipe(filter((message) => message.route.indexOf(Route.Inner) !== -1));
+  public inward$ = this.dataBus$.pipe(filter((message) => message.route.indexOf(Route.Inward) !== -1));
+  public outward$ = this.dataBus$.pipe(filter((message) => message.route.indexOf(Route.Outward) !== -1));
+  public inner$ = this.dataBus$.pipe(filter((message) => message.route.indexOf(Route.Inner) !== -1));
 
   private errorBus = new Subject<IErrorMessage>();
   public errorBus$ = this.errorBus.asObservable();
