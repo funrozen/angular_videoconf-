@@ -7,14 +7,14 @@ import {
   IToggleLocalCameraMessage,
   IToggleLocalMicMessage,
   Route,
-} from '@core/data-bus.service';
-import { SDKService } from '@app/voxImplant/sdk.service';
-import { CurrentUserService } from '@core/current-user.service';
+} from './data-bus.service';
+import { SDKService } from './sdk.service';
+import { CurrentUserService } from './current-user.service';
 import { VIManagerService } from './vimanager.service';
-import { IIDClass } from '@app/interfaces/IIDClass';
-import { createLogger, untilDestroyed } from '@core';
-import { CallManagerService } from '@app/voxImplant/call-manager.service';
-import { WSService } from '@app/voxImplant/ws.service';
+import { IIDClass } from './interfaces/IIDClass';
+import { createLogger } from '@core';
+import { CallManagerService } from './call-manager.service';
+import { WSService } from './ws.service';
 import { Subscription } from 'rxjs';
 
 @Injectable()

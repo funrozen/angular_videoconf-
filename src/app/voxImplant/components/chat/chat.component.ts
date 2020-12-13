@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import anchorme from 'anchorme';
-import { IChatMessage } from '@app/voxImplant/interfaces';
+import { IChatMessage } from '../../interfaces/IChatMessage';
 
 @Component({
   selector: 'app-chat',

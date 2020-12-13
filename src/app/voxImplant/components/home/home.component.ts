@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { DataBusMessageType, DataBusService, ErrorId, Route } from '@core/data-bus.service';
+import { DataBusMessageType, DataBusService, ErrorId, Route } from '../../data-bus.service';
 import { filter } from 'rxjs/operators';
 
-import { UIService, UIState } from '@app/voxImplant/ui.service';
+import { UIService, UIState } from '../../ui.service';
 import { Subscription } from 'rxjs';
 
 @Component({

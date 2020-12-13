@@ -1,5 +1,5 @@
-import { IAppCredentials } from '@app/interfaces/IAppCredentials';
 import { IDebugLevels } from '@app/IDebugLevels';
+import { IAppCredentials } from '@app/voxImplant/interfaces/IAppCredentials';
 
 export interface IAppConfig {
   baseUrl: string;

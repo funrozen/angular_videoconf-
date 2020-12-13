@@ -1,9 +1,9 @@
 import { Component, ElementRef, Inject, Input, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { FullScreenService } from '@app/voxImplant/full-screen.service';
-import { DataBusMessageType, DataBusService, IMuteMessage } from '@core/data-bus.service';
+import { FullScreenService } from '../../full-screen.service';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import { DataBusMessageType, DataBusService, IMuteMessage } from '../../data-bus.service';
 
 @Component({
   selector: 'app-endpoint-video',

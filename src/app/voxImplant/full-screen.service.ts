@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
-import { DataBusMessageType, DataBusService, Route } from '../@core/data-bus.service';
+import { DataBusMessageType, DataBusService, Route } from './data-bus.service';
 import { DOCUMENT } from '@angular/common';
-import { IIDClass } from '../interfaces/IIDClass';
+import { IIDClass } from './interfaces/IIDClass';
 
 @Injectable()
 export class FullScreenService implements IIDClass {

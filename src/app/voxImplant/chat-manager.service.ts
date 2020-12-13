@@ -1,18 +1,13 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import * as VoxImplant from 'voximplant-websdk';
-import {
-  DataBusMessageType,
-  DataBusService,
-  IDataBusChatMessage,
-  IDataBusMessage,
-  Route,
-} from '@core/data-bus.service';
-import { IIDClass } from '@app/interfaces/IIDClass';
+import { DataBusMessageType, DataBusService, IDataBusChatMessage, IDataBusMessage, Route } from './data-bus.service';
+import { IIDClass } from './interfaces/IIDClass';
 import { createLogger } from '@core';
 import { Messaging } from 'voximplant-websdk/Messaging';
 import { Conversation } from 'voximplant-websdk/Messaging/src/Conversation';
-import { IChatMessage } from '@app/voxImplant/interfaces';
+
 import { Subscription } from 'rxjs';
+import { IChatMessage } from './/interfaces/IChatMessage';
 
 interface IVIMessage {
   conversation: string;

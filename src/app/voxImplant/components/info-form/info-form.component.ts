@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { IIDClass } from '@app/interfaces/IIDClass';
+import { IIDClass } from '../../interfaces/IIDClass';
 import { createLogger } from '@core';
-import { CurrentUserService } from '@core/current-user.service';
-import { UIService } from '@app/voxImplant/ui.service';
+import { CurrentUserService } from '../../current-user.service';
+import { UIService } from '../../ui.service';
 
 @Component({
   selector: 'app-info-form',

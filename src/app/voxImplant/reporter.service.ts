@@ -1,10 +1,9 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { createLogger } from '../@core';
-import { DataBusMessageType, DataBusService, INotifyStatusMessage } from '../@core/data-bus.service';
+import { createLogger } from '@core';
+import { DataBusMessageType, DataBusService, INotifyStatusMessage } from './data-bus.service';
 import { Subscription } from 'rxjs';
-import { environment } from '../../environments/environment';
 import { filter } from 'rxjs/operators';
-import { IIDClass } from '../interfaces/IIDClass';
+import { IIDClass } from './interfaces/IIDClass';
 
 declare const callReporter: (
   currentConf: any,

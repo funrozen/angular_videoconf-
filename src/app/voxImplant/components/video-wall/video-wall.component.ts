@@ -16,13 +16,13 @@ import {
   IEndpointMessage,
   INotifyStatusMessage,
   Route,
-} from '@core/data-bus.service';
+} from '../../data-bus.service';
 import { filter } from 'rxjs/operators';
 import { createLogger } from '@core';
 import { fromEvent, Subscription } from 'rxjs';
-import { IIDClass } from '@app/interfaces/IIDClass';
+import { IIDClass } from '../../interfaces/IIDClass';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { CurrentUserService } from '@core/current-user.service';
+import { CurrentUserService } from '../../current-user.service';
 
 import { DOCUMENT, PlatformLocation } from '@angular/common';
 

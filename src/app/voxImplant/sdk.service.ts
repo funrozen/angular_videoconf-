@@ -1,16 +1,15 @@
 import { Injectable } from '@angular/core';
 import * as VoxImplant from 'voximplant-websdk';
 import { environment } from '@env/environment';
-import { IAppCredentials } from '@app/interfaces/IAppCredentials';
-import { DataBusMessageType, DataBusService, ErrorId, Route } from '@core/data-bus.service';
-import { IIDClass } from '@app/interfaces/IIDClass';
+import { IAppCredentials } from './interfaces/IAppCredentials';
+import { DataBusMessageType, DataBusService, ErrorId, Route } from './data-bus.service';
+import { IIDClass } from './interfaces/IIDClass';
 import { createLogger } from '@core/logger.service';
-import { CallManager } from 'voximplant-websdk/Call/CallManager';
-import { CallManagerService } from '@app/voxImplant/call-manager.service';
-import { CurrentUserService } from '@core/current-user.service';
+import { CallManagerService } from './call-manager.service';
+import { CurrentUserService } from './current-user.service';
 import { LogRecord } from 'voximplant-websdk/Structures';
 import { LogLevel } from 'voximplant-websdk';
-import { ChatManagerService } from '@app/voxImplant/chat-manager.service';
+import { ChatManagerService } from './chat-manager.service';
 import { marker } from '@biesbjerg/ngx-translate-extract-marker';
 
 @Injectable()

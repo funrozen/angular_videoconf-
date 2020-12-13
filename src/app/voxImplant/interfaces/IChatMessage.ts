@@ -8,9 +8,3 @@ export interface IChatMessage {
   text: string;
   conversation?: string;
 }
-
-export interface IParticipant {
-  id: string;
-  displayName: string;
-  isDefault: boolean;
-}

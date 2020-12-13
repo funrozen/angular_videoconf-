@@ -11,14 +11,14 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 
-import { CurrentUserService } from '@core/current-user.service';
-import { IIDClass } from '@app/interfaces/IIDClass';
+import { CurrentUserService } from '../../current-user.service';
+import { IIDClass } from '../../interfaces/IIDClass';
 import { createLogger } from '@core';
-import { VIManagerService } from '@app/voxImplant/vimanager.service';
+import { VIManagerService } from '../../vimanager.service';
 import * as VoxImplant from 'voximplant-websdk';
 import { AudioOutputInfo, AudioSourceInfo, VideoSourceInfo } from 'voximplant-websdk/Structures';
 import { FormGroup } from '@angular/forms';
-import { DataBusMessageType, DataBusService, Route } from '@core/data-bus.service';
+import { DataBusMessageType, DataBusService, Route } from '../../data-bus.service';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 

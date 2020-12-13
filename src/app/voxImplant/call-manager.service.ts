@@ -8,19 +8,18 @@ import {
   IToggleCameraMessage,
   IToggleLocalMicMessage,
   Route,
-} from '@core/data-bus.service';
+} from './data-bus.service';
 import * as VoxImplant from 'voximplant-websdk';
 import { Client } from 'voximplant-websdk/Client';
 import { Call } from 'voximplant-websdk/Call/Call';
-import { CurrentUserService } from '@core/current-user.service';
-
-import { IIDClass } from '@app/interfaces/IIDClass';
+import { CurrentUserService } from './current-user.service';
 import { createLogger, ILogger } from '@core';
 import { MediaRenderer } from 'voximplant-websdk/Media/MediaRenderer';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { marker } from '@biesbjerg/ngx-translate-extract-marker';
-import { ReporterService } from '@app/voxImplant/reporter.service';
+import { ReporterService } from './reporter.service';
+import { IIDClass } from './interfaces/IIDClass';
 
 interface EndpointsData {
   displayName: string;

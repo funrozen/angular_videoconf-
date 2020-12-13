@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { IIDClass } from '../interfaces/IIDClass';
+import { IIDClass } from './interfaces/IIDClass';
 import { createLogger } from '@core';
 import * as VoxImplant from 'voximplant-websdk';
 import { Call } from 'voximplant-websdk/Call/Call';

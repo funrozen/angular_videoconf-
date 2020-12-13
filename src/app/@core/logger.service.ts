@@ -107,7 +107,7 @@ export const createLogger = (context: string): ILogger => {
   const getOpOrNoop = (level: string) =>
     debugLevels[environment.logLevel] >= debugLevels[level] ? op(level) : () => {};
 
-  const loggerInstance = {
+  return {
     debug: getOpOrNoop('debug'),
     error: getOpOrNoop('error'),
     info: getOpOrNoop('info'),
@@ -115,6 +115,4 @@ export const createLogger = (context: string): ILogger => {
     warn: getOpOrNoop('warn'),
     verbose: getOpOrNoop('verbose'),
   };
-
-  return loggerInstance;
 };

@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
-//TODO move move to voximplant module
-import { IChatMessage, IParticipant } from '@app/voxImplant/interfaces';
+import { IParticipant } from './/interfaces/IParticipant';
+import { IChatMessage } from './/interfaces/IChatMessage';
 
 export enum ErrorId {
   //hide any errors
@@ -145,9 +145,7 @@ export interface IMuteMessage extends IDataBusMessage {
   };
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class DataBusService {
   // Observable string sources
   private dataBus = new Subject<IDataBusMessage>();

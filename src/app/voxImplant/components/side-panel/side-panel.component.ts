@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { IChatMessage, IParticipant } from '@app/voxImplant/interfaces';
+import { IChatMessage } from '../../interfaces/IChatMessage';
+import { IParticipant } from '../../interfaces/IParticipant';
 
 @Component({
   selector: 'app-side-panel',

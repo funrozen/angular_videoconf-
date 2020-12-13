@@ -7,9 +7,9 @@ import { VoxImplantConferenceRoutingModule } from './vox-implant-conference-rout
 import { HomeComponent } from './components/home/home.component';
 import { WelcomeComponent } from './components/welcome/welcome.component';
 
-import { ParticipantsListComponent } from '@app/voxImplant/components/participants-list/participants-list.component';
-import { VideoWallComponent } from '@app/voxImplant/components/video-wall/video-wall.component';
-import { InfoFormComponent } from '@app/voxImplant/components/info-form/info-form.component';
+import { ParticipantsListComponent } from './components/participants-list/participants-list.component';
+import { VideoWallComponent } from './components/video-wall/video-wall.component';
+import { InfoFormComponent } from './components/info-form/info-form.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CameraAllowAccessComponent } from './components/camera-allow-access/camera-allow-access.component';
 import { BrowserIsNotSupportedComponent } from './components/browser-is-not-supported/browser-is-not-supported.component';
@@ -18,21 +18,22 @@ import { MediaSettingFormComponent } from './components/media-setting-form/media
 import { MediaAllowNotifyComponent } from './components/media-allow-notify/media-allow-notify.component';
 import { LocalVideoComponent } from './components/local-video/local-video.component';
 import { EndpointVideoComponent } from './components/endpoint-video/endpoint-video.component';
-
 import { EnviromentComponent } from './components/enviroment/enviroment.component';
 import { LeaveRoomComponent } from './components/leave-room/leave-room.component';
 import { SidePanelComponent } from './components/side-panel/side-panel.component';
 import { ChatComponent } from './components/chat/chat.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { UIService } from '@app/voxImplant/ui.service';
-import { WSService } from '@app/voxImplant/ws.service';
-import { VIManagerService } from '@app/voxImplant/vimanager.service';
-import { ReporterService } from '@app/voxImplant/reporter.service';
-import { SDKService } from '@app/voxImplant/sdk.service';
-import { FullScreenService } from '@app/voxImplant/full-screen.service';
-import { ConferenceManagementService } from '@app/voxImplant/conference-management.service';
-import { ChatManagerService } from '@app/voxImplant/chat-manager.service';
-import { CallManagerService } from '@app/voxImplant/call-manager.service';
+import { UIService } from './ui.service';
+import { WSService } from './ws.service';
+import { VIManagerService } from './vimanager.service';
+import { ReporterService } from './reporter.service';
+import { SDKService } from './sdk.service';
+import { FullScreenService } from './full-screen.service';
+import { ConferenceManagementService } from './conference-management.service';
+import { ChatManagerService } from './chat-manager.service';
+import { CallManagerService } from './call-manager.service';
+import { CurrentUserService } from './current-user.service';
+import { DataBusService } from './data-bus.service';
 @NgModule({
   imports: [
     CommonModule,
@@ -55,13 +56,9 @@ import { CallManagerService } from '@app/voxImplant/call-manager.service';
     MediaAllowNotifyComponent,
     LocalVideoComponent,
     EndpointVideoComponent,
-
     EnviromentComponent,
-
     LeaveRoomComponent,
-
     SidePanelComponent,
-
     ChatComponent,
   ],
   providers: [
@@ -74,6 +71,8 @@ import { CallManagerService } from '@app/voxImplant/call-manager.service';
     ConferenceManagementService,
     ChatManagerService,
     CallManagerService,
+    CurrentUserService,
+    DataBusService,
   ],
 })
 export class VoxImplantConferenceModule {}

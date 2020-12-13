@@ -1,10 +1,10 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { SDKService } from '@app/voxImplant/sdk.service';
+import { SDKService } from './sdk.service';
 import { environment } from '@env/environment';
-import { CurrentUserService } from '@core/current-user.service';
-import { IIDClass } from '@app/interfaces/IIDClass';
+import { CurrentUserService } from './current-user.service';
+import { IIDClass } from './interfaces/IIDClass';
 import { createLogger } from '@core';
-import { VIManagerService } from '@app/voxImplant/vimanager.service';
+import { VIManagerService } from './vimanager.service';
 import {
   DataBusMessageType,
   DataBusService,
@@ -12,11 +12,13 @@ import {
   IDataBusMessage,
   IEndpointParticipantMessage,
   Route,
-} from '@core/data-bus.service';
-import { ConferenceManagementService } from '@app/voxImplant/conference-management.service';
-import { IChatMessage, IParticipant } from '@app/voxImplant/interfaces';
+} from './data-bus.service';
+import { ConferenceManagementService } from './conference-management.service';
+
 import { Subscription } from 'rxjs';
 import { marker } from '@biesbjerg/ngx-translate-extract-marker';
+import { IChatMessage } from './/interfaces/IChatMessage';
+import { IParticipant } from './/interfaces/IParticipant';
 
 export enum UIState {
   needRoomId = 'needRoomId',
@@ -29,7 +31,6 @@ export enum UIState {
   leaveRoom = 'conf__leave',
 }
 
-//TODO  move to module
 @Injectable()
 export class UIService implements IIDClass, OnDestroy {
   readonly ID = 'UIService';

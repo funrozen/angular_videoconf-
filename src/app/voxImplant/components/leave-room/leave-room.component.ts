@@ -1,8 +1,8 @@
 import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { CurrentUserService } from '@core/current-user.service';
+import { CurrentUserService } from '../../current-user.service';
 import Axios from 'axios';
-import { IIDClass } from '@app/interfaces/IIDClass';
+import { IIDClass } from '../../interfaces/IIDClass';
 import { createLogger } from '@core';
 
 @Component({

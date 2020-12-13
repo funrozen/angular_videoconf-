@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { DataBusMessageType, DataBusService } from '@core/data-bus.service';
+import { DataBusMessageType, DataBusService } from '../../data-bus.service';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 

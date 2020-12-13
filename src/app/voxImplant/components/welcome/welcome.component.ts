@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { UIService } from '@app/voxImplant/ui.service';
+import { UIService } from '../../ui.service';
 
 @Component({
   selector: 'app-welcome',

@@ -1,6 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
-import { DataBusService, ErrorId, IErrorMessage } from '@core/data-bus.service';
-import { IIDClass } from '@app/interfaces/IIDClass';
+import { DataBusService, ErrorId, IErrorMessage } from '../../data-bus.service';
+import { IIDClass } from '../../interfaces/IIDClass';
 import { Subscription } from 'rxjs';
 import { animate, keyframes, style, transition, trigger } from '@angular/animations';
 import { marker } from '@biesbjerg/ngx-translate-extract-marker';

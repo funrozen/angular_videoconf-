@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HelperService } from '@core/helper.service';
 import { environment } from '@env/environment';
-import { hasOwnProperty } from 'tslint/lib/utils';
 
 interface IStorageUserData {
   isConfOwner: boolean;
@@ -24,9 +23,7 @@ const StorageUserDataKeys: KeysEnum<IStorageUserData> = {
   serviceId: true,
 };
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class CurrentUserService {
   get isConfOwner(): boolean {
     return this.getLocalStorageValue('isConfOwner');

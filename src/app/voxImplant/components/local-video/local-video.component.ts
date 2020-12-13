@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { CurrentUserService } from '@core/current-user.service';
+import { CurrentUserService } from '../../current-user.service';
 
 @Component({
   selector: 'app-local-video',

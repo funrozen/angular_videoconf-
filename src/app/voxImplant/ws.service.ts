@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { environment } from '@env/environment';
-import { DataBusMessageType, DataBusService, IMuteMessage, INotifyStatusMessage, Route } from '@core/data-bus.service';
-import { IIDClass } from '@app/interfaces/IIDClass';
+import { DataBusMessageType, DataBusService, IMuteMessage, INotifyStatusMessage, Route } from './data-bus.service';
+import { IIDClass } from './interfaces/IIDClass';
 import { createLogger } from '@core';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
