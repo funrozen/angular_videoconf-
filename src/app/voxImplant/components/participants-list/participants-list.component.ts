@@ -1,6 +1,5 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 
-//TODO make it independence of VoxImplants
 @Component({
   selector: 'app-participants-list',
   templateUrl: './participants-list.component.html',

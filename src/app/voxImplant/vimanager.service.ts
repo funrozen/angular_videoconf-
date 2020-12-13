@@ -9,9 +9,7 @@ export interface IMediaPermission {
   audio: boolean;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class VIManagerService implements IIDClass {
   readonly ID = 'VIManagerService';
   public localStream: MediaStream = null;

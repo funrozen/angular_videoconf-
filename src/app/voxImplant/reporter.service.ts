@@ -18,9 +18,7 @@ declare const callReporter: (
   shareScreen: (a: boolean, b: boolean) => void;
 };
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class ReporterService implements OnDestroy, IIDClass {
   readonly ID: string = 'ReporterService';
 

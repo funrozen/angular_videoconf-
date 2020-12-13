@@ -26,9 +26,7 @@ interface IVIMessage {
   uuid: string;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class ChatManagerService implements IIDClass, OnDestroy {
   readonly ID = 'ChatManagerService';
   private logger = createLogger(this.ID);

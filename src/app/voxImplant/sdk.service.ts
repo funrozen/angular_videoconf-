@@ -13,9 +13,7 @@ import { LogLevel } from 'voximplant-websdk';
 import { ChatManagerService } from '@app/voxImplant/chat-manager.service';
 import { marker } from '@biesbjerg/ngx-translate-extract-marker';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class SDKService implements IIDClass {
   readonly ID = 'SDKService';
   private isReconnecting: boolean;

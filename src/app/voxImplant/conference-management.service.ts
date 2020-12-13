@@ -17,9 +17,7 @@ import { CallManagerService } from '@app/voxImplant/call-manager.service';
 import { WSService } from '@app/voxImplant/ws.service';
 import { Subscription } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class ConferenceManagementService implements IIDClass, OnDestroy {
   readonly ID = 'ConferenceManagementService';
   private logger = createLogger(this.ID);

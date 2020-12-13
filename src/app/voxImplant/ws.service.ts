@@ -19,9 +19,7 @@ interface IWSOutputMessage {
 /**
  * adapted from videoconf_ws_srv
  */
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class WSService implements OnDestroy, IIDClass {
   readonly ID: string = 'WSService';
 

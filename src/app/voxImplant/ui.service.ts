@@ -2,7 +2,6 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { SDKService } from '@app/voxImplant/sdk.service';
 import { environment } from '@env/environment';
 import { CurrentUserService } from '@core/current-user.service';
-import { StatisticsService } from '@app/voxImplant/statistics.service';
 import { IIDClass } from '@app/interfaces/IIDClass';
 import { createLogger } from '@core';
 import { VIManagerService } from '@app/voxImplant/vimanager.service';
@@ -31,9 +30,7 @@ export enum UIState {
 }
 
 //TODO  move to module
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class UIService implements IIDClass, OnDestroy {
   readonly ID = 'UIService';
   private logger = createLogger(this.ID);
@@ -45,7 +42,6 @@ export class UIService implements IIDClass, OnDestroy {
   constructor(
     private sdkService: SDKService,
     private currentUserService: CurrentUserService,
-    private statisticsService: StatisticsService,
     private viManagerServer: VIManagerService,
     private dataBusService: DataBusService,
     //it's not non-use it is just need to load it
@@ -122,8 +118,6 @@ export class UIService implements IIDClass, OnDestroy {
     this.currentUserService.serviceId = serviceId;
     this.currentUserService.email = userEmail;
     this.currentUserService.name = userName;
-
-    this.statisticsService.initReporter('Videoconf', '', '');
 
     this.logger.info('New User:', { user: this.currentUserService.name });
 

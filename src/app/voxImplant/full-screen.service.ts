@@ -3,9 +3,7 @@ import { DataBusMessageType, DataBusService, Route } from '../@core/data-bus.ser
 import { DOCUMENT } from '@angular/common';
 import { IIDClass } from '../interfaces/IIDClass';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class FullScreenService implements IIDClass {
   readonly ID = 'FullScreenService';
 

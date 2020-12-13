@@ -24,6 +24,15 @@ import { LeaveRoomComponent } from './components/leave-room/leave-room.component
 import { SidePanelComponent } from './components/side-panel/side-panel.component';
 import { ChatComponent } from './components/chat/chat.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { UIService } from '@app/voxImplant/ui.service';
+import { WSService } from '@app/voxImplant/ws.service';
+import { VIManagerService } from '@app/voxImplant/vimanager.service';
+import { ReporterService } from '@app/voxImplant/reporter.service';
+import { SDKService } from '@app/voxImplant/sdk.service';
+import { FullScreenService } from '@app/voxImplant/full-screen.service';
+import { ConferenceManagementService } from '@app/voxImplant/conference-management.service';
+import { ChatManagerService } from '@app/voxImplant/chat-manager.service';
+import { CallManagerService } from '@app/voxImplant/call-manager.service';
 @NgModule({
   imports: [
     CommonModule,
@@ -54,6 +63,17 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     SidePanelComponent,
 
     ChatComponent,
+  ],
+  providers: [
+    UIService,
+    WSService,
+    VIManagerService,
+    ReporterService,
+    SDKService,
+    FullScreenService,
+    ConferenceManagementService,
+    ChatManagerService,
+    CallManagerService,
   ],
 })
 export class VoxImplantConferenceModule {}

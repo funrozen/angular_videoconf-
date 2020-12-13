@@ -28,9 +28,7 @@ interface EndpointsData {
   isDefault: boolean;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class CallManagerService implements IIDClass, OnDestroy {
   readonly ID = 'CallManagerService';
   isSharing = false;
