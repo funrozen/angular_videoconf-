@@ -1,12 +1,4 @@
-// TODO what this one doing?
-export const callReporter = (currentConf: any, name: string, serviceId: string, uuid: string) => {
-  return {
-    currentConf,
-    name,
-    serviceId,
-    uuid,
-  };
-};
+declare var libraryVar: any;
 
 type scaleSelectorResult = { Nx: number; Ny: number; targetW: number; targetH: number };
 

@@ -5,19 +5,22 @@ import {
   ErrorId,
   IEndpointMessage,
   IEndpointParticipantMessage,
+  IToggleCameraMessage,
+  IToggleLocalMicMessage,
   Route,
 } from '@core/data-bus.service';
 import * as VoxImplant from 'voximplant-websdk';
 import { Client } from 'voximplant-websdk/Client';
 import { Call } from 'voximplant-websdk/Call/Call';
 import { CurrentUserService } from '@core/current-user.service';
-import { callReporter } from '@app/voxImplant/vi-helpers';
+
 import { IIDClass } from '@app/interfaces/IIDClass';
 import { createLogger, ILogger } from '@core';
 import { MediaRenderer } from 'voximplant-websdk/Media/MediaRenderer';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { marker } from '@biesbjerg/ngx-translate-extract-marker';
+import { ReporterService } from '@app/voxImplant/reporter.service';
 
 interface EndpointsData {
   displayName: string;
@@ -36,7 +39,11 @@ export class CallManagerService implements IIDClass, OnDestroy {
   private reporter: any;
   private logger: ILogger = createLogger(this.ID);
 
-  constructor(private dataBusService: DataBusService, private currentUserService: CurrentUserService) {
+  constructor(
+    private dataBusService: DataBusService,
+    private reporterService: ReporterService,
+    private currentUserService: CurrentUserService
+  ) {
     this.subscribe();
   }
 
@@ -85,7 +92,7 @@ export class CallManagerService implements IIDClass, OnDestroy {
     setTimeout(() => {
       this.currentConf = this.sdk.callConference(newCallParams);
       this.logger.info('call conference inited', newCallParams);
-      this.reporter = callReporter(
+      this.reporterService.init(
         this.currentConf,
         this.currentUserService.name,
         this.currentUserService.serviceId,
@@ -162,8 +169,7 @@ export class CallManagerService implements IIDClass, OnDestroy {
   }
 
   private toggleCamera() {
-    //TODO make interface for the message
-    this.dataBusService.send({
+    this.dataBusService.send(<IToggleCameraMessage>{
       type: DataBusMessageType.CameraToggle,
       data: {
         status: this.currentUserService.cameraStatus ? 'hide' : 'show',
@@ -177,37 +183,22 @@ export class CallManagerService implements IIDClass, OnDestroy {
     let showVideo = this.currentUserService.cameraStatus;
     if (!this.currentConf) return;
     if (showVideo) {
-      //TODO
-      // this.reporter.sendVideo();
       this.currentConf.sendVideo(true);
       //TODO this is not angular way!
       if (!document.getElementById('voximplantlocalvideo')) {
         this.sdk.showLocalVideo(true);
       }
-      //TODO
-
-      //LayerManager.toggleVideoStub('localVideoNode', false);
-      //WSService.notifyVideo(true);
-      //this.cam.classList.remove('option--off');
     } else {
-      //TODO
-      //this.reporter.stopSendVideo();
       this.currentConf.sendVideo(false);
       if (document.getElementById('voximplantlocalvideo')) {
         this.sdk.showLocalVideo(false);
       }
-
-      //TODO
-      // WSService.notifyVideo(false);
-      // LayerManager.toggleVideoStub('localVideoNode', true);
-      //this.cam.classList.add('option--off');
     }
   }
 
   private checkAndMuteMicrophone() {
     if (!this.currentUserService.microphoneEnabled) {
-      //TODO make interface for the message
-      this.dataBusService.send({
+      this.dataBusService.send(<IToggleLocalMicMessage>{
         type: DataBusMessageType.MicToggle,
         data: {
           status: this.currentUserService.microphoneEnabled ? 'mute' : 'unmute',
@@ -220,10 +211,6 @@ export class CallManagerService implements IIDClass, OnDestroy {
 
   onToggleMicrophone() {
     if (!this.currentConf) return;
-    //TODO remove getElementById
-    let localVideo = document.getElementById('localVideoNode');
-    let muteLocalLabel = localVideo.querySelector('.conf__video-wrap .conf__video-micro');
-
     if (this.currentUserService.microphoneEnabled) {
       this.currentConf.unmuteMicrophone();
     } else {

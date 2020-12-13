@@ -3,6 +3,7 @@ import { DOCUMENT } from '@angular/common';
 import { FullScreenService } from '@app/voxImplant/full-screen.service';
 import { DataBusMessageType, DataBusService, IMuteMessage } from '@core/data-bus.service';
 import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-endpoint-video',
@@ -12,24 +13,26 @@ import { Subscription } from 'rxjs';
 })
 export class EndpointVideoComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription = new Subscription();
+  private subscribeToTypes: DataBusMessageType[] = [DataBusMessageType.Mute];
   constructor(
     @Inject(DOCUMENT) private document: Document,
     private fullScreenService: FullScreenService,
     private dataBusService: DataBusService
   ) {
     this.subscriptions.add(
-      this.dataBusService.inward$.pipe().subscribe((message) => {
-        switch (message.type) {
-          case DataBusMessageType.Mute:
-            {
-              //TODO move to filter
-              if ((<IMuteMessage>message).data.endpointId === this.id) {
-                this.isMicrophoneMuted = !!(<IMuteMessage>message).data.value;
+      this.dataBusService.inward$
+        .pipe(filter((message) => this.subscribeToTypes.includes(message.type)))
+        .subscribe((message) => {
+          switch (message.type) {
+            case DataBusMessageType.Mute:
+              {
+                if ((<IMuteMessage>message).data.endpointId === this.id) {
+                  this.isMicrophoneMuted = !!(<IMuteMessage>message).data.value;
+                }
               }
-            }
-            break;
-        }
-      })
+              break;
+          }
+        })
     );
   }
 

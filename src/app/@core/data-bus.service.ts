@@ -102,13 +102,18 @@ export interface IToggleLocalMicMessage extends IDataBusMessage {
     status?: 'mute' | 'unmute';
   };
 }
-export interface IToggleLocalCameraMessage extends IDataBusMessage {
+
+export interface IToggleCameraMessage extends IDataBusMessage {
   type: DataBusMessageType.CameraToggle;
-  route: [Route.Inner];
   data: {
     status?: 'hide' | 'show';
   };
 }
+
+export interface IToggleLocalCameraMessage extends IToggleCameraMessage {
+  route: [Route.Inner];
+}
+
 export interface INotifyStatusMessage extends IDataBusMessage {
   type: DataBusMessageType.NotifyStatuses;
   route: [Route.Inner];
