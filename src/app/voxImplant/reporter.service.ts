@@ -37,7 +37,6 @@ export class ReporterService implements OnDestroy, IIDClass {
 
   public init(currentConf: any, name: string, serviceId: string, uuid: string) {
     this.logger.info('initialized');
-    debugger;
     if (!this.reporter) {
       this.reporter = callReporter(currentConf, name, serviceId, uuid);
 
