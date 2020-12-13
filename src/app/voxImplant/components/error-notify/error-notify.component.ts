@@ -1,14 +1,11 @@
 import { Component, OnDestroy } from '@angular/core';
 import { DataBusService, ErrorId, IErrorMessage } from '@core/data-bus.service';
 import { IIDClass } from '@app/interfaces/IIDClass';
-
 import { Subscription } from 'rxjs';
 import { animate, keyframes, style, transition, trigger } from '@angular/animations';
 import { marker } from '@biesbjerg/ngx-translate-extract-marker';
-import { createLogErrorHandler } from '@angular/compiler-cli/ngcc/src/execution/tasks/completion';
 import { createLogger } from '@core';
 
-//TODO how switch it off??
 @Component({
   selector: 'app-error-notify',
   templateUrl: './error-notify.component.html',

@@ -9,7 +9,7 @@ import {
   Route,
 } from '@core/data-bus.service';
 import { SDKService } from '@app/voxImplant/sdk.service';
-import { CurrentUserService } from '../@core/current-user.service';
+import { CurrentUserService } from '@core/current-user.service';
 import { VIManagerService } from './vimanager.service';
 import { IIDClass } from '@app/interfaces/IIDClass';
 import { createLogger, untilDestroyed } from '@core';
@@ -24,6 +24,7 @@ export class ConferenceManagementService implements IIDClass, OnDestroy {
   readonly ID = 'ConferenceManagementService';
   private logger = createLogger(this.ID);
   private subscriptions: Subscription = new Subscription();
+
   constructor(
     private dataBusService: DataBusService,
     private sdkService: SDKService,
@@ -115,8 +116,6 @@ export class ConferenceManagementService implements IIDClass, OnDestroy {
           case DataBusMessageType.LeaveRoom:
             {
               this.logger.info('Leave Room');
-              //TODO
-              //unregisterCallback();
               this.sdkService.onLeaveRoom();
               this.callManagerService.onLeaveRoom();
             }
@@ -148,13 +147,14 @@ export class ConferenceManagementService implements IIDClass, OnDestroy {
             }
             break;
 
-          case DataBusMessageType.ShareScreenStartedError: {
-            //TODO
-            // if (currentUser.cameraStatus === 0) {
-            //   LayerManager.toggleVideoStub('localVideoNode', true);
-            // }
-          }
-
+          case DataBusMessageType.ShareScreenStartedError:
+            {
+              //TODO
+              // if (currentUser.cameraStatus === 0) {
+              //   LayerManager.toggleVideoStub('localVideoNode', true);
+              // }
+            }
+            break;
           default:
             break;
         }
