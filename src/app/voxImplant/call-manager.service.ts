@@ -33,20 +33,12 @@ interface EndpointsData {
 })
 export class CallManagerService implements IIDClass, OnDestroy {
   readonly ID = 'CallManagerService';
+  isSharing = false;
   private endPointsSet: Map<string, EndpointsData> = new Map<string, EndpointsData>();
   private currentConf: Call;
   private sdk: Client;
   private reporter: any;
   private logger: ILogger = createLogger(this.ID);
-
-  constructor(
-    private dataBusService: DataBusService,
-    private reporterService: ReporterService,
-    private currentUserService: CurrentUserService
-  ) {
-    this.subscribe();
-  }
-
   private subscribeToTypes: DataBusMessageType[] = [
     DataBusMessageType.CameraToggled,
     DataBusMessageType.StartShareScreen,
@@ -54,30 +46,13 @@ export class CallManagerService implements IIDClass, OnDestroy {
     DataBusMessageType.MicToggled,
   ];
   private subscriptions: Subscription = new Subscription();
-  private subscribe() {
-    this.subscriptions.add(
-      this.dataBusService.inner$
-        .pipe(filter((message) => this.subscribeToTypes.includes(message.type)))
-        .subscribe((message) => {
-          switch (message.type) {
-            case DataBusMessageType.CameraToggled:
-              this.onCameraToggled();
-              break;
 
-            case DataBusMessageType.MicToggled:
-              this.onToggleMicrophone();
-              break;
-
-            case DataBusMessageType.StartShareScreen:
-              this.startSharingScreen();
-              break;
-
-            case DataBusMessageType.StopShareScreen:
-              this.stopSharingScreen();
-              break;
-          }
-        })
-    );
+  constructor(
+    private dataBusService: DataBusService,
+    private reporterService: ReporterService,
+    private currentUserService: CurrentUserService
+  ) {
+    this.subscribe();
   }
 
   public init(newCallParams: any, sdk: Client) {
@@ -168,47 +143,6 @@ export class CallManagerService implements IIDClass, OnDestroy {
     this.currentConf.sendMessage(msg);
   }
 
-  private toggleCamera() {
-    this.dataBusService.send(<IToggleCameraMessage>{
-      type: DataBusMessageType.CameraToggle,
-      data: {
-        status: this.currentUserService.cameraStatus ? 'hide' : 'show',
-      },
-      route: [Route.Inner],
-      sign: this.ID,
-    });
-  }
-
-  private onCameraToggled() {
-    let showVideo = this.currentUserService.cameraStatus;
-    if (!this.currentConf) return;
-    if (showVideo) {
-      this.currentConf.sendVideo(true);
-      //TODO this is not angular way!
-      if (!document.getElementById('voximplantlocalvideo')) {
-        this.sdk.showLocalVideo(true);
-      }
-    } else {
-      this.currentConf.sendVideo(false);
-      if (document.getElementById('voximplantlocalvideo')) {
-        this.sdk.showLocalVideo(false);
-      }
-    }
-  }
-
-  private checkAndMuteMicrophone() {
-    if (!this.currentUserService.microphoneEnabled) {
-      this.dataBusService.send(<IToggleLocalMicMessage>{
-        type: DataBusMessageType.MicToggle,
-        data: {
-          status: this.currentUserService.microphoneEnabled ? 'mute' : 'unmute',
-        },
-        route: [Route.Inner],
-        sign: this.ID,
-      });
-    }
-  }
-
   onToggleMicrophone() {
     if (!this.currentConf) return;
     if (this.currentUserService.microphoneEnabled) {
@@ -236,17 +170,6 @@ export class CallManagerService implements IIDClass, OnDestroy {
     } else {
       this.askForReconnect(e);
     }
-  }
-
-  private askForReconnect(e: any) {
-    this.logger.warn(`[WebSDk] ask to reconnect: ${e.call.id()}`);
-
-    this.dataBusService.send({
-      data: {},
-      route: [Route.Inner],
-      sign: this.ID,
-      type: DataBusMessageType.ReConnect,
-    });
   }
 
   onMessageReceived(e: any) {
@@ -313,9 +236,6 @@ export class CallManagerService implements IIDClass, OnDestroy {
           type: DataBusMessageType.EndpointAdded,
         };
         this.dataBusService.send(message);
-        // todo why we need it?
-        //this.checkAndSwitchCameraOff();
-        //this.checkAndMuteMicrophone();
       } else {
         const message: IEndpointMessage = {
           data: {
@@ -440,24 +360,15 @@ export class CallManagerService implements IIDClass, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  // updateChatManager(currentUser)
-  // {
-  //   ChatManager.setConnectionId(currentUser.uuid);
-  //   ChatManager.setDisplayName(currentUser.name);
-  //   this.callInterface.registerMessageHandlers(ChatManager.sendMessage, ChatManager.addChatMessage);
-  //   ChatManager.addChatMessage = this.callInterface.addChatMessage;
   // }
   onLeaveRoom() {
     this.disconnect();
   }
 
-  isSharing = false;
   stopSharingScreen() {
     this.currentConf
       .stopSharingScreen()
       .then(() => {
-        //todo
-        // CallManager.reporter.stopSharingScreen();
         this.onSharingStopped();
       })
       .catch((e) => {
@@ -466,10 +377,6 @@ export class CallManagerService implements IIDClass, OnDestroy {
   }
 
   startSharingScreen() {
-    // todo
-    //CallManager.reporter.shareScreen(true, true);
-    //
-
     this.currentConf
       .shareScreen(true, true)
       .then(() => {
@@ -505,8 +412,92 @@ export class CallManagerService implements IIDClass, OnDestroy {
       });
   }
 
+  private subscribe() {
+    this.subscriptions.add(
+      this.dataBusService.inner$
+        .pipe(filter((message) => this.subscribeToTypes.includes(message.type)))
+        .subscribe((message) => {
+          switch (message.type) {
+            case DataBusMessageType.CameraToggled:
+              this.onCameraToggled();
+              break;
+
+            case DataBusMessageType.MicToggled:
+              this.onToggleMicrophone();
+              break;
+
+            case DataBusMessageType.StartShareScreen:
+              this.startSharingScreen();
+              break;
+
+            case DataBusMessageType.StopShareScreen:
+              this.stopSharingScreen();
+              break;
+          }
+        })
+    );
+  }
+
+  // updateChatManager(currentUser)
+  // {
+  //   ChatManager.setConnectionId(currentUser.uuid);
+  //   ChatManager.setDisplayName(currentUser.name);
+  //   this.callInterface.registerMessageHandlers(ChatManager.sendMessage, ChatManager.addChatMessage);
+  //   ChatManager.addChatMessage = this.callInterface.addChatMessage;
+
+  private toggleCamera() {
+    this.dataBusService.send(<IToggleCameraMessage>{
+      type: DataBusMessageType.CameraToggle,
+      data: {
+        status: this.currentUserService.cameraStatus ? 'hide' : 'show',
+      },
+      route: [Route.Inner],
+      sign: this.ID,
+    });
+  }
+
+  private onCameraToggled() {
+    let showVideo = this.currentUserService.cameraStatus;
+    if (!this.currentConf) return;
+    if (showVideo) {
+      this.currentConf.sendVideo(true);
+      //TODO this is not angular way!
+      if (!document.getElementById('voximplantlocalvideo')) {
+        this.sdk.showLocalVideo(true);
+      }
+    } else {
+      this.currentConf.sendVideo(false);
+      if (document.getElementById('voximplantlocalvideo')) {
+        this.sdk.showLocalVideo(false);
+      }
+    }
+  }
+
+  private checkAndMuteMicrophone() {
+    if (!this.currentUserService.microphoneEnabled) {
+      this.dataBusService.send(<IToggleLocalMicMessage>{
+        type: DataBusMessageType.MicToggle,
+        data: {
+          status: this.currentUserService.microphoneEnabled ? 'mute' : 'unmute',
+        },
+        route: [Route.Inner],
+        sign: this.ID,
+      });
+    }
+  }
+
+  private askForReconnect(e: any) {
+    this.logger.warn(`[WebSDk] ask to reconnect: ${e.call.id()}`);
+
+    this.dataBusService.send({
+      data: {},
+      route: [Route.Inner],
+      sign: this.ID,
+      type: DataBusMessageType.ReConnect,
+    });
+  }
+
   private onSharingStopped = () => {
-    //TODO once run
     this.isSharing = false;
     this.dataBusService.send({
       data: undefined,
