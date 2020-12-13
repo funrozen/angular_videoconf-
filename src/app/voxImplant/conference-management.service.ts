@@ -149,10 +149,7 @@ export class ConferenceManagementService implements IIDClass, OnDestroy {
 
           case DataBusMessageType.ShareScreenStartedError:
             {
-              //TODO
-              // if (currentUser.cameraStatus === 0) {
-              //   LayerManager.toggleVideoStub('localVideoNode', true);
-              // }
+              this.logger.info('sharescreen start canceled by an error');
             }
             break;
           default:

@@ -1,6 +1,5 @@
 import {
   AfterViewInit,
-  ChangeDetectorRef,
   Component,
   ElementRef,
   HostListener,
@@ -45,6 +44,7 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
   public speakerItems: { id: number | string; name: string }[] = [];
   public currentSpeaker = 'Choose';
   public isSpeakerOpen = false;
+  subscriptions: Subscription = new Subscription();
   private logger = createLogger(this.ID);
   private localVideoElement: HTMLVideoElement;
   private subscribeToTypes = [DataBusMessageType.MicToggled, DataBusMessageType.CameraToggled];
@@ -56,22 +56,6 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
     private dataBusService: DataBusService
   ) {}
 
-  @HostListener('document:keyup', ['$event'])
-  handleDeleteKeyboardEvent(event: KeyboardEvent) {
-    if (event.key === 'Escape') {
-      this.togglePopupSetting();
-    }
-  }
-
-  private togglePopupSetting() {
-    this.dataBusService.send({
-      type: DataBusMessageType.ToggleShowSetting,
-      data: {},
-      route: [Route.Inner],
-      sign: this.ID,
-    });
-  }
-
   get isMicEnabled() {
     return this.currentUserService.microphoneEnabled;
   }
@@ -79,7 +63,14 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
   get isCameraEnabled(): boolean {
     return this.currentUserService.cameraStatus;
   }
-  subscriptions: Subscription = new Subscription();
+
+  @HostListener('document:keyup', ['$event'])
+  handleDeleteKeyboardEvent(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      this.togglePopupSetting();
+    }
+  }
+
   ngOnInit() {
     this.logger.info('Init');
     this.settingForm = new FormGroup({});
@@ -100,7 +91,7 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
   }
 
   async ngAfterViewInit() {
-    this.viManagerService.initAudioMeter(this.micLevelValue.nativeElement);
+    await this.viManagerService.initAudioMeter(this.micLevelValue.nativeElement);
     if (this.viManagerService.permissions.video) {
       this.localVideoElement = document.createElement('video');
       this.localVideoElement.setAttribute('muted', 'muted');
@@ -116,7 +107,7 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
     this.getSettings();
   }
 
-  onCameraSettingButton($event: MouseEvent) {
+  onCameraSettingButton(_$event: MouseEvent) {
     if (this.cameraItems.length > 0) {
       this.isCameraOpen = !this.isCameraOpen;
     }
@@ -127,27 +118,30 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
       .changeLocalCam(cameraId)
       .then((e: MediaStream) => {
         this.localVideoElement.srcObject = e;
-        this.localVideoElement.play();
+        this.localVideoElement.play().catch((reason) => {
+          this.logger.error('Video play fail. By reason', { reason });
+        });
       })
-      .catch((e) => {
+      .catch((_e) => {
+        // this strange try to switch to default camera is not working
         //setTimeout(() => this.changeCamera(), 0);
       });
   }
 
-  onMicrophoneSettingButton($event: MouseEvent) {
+  onMicrophoneSettingButton(_$event: MouseEvent) {
     this.isMicrophoneOpen = !this.isMicrophoneOpen;
   }
 
   public changeMicrophone(newMic?: number | string) {
     this.viManagerService
       .changeLocalMic(newMic)
-      .then((e) => {
+      .then((_e) => {
         let name = this.viManagerService.getMicName();
         if (name) {
           this.currentMicrophone = name;
         }
       })
-      .catch((e) => {
+      .catch((_e) => {
         // do nothing?
         //setTimeout(()=>this.changeMicrophone(), 0);
       })
@@ -156,7 +150,7 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
       });
   }
 
-  onSpeakerSettingButton($event: MouseEvent) {
+  onSpeakerSettingButton(_$event: MouseEvent) {
     if (this.speakerItems.length > 0) {
       this.isSpeakerOpen = !this.isSpeakerOpen;
     }
@@ -176,8 +170,6 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
 
     this.viManagerService.stopLocalMedia();
     this.viManagerService.setSettings();
-    // TODO inviteInput!!!
-    //inviteInput.value = `${Env.url}${Env.replaceHistoryPrefix}${user.serviceId}`;
     if (this.showAsPopup) {
       this.togglePopupSetting();
     } else {
@@ -202,10 +194,6 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
     this.onMicrophoneToggled();
   }
 
-  private onMicrophoneToggled() {
-    this.viManagerService.enableLocalMic(this.currentUserService.microphoneEnabled);
-  }
-
   toggleLocalVideo() {
     if (this.viManagerService.permissions.video === false) {
       this.logger.warn('it impossible switch local video when it is not allow');
@@ -219,10 +207,34 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
     }
   }
 
+  closePopUp() {
+    this.togglePopupSetting();
+  }
+
+  ngOnDestroy() {
+    this.logger.info('Destroyed');
+    this.subscriptions.unsubscribe();
+  }
+
+  private togglePopupSetting() {
+    this.dataBusService.send({
+      type: DataBusMessageType.ToggleShowSetting,
+      data: {},
+      route: [Route.Inner],
+      sign: this.ID,
+    });
+  }
+
+  private onMicrophoneToggled() {
+    this.viManagerService.enableLocalMic(this.currentUserService.microphoneEnabled);
+  }
+
   private onCameraToggled() {
     (this.viManagerService.enableLocalCam(this.currentUserService.cameraStatus) as Promise<any>)
-      .then((e: any) => {
-        this.updateLocalVideoSrc();
+      .then((_e: any) => {
+        this.updateLocalVideoSrc().catch((reason) => {
+          this.logger.warn("Can't update local video Source. reason", { reason });
+        });
       })
       .catch(() => {
         this.logger.warn("Can't change the camera state");
@@ -296,13 +308,5 @@ export class MediaSettingFormComponent implements OnInit, AfterViewInit, IIDClas
           });
         }
       });
-  }
-
-  closePopUp() {
-    this.togglePopupSetting();
-  }
-  ngOnDestroy() {
-    this.logger.info('Destroyed');
-    this.subscriptions.unsubscribe();
   }
 }
