@@ -173,8 +173,6 @@ export class ChatManagerService implements IIDClass, OnDestroy {
 
   addChatMessage = (message: IVIMessage) => {
     const payload = message.payload[0];
-    //TODO check time on render
-    //const time = new Date(payload.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     this.dataBusService.send(<IDataBusChatMessage>{
       type: DataBusMessageType.ChatMessage,
       data: <IChatMessage>{
