@@ -1,9 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { DataBusMessageType, DataBusService, IEndpointParticipantMessage } from '@core/data-bus.service';
-import { filter } from 'rxjs/operators';
-import { untilDestroyed } from '@core';
 
-//TODO as it is not depends of VoxImplants move it out
+//TODO make it independence of VoxImplants
 @Component({
   selector: 'app-participants-list',
   templateUrl: './participants-list.component.html',

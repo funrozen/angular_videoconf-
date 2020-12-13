@@ -40,6 +40,17 @@ type scaleSelectorResult = { Nx: number; Ny: number; targetW: number; targetH: n
 })
 export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IIDClass {
   readonly ID = 'VideoWallComponent';
+  inviteForm: FormGroup;
+  isLocalVideoShow = true;
+  videoEndpoints: VideoEnpointType[] = [];
+  roomId: string;
+  initPromise: Promise<void>;
+  initPromiseResolve: () => void;
+  @Output() sidePanelEmitter: EventEmitter<boolean> = new EventEmitter();
+  readonly dVideo = 360 / 640; // constant video proportions
+  @ViewChild('videoSection') videoSection: ElementRef;
+  isSharing: boolean = false;
+  showPopupInvite: boolean = false;
   private logger = createLogger(this.ID);
   private supportMessageTypes: DataBusMessageType[] = [
     DataBusMessageType.EndpointAdded,
@@ -50,19 +61,6 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
     DataBusMessageType.ShareScreenStopped,
     DataBusMessageType.Mute,
   ];
-  inviteForm: FormGroup;
-  isLocalVideoShow = true;
-  videoEndpoints: VideoEnpointType[] = [];
-  roomId: string;
-  initPromise: Promise<void>;
-  initPromiseResolve: () => void;
-
-  get showInviteForm() {
-    return !!!this.videoEndpoints.length;
-  }
-
-  @Output() sidePanelEmitter: EventEmitter<boolean> = new EventEmitter();
-
   private subscriptions: Subscription = new Subscription();
 
   constructor(
@@ -85,8 +83,6 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
 
                 if (endpoint.isDefault) {
                   this.isLocalVideoShow = true;
-
-                  //TODO switch local video and audio corresponding their state
                 } else {
                   this.videoEndpoints.push({
                     id: endpoint.id,
@@ -107,35 +103,13 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
                 });
 
                 setTimeout(() => {
-                  this.setVideoSectionWidth();
+                  this.setVideoSectionWidth().catch(() => {});
                 }, 200);
               }
               break;
 
             case DataBusMessageType.RemoteMediaAdded:
               {
-                // const endpointNode = document.getElementById(e.endpoint.id);
-                // if (
-                //   e.mediaRenderer.kind === "video" &&
-                //   document.getElementById(`videoStub-${e.endpoint.id}`)
-                // ) {
-                //   LayerManager.toggleVideoStub(e.endpoint.id, false);
-                // }
-                //
-                // if (e.mediaRenderer.kind === "sharing") {
-                //   LayerManager.toggleVideoStub(e.endpoint.id, false);
-                // }
-                //
-                // e.mediaRenderer.render(endpointNode);
-                // e.mediaRenderer.placed = true;
-                //
-                // if (
-                //   !e.endpoint.mediaRenderers.find(
-                //     (renderer) => renderer.kind === "video" || renderer.kind === "sharing"
-                //   )
-                // ) {
-                //   LayerManager.toggleVideoStub(e.endpoint.id, true);
-                // }
               }
               break;
 
@@ -182,6 +156,10 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
     });
   }
 
+  get showInviteForm() {
+    return !!!this.videoEndpoints.length;
+  }
+
   get isMicMuted() {
     return !this.currentUserService.microphoneEnabled;
   }
@@ -210,14 +188,12 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
     this.subscriptions.unsubscribe();
   }
 
-  readonly dVideo = 360 / 640; // constant video proportions
-
   subscribeToResizeEvent() {
     this.subscriptions.add(
       fromEvent(window, 'resize')
         .pipe()
         .subscribe((_) => {
-          this.setVideoSectionWidth();
+          this.setVideoSectionWidth().catch();
         })
     );
   }
@@ -229,11 +205,7 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
       return 1 / this.dVideo;
     }
   }
-
-  @ViewChild('videoSection') videoSection: ElementRef;
-  isSharing: boolean = false;
-  showPopupInvite: boolean = false;
-
+  // TODO move to service
   async setVideoSectionWidth() {
     //const perf1 = window.performance.now();
     await this.initPromiseResolve();
@@ -263,11 +235,9 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
       } else {
         setTimeout(() => {
           if (video) {
-            let objectFit = this.getDVideo(containerW, containerH) !== this.dVideo ? 'cover' : 'contain';
-            video.style.objectFit = objectFit;
-            //video.style.objectFit = this.getDVideo(containerW, containerH) !== this.dVideo ? 'cover' : 'contain';
+            video.style.objectFit = this.getDVideo(containerW, containerH) !== this.dVideo ? 'cover' : 'contain';
           }
-        }, 1000);
+        }, 100);
       }
     });
     const containerPaddingW = (videoSection.clientWidth - targetW * Nx) / 2;
@@ -279,6 +249,65 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
     else videoSection.style.padding = `0`;
     //const perf2 = window.performance.now();
     //console.log(`Layout calculating took ${perf2 - perf1} ms`);
+  }
+
+  toggleCam() {
+    this.dataBusService.send({
+      type: DataBusMessageType.CameraToggle,
+      data: {},
+      route: [Route.Inner],
+      sign: this.ID,
+    });
+  }
+
+  toggleMic() {
+    this.dataBusService.send({
+      type: DataBusMessageType.MicToggle,
+      data: {},
+      route: [Route.Inner],
+      sign: this.ID,
+    });
+  }
+
+  leaveRoom() {
+    this.dataBusService.send({
+      type: DataBusMessageType.LeaveRoom,
+      data: {},
+      route: [Route.Inner],
+      sign: this.ID,
+    });
+  }
+
+  toggleShowSetting() {
+    this.dataBusService.send({
+      type: DataBusMessageType.ToggleShowSetting,
+      data: {},
+      route: [Route.Inner],
+      sign: this.ID,
+    });
+  }
+
+  toggleSharing() {
+    this.dataBusService.send({
+      type: this.isSharing ? DataBusMessageType.StopShareScreen : DataBusMessageType.StartShareScreen,
+      data: {},
+      route: [Route.Inner],
+      sign: this.ID,
+    });
+  }
+
+  copy(inputElement: any) {
+    inputElement.select();
+    this.document.execCommand('copy');
+    setTimeout(() => {
+      inputElement.blur();
+    }, 100);
+  }
+
+  openInvitePopup() {
+    if (!this.showInviteForm) {
+      this.showPopupInvite = !this.showPopupInvite;
+    }
   }
 
   private scaleSelector(N: number, containerW: number, containerH: number) {
@@ -356,64 +385,5 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
       return { Nx, Ny, targetW, targetH };
     }
     return { Nx: 0, Ny: 0, targetW: 0, targetH: 0 };
-  }
-
-  toggleCam() {
-    this.dataBusService.send({
-      type: DataBusMessageType.CameraToggle,
-      data: {},
-      route: [Route.Inner],
-      sign: this.ID,
-    });
-  }
-
-  toggleMic() {
-    this.dataBusService.send({
-      type: DataBusMessageType.MicToggle,
-      data: {},
-      route: [Route.Inner],
-      sign: this.ID,
-    });
-  }
-
-  leaveRoom() {
-    this.dataBusService.send({
-      type: DataBusMessageType.LeaveRoom,
-      data: {},
-      route: [Route.Inner],
-      sign: this.ID,
-    });
-  }
-
-  toggleShowSetting() {
-    this.dataBusService.send({
-      type: DataBusMessageType.ToggleShowSetting,
-      data: {},
-      route: [Route.Inner],
-      sign: this.ID,
-    });
-  }
-
-  toggleSharing() {
-    this.dataBusService.send({
-      type: this.isSharing ? DataBusMessageType.StopShareScreen : DataBusMessageType.StartShareScreen,
-      data: {},
-      route: [Route.Inner],
-      sign: this.ID,
-    });
-  }
-
-  copy(inputElement: any) {
-    inputElement.select();
-    this.document.execCommand('copy');
-    setTimeout(() => {
-      inputElement.blur();
-    }, 100);
-  }
-
-  openInvitePopup() {
-    if (!this.showInviteForm) {
-      this.showPopupInvite = !this.showPopupInvite;
-    }
   }
 }
