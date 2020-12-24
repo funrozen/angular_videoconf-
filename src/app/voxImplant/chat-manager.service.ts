@@ -75,8 +75,10 @@ export class ChatManagerService implements IIDClass, OnDestroy {
 
   bindEvents() {
     this._messenger.on(VoxImplant.Messaging.MessengerEvents.SendMessage, (e: any) => {
-      this.logger.info(' new message', e);
-      this.addMessageByEvent(e);
+      if (e.message.conversation === this.roomId) {
+        this.logger.info(' new message', e);
+        this.addMessageByEvent(e);
+      }
     });
   }
 

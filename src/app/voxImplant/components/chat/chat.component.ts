@@ -32,6 +32,9 @@ export class ChatComponent implements OnInit {
         truncate: 40,
         // characters will be taken out of the middle
         middleTruncation: true,
+        attributes: {
+          target: '_blank',
+        },
       },
     });
   }

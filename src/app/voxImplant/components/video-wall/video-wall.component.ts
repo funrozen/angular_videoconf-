@@ -178,7 +178,9 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
         this.toggleMic();
         break;
       case 'KeyV':
-        this.toggleCam();
+        if (event.ctrlKey === false) {
+          this.toggleCam();
+        }
         break;
     }
   }
