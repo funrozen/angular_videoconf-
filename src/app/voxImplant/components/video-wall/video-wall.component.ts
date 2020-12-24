@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  HostListener,
   Inject,
   OnDestroy,
   OnInit,
@@ -166,6 +167,19 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
 
   get isCameraMuted() {
     return !this.currentUserService.cameraStatus;
+  }
+
+  @HostListener('document:keypress', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    switch (event.code) {
+      case 'Space':
+      case 'KeyM':
+        this.toggleMic();
+        break;
+      case 'KeyV':
+        this.toggleCam();
+        break;
+    }
   }
 
   onToggleSidePanel() {
