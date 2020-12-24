@@ -5,7 +5,7 @@
         class="button button_toggle_left"
         [class.button_toggle_active]="!isPeopleShow"
         [class.button_toggle_inactive]="isPeopleShow"
-        (click)="isPeopleShow = !isPeopleShow"
+        (click)="isPeopleShow = false"
         type="button"
       >
         <span>Chat</span>
@@ -14,7 +14,7 @@
         class="button button_toggle_right"
         [class.button_toggle_active]="isPeopleShow"
         [class.button_toggle_inactive]="!isPeopleShow"
-        (click)="isPeopleShow = !isPeopleShow"
+        (click)="isPeopleShow = true"
         type="button"
       >
         <span>People</span>
