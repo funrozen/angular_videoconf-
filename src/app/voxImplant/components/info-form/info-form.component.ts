@@ -19,7 +19,7 @@ export class InfoFormComponent implements OnInit, IIDClass {
   ngOnInit(): void {
     this.infoForm = new FormGroup({
       userName: new FormControl(this.userService.name, Validators.required),
-      userEmail: new FormControl(this.userService.email, [Validators.required, Validators.email]),
+      userEmail: new FormControl(this.userService.email, [Validators.email]),
       serviceId: new FormControl(this.userService.serviceId, [Validators.required, Validators.pattern('[0-9]{5,10}')]),
     });
   }
