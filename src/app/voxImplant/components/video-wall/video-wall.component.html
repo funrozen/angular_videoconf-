@@ -1,4 +1,5 @@
 <div class="conf__video-section-wrapper">
+  <div class="preload" *ngIf="isLoading"><div class="spinner"></div></div>
   <section class="conf__video-section" id="js__workbench" #videoSection>
     <app-local-video *ngIf="isLocalVideoShow"></app-local-video>
     <app-endpoint-video

@@ -42,6 +42,7 @@ type scaleSelectorResult = { Nx: number; Ny: number; targetW: number; targetH: n
 export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IIDClass {
   readonly ID = 'VideoWallComponent';
   inviteForm: FormGroup;
+  isLoading = true;
   isLocalVideoShow = true;
   videoEndpoints: VideoEnpointType[] = [];
   roomId: string;
@@ -223,6 +224,7 @@ export class VideoWallComponent implements OnInit, AfterViewInit, OnDestroy, IID
   async setVideoSectionWidth() {
     //const perf1 = window.performance.now();
     await this.initPromiseResolve();
+    this.isLoading = false;
     this.logger.info('Calculating layout');
 
     const videoSection = this.videoSection.nativeElement;
