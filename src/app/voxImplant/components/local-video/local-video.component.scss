@@ -7,6 +7,7 @@
 
 #localVideoNode video {
   transform: rotateY(180deg);
+  position: absolute;
 }
 #localVideoNode.is--sharing video {
   transform: none;
